@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uas/services/auth.dart'; // Assuming you have AuthService for login management
+import 'package:uas/screens/landing/landing_page.dart';
+import 'package:uas/services/landing.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -39,39 +41,8 @@ class _LandingPageState extends State<LandingPage> {
 
   // Content for logged-in users
   Widget _buildLoggedInContent() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Welcome Back!',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'You are successfully logged in.',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: _handleLogout,
-            child: const Text('Logout'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-            ),
-          ),
-        ],
-      ),
-    );
+    // Use the LandingPage widget for logged-in users
+    return LandingPageScreen();
   }
 
   // Content for non-logged-in users
