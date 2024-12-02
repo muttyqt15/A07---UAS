@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uas/screens/authentication/register.dart';
+import 'package:uas/screens/news/main_owner_berita.dart';
+
+import 'screens/news/main_berita.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +36,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const RegisterPage(),
+      // home: MainBeritaScreen(),
+      // home: MainOwnerBerita(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas/screens/news/main_owner_berita.dart';
 import 'package:uas/services/auth.dart'; // Assuming you have AuthService for login management
 
 class LandingPage extends StatefulWidget {
@@ -31,9 +32,10 @@ class _LandingPageState extends State<LandingPage> {
         title: const Text('Welcome to Mangan Solo'),
         backgroundColor: Colors.deepPurple,
       ),
-      body: Center(
-        child: _isLoggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
-      ),
+      body: MainOwnerBerita(),
+      // body: Center(
+      //   child: _isLoggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
+      // ),
     );
   }
 
