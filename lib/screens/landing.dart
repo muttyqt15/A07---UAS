@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uas/services/auth.dart'; // Assuming you have AuthService for login management
 import 'package:uas/screens/landing/landing_page.dart';
 import 'package:uas/services/landing.dart';
+import 'package:uas/screens/restaurant/restaurant.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -61,6 +62,18 @@ class _LandingPageState extends State<LandingPage> {
             ),
           ),
           const SizedBox(height: 20),
+          // Button that leads to restaurant for testing
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RestaurantDetailScreen()),
+              );
+            },
+            child: const Text('test'),
+          ),
+
           const Text(
             'Please log in to continue.',
             style: TextStyle(
