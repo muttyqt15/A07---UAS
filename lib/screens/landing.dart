@@ -3,7 +3,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/screens/authentication/register.dart';
-import 'package:uas/services/auth.dart'; // Assuming you have AuthService for login management
+import 'package:uas/services/auth.dart';
+import 'package:uas/widgets/left_drawer.dart'; // Assuming you have AuthService for login management
 
 class LandingPage extends StatefulWidget {
   @override
@@ -37,6 +38,7 @@ class _LandingPageState extends State<LandingPage> {
         title: const Text('Welcome to Mangan Solo'),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+      drawer: const LeftDrawer(),
       body: Center(
         child: request.loggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
       ),
