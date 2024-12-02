@@ -29,7 +29,7 @@ class _LandingPageState extends State<LandingPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Welcome to Mangan Solo'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: Center(
         child: _isLoggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
