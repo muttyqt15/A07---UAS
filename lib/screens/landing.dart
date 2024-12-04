@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/services/auth.dart'; // Assuming you have AuthService for login management
+import 'package:uas/screens/profile.dart'; // Assuming you have ProfilePage for displaying user profile
 
 class LandingPage extends StatefulWidget {
   @override
@@ -130,6 +131,21 @@ class _LandingPageState extends State<LandingPage> {
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             ),
           ),
+
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+            },
+            child: const Text('Profile Page'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+            ),
+          ),
+
         ],
       ),
     );
