@@ -1,125 +1,76 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class Review {
-  final String restoranName;
-  final String title;
-  final String displayName;
-  final double rating;
-  final String reviewText;
-  final String date;
-  final List<String> images;
-  final int likes;
-
-  Review({
-    required this.restoranName,
-    required this.title,
-    required this.displayName,
-    required this.rating,
-    required this.reviewText,
-    required this.date,
-    required this.images,
-    required this.likes,
-  });
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Main Review',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ReviewPage(),
-    );
-  }
-}
+import 'package:uas/screens/review/create_form.dart';
+import 'package:uas/screens/review/edit_form.dart';
+import 'package:uas/models/review.dart';
 
 class ReviewPage extends StatelessWidget {
-  final List<Review> reviews = [
-    Review(
-      restoranName: "Restoran A",
-      title: "Great food!",
-      displayName: "John Doe",
-      rating: 4.5,
-      reviewText: "The food was amazing. I loved the ambiance.",
-      date: "2024-11-28",
-      images: ["https://via.placeholder.com/150", "https://via.placeholder.com/150"],
-      likes: 10,
-    ),
-    // Add more reviews here
+  ReviewPage({super.key});
+
+  final List<Map<String, String>> reviews = [
+    {
+      "name": "Nama Restoran",
+      "title": "Judul Review",
+      "author": "Delya",
+      "rating": "5/5",
+      "comment": "Bagus Banget!",
+      "date": "26 November 2024",
+      "image": "assets/warung_example.jpg",
+      "likes": "100"
+    },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Reviews'),
-        backgroundColor: Colors.black87,
+        title: const Text('Mangan" Solo', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.brown,
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.brown.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    Text(
-                      'Reviews',
-                      style: TextStyle(fontSize: 32, color: Colors.white),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Bagikan pengalaman Anda dengan restoran kami melalui ulasan!',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black87,
-                      ),
-                      child: Text('Tulis Ulasan'),
-                    ),
-                  ],
-                ),
+            WriteReviewButton(),
+            const SizedBox(height: 16),
+            const SortButtons(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: reviews.length,
+                itemBuilder: (context, index) {
+                  final review = reviews[index];
+                  return ReviewCard(
+                    name: review["name"]!,
+                    title: review["title"]!,
+                    author: review["author"]!,
+                    rating: review["rating"]!,
+                    comment: review["comment"]!,
+                    date: review["date"]!,
+                    image: review["image"]!,
+                    likes: review["likes"]!,
+                    onEdit: () {
+                      // Open the EditReviewDialog when the "Edit" button is pressed
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return EditReviewDialog(
+                            initialTitle: review["title"]!,
+                            initialRating: review["rating"]!,
+                            initialReview: review["comment"]!,
+                            initialDisplayName: review["author"]!,
+                            onSave: (String title, String rating, String reviewText) {
+                              // Handle the save logic here (e.g., send the data to the backend)
+                              print('Saved Review: Title=$title, Rating=$rating, Review=$reviewText');
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              '──── Daftar Riwayat Ulasan ────',
-              style: TextStyle(fontSize: 24, color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1,
-                childAspectRatio: 2,
-                mainAxisSpacing: 20,
-              ),
-              itemCount: reviews.length,
-              itemBuilder: (context, index) {
-                final review = reviews[index];
-                return ReviewCard(review: review);
-              },
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Kembali ke Restoran'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.brown),
             ),
           ],
         ),
@@ -128,74 +79,173 @@ class ReviewPage extends StatelessWidget {
   }
 }
 
-class ReviewCard extends StatelessWidget {
-  final Review review;
+class WriteReviewButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.brown[200],
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Text(
+            "Review",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: "Crimson Pro",
+              fontSize: 36,
+              fontWeight: FontWeight.w700,
+              height: 1.2,
+              foreground: Paint()
+                ..shader = const LinearGradient(
+                  colors: [Color(0xFFD7C3B0), Color(0xFFFFFBF2)],
+                ).createShader(const Rect.fromLTWH(0, 0, 300, 0)),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Ulasan!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: "Crimson Pro",
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFFFFBF2),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton(
+            onPressed: () {
+              // Navigate to CreateReviewPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReviewFormPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.brown[400],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+            child: const Text('Tulis Review'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-  const ReviewCard({Key? key, required this.review}) : super(key: key);
+class SortButtons extends StatelessWidget {
+  const SortButtons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        ElevatedButton(
+          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.brown[400],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: const Text('Sort by Like'),
+        ),
+        ElevatedButton(
+          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.brown[400],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: const Text('Sort by Date'),
+        ),
+        ElevatedButton(
+          onPressed: () {},
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.brown[400],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: const Text('Sort by Rate'),
+        ),
+      ],
+    );
+  }
+}
+
+class ReviewCard extends StatelessWidget {
+  final String name;
+  final String title;
+  final String author;
+  final String rating;
+  final String comment;
+  final String date;
+  final String image;
+  final String likes;
+  final VoidCallback onEdit;
+
+  const ReviewCard({
+    super.key,
+    required this.name,
+    required this.title,
+    required this.author,
+    required this.rating,
+    required this.comment,
+    required this.date,
+    required this.image,
+    required this.likes,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.brown.withOpacity(0.7),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8.0),
       ),
-      elevation: 4,
+      elevation: 4.0,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              review.restoranName,
-              style: TextStyle(fontSize: 22, color: Colors.white),
+              name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
             ),
-            Text(
-              review.title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70),
+            Text("Judul Review: $title"),
+            Text("Penulis: $author"),
+            const SizedBox(height: 8.0),
+            Text("Rating: $rating"),
+            Text("Comment: $comment"),
+            Text("Tanggal: $date"),
+            const SizedBox(height: 8.0),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.asset(image),
             ),
-            SizedBox(height: 8),
-            Text(
-              'Penulis: ${review.displayName}',
-              style: TextStyle(color: Colors.white70),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Rating: ${review.rating} / 5',
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 8),
-            Text(
-              review.reviewText,
-              style: TextStyle(color: Colors.white70),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Tanggal: ${review.date}',
-              style: TextStyle(color: Colors.white70),
-            ),
-            SizedBox(height: 8),
-            Wrap(
-              children: review.images.map((image) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Image.network(
-                    image,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
-                );
-              }).toList(),
-            ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8.0),
+            Text("Like: $likes"),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.thumb_up, color: Colors.white),
-                SizedBox(width: 5),
-                Text(
-                  '${review.likes} Like(s)',
-                  style: TextStyle(color: Colors.white),
+                TextButton(
+                    onPressed: onEdit,
+                    child: const Text("Edit"),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("Delete"),
                 ),
               ],
             ),
@@ -205,3 +255,4 @@ class ReviewCard extends StatelessWidget {
     );
   }
 }
+

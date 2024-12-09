@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/landing.dart';
+import 'package:uas/screens/review/main_review.dart';
 import 'package:uas/services/auth.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -146,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => LandingPage()),
+                  MaterialPageRoute(builder: (context) => ReviewPage()),
                 );
               },
               child: const Text('Landing Page'),
