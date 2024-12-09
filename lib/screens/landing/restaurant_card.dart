@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uas/models/restaurant.dart';
+import 'package:uas/screens/restaurant/restaurant.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
@@ -11,12 +12,10 @@ class RestaurantCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16), // Rounded corners
-        // extra border that extends outside
-        side: const BorderSide(color: Colors.brown, width: 7.5),
+        side: const BorderSide(color: Colors.brown, width: 7.5), // Extra border
       ),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 4, // Shadow effect
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,7 +76,14 @@ class RestaurantCard extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      // Define your action here
+                      // Navigate to the RestaurantDetailScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              RestaurantDetailScreen(restaurant: restaurant),
+                        ),
+                      );
                     },
                     child: const Text(
                       'Lihat Rincian',

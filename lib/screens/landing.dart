@@ -61,19 +61,6 @@ class _LandingPageState extends State<LandingPage> {
               color: Colors.deepPurple,
             ),
           ),
-          const SizedBox(height: 20),
-          // Button that leads to restaurant for testing
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => RestaurantDetailScreen()),
-              );
-            },
-            child: const Text('test'),
-          ),
-
           const Text(
             'Please log in to continue.',
             style: TextStyle(
