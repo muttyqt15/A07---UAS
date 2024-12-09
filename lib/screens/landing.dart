@@ -78,6 +78,20 @@ class _LandingPageState extends State<LandingPage> {
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
             ),
           ),
+
+                    ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+            },
+            child: const Text('Profile Page'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+            ),
+          ),
         ],
       ),
     );
@@ -134,19 +148,7 @@ class _LandingPageState extends State<LandingPage> {
             ),
           ),
 
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-            },
-            child: const Text('Profile Page'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-            ),
-          ),
+
 
         ],
       ),
