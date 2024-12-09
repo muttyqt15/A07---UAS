@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/landing.dart';
+import 'package:uas/screens/news/main_owner_berita.dart';
 import 'package:uas/services/auth.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -57,6 +60,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register Page'),
@@ -80,7 +85,53 @@ class _LoginPageState extends State<LoginPage> {
                 style: const TextStyle(color: Colors.red),
               ),
             ElevatedButton(
-              onPressed: _handleLogin,
+              onPressed: () async {
+                      String username = _usernameController.text;
+                      String password = _passwordController.text;
+
+                      final response = await request
+                          .login("http://localhost:8000/auth/flogin/", {
+                        'username': username,
+                        'password': password,
+                      });
+
+                      if (request.loggedIn) {
+                        String message = response['message'];
+                        String uname = response['username'];
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LandingPage()),
+                          );
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text("$message Selamat datang, $uname.")),
+                            );
+                        }
+                      } else {
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Login Gagal'),
+                              content: Text(response['message']),
+                              actions: [
+                                TextButton(
+                                  child: const Text('OK'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      }
+                    },
               child: const Text('Login'),
             ),
             ElevatedButton(
@@ -96,7 +147,8 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => LandingPage()),
+                  // MaterialPageRoute(builder: (context) => LandingPage()),
+                  MaterialPageRoute(builder: (context) => MainOwnerBerita()),
                 );
               },
               child: const Text('Landing Page'),

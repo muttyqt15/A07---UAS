@@ -14,16 +14,11 @@ class BeritaCard extends StatelessWidget {
     initializeDateFormatting('id_ID');
     var rawDate = news.fields.tanggal.toString();
     try {
-      // Parsing tanggal dari string (dengan zona waktu)
       final DateTime parsedDate = DateTime.parse(rawDate).toLocal();
-
-      // Format tanggal ke bentuk: 27 Oktober 2024
       final String formattedDate =
           DateFormat("d MMMM y", "id_ID").format(parsedDate);
-
       return formattedDate;
     } catch (e) {
-      // Jika parsing gagal, kembalikan string mentah
       return rawDate;
     }
   }
@@ -81,7 +76,7 @@ class BeritaCard extends StatelessWidget {
                   fontSize: 24,
                   fontStyle: FontStyle.normal,
                   fontWeight: FontWeight.w700,
-                  height: 1.4, // Line height = 140%
+                  height: 1.4,
                   color: Color(0xFFFFFBF2),
                 ),
               ),
@@ -119,19 +114,11 @@ class BeritaCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(""),
-                  // Text(
-                  //   "${news.fields.like} Likes",
-                  //   style: const TextStyle(
-                  //     fontSize: 16,
-                  //     fontStyle: FontStyle.normal,
-                  //     fontWeight: FontWeight.w500,
-                  //     height: 1.4,
-                  //     color: Color(0xFFFFFBF2),
-                  //   ),
-                  // ),
                   LikeButton(
+                    key: ValueKey(
+                        news.pk), // Tambahkan key unik berdasarkan ID berita
                     beritaId: news.pk, // ID berita
-                    isLiked: news.fields.liked, // Status awal (bisa diambil dari API jika ada)
+                    isLiked: news.fields.liked, // Status awal
                     initialLikes: news.fields.like, // Jumlah likes
                   ),
                 ],
@@ -146,7 +133,8 @@ class BeritaCard extends StatelessWidget {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
-                      builder: (context) => ModalDetailBerita(news: news),
+                      builder: (context) =>
+                          ModalDetailBerita(beritaId: news.pk),
                     );
                   },
                   style: ElevatedButton.styleFrom(

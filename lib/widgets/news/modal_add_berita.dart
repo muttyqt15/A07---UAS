@@ -40,6 +40,36 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
     }
   }
 
+  void _handleAddNews() async {
+    if (_formKey.currentState!.validate()) {
+      String title = titleController.text.trim();
+      String content = contentController.text.trim();
+
+      if (title.isEmpty || content.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Judul dan Konten tidak boleh kosong."),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return; // Hentikan proses jika data kosong
+      }
+
+      try {
+        widget.onAdd({
+          'title': title,
+          'content': content,
+        });
+        Navigator.of(context).pop(); // Tutup modal setelah sukses
+      } catch (e) {
+        print('Error adding news in ModalAddBerita: $e');
+      }
+    } else {
+      print("Form validation failed");
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -62,7 +92,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -124,7 +153,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
                 ),
               const SizedBox(height: 16),
 
-              // Image Upload Button
               ElevatedButton.icon(
                 onPressed: _pickImage,
                 icon: const Icon(Icons.image, color: Colors.black),
@@ -143,7 +171,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
               ),
               const SizedBox(height: 20),
 
-              // Judul Input
               TextFormField(
                 controller: titleController,
                 style: const TextStyle(color: Color(0xFFFFFBF2)),
@@ -154,7 +181,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
                   fillColor: const Color(0xFFABA197),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFFFFBF2)),
                   ),
                 ),
                 validator: (value) =>
@@ -162,7 +188,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
               ),
               const SizedBox(height: 16),
 
-              // Konten Input
               TextFormField(
                 controller: contentController,
                 maxLines: 7,
@@ -174,7 +199,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
                   fillColor: const Color(0xFFABA197),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFFFFFBF2)),
                   ),
                 ),
                 validator: (value) =>
@@ -182,22 +206,11 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
               ),
               const SizedBox(height: 20),
 
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        widget.onAdd({
-                          'judul': titleController.text,
-                          'konten': contentController.text,
-                          'gambar':
-                              kIsWeb ? _selectedImageBytes : _selectedImageFile,
-                        });
-                        Navigator.of(context).pop();
-                      }
-                    },
+                    onPressed: _handleAddNews,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE5D2B0),
                       shape: RoundedRectangleBorder(
@@ -211,7 +224,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
-                  // Cancel Button
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: ElevatedButton.styleFrom(
@@ -227,7 +239,6 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
-                  // Save Button
                 ],
               ),
             ],

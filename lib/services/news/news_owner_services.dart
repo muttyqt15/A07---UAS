@@ -1,21 +1,20 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 import '/models/news.dart';
+import 'package:http/http.dart' as http;
 
 class NewsOwnerServices {
-  static const String baseUrl ='http://localhost:8000'; 
+  static const String baseUrl = 'http://localhost:8000';
+
   // Fetch list of news
-  Future<List<News>> fetchNews() async {
-    final url = Uri.parse('$baseUrl/news/show_berita_json/');
+  Future<List<News>> fetchNews(CookieRequest request) async {
+    const url = '$baseUrl/news/show_berita_by_owner/';
     try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => News.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load berita: ${response.statusCode}');
-      }
+      final response = await request.get(url);
+      final List<dynamic> data = response;
+      return data.map((json) => News.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Error fetching berita: $e');
     }
@@ -23,106 +22,91 @@ class NewsOwnerServices {
 
   // Add new news
   Future<void> addNews(
-    Map<String, dynamic> data, {
+    CookieRequest request, {
     required String title,
     required String content,
-    required String imagePath,
   }) async {
-    final url = Uri.parse('$baseUrl/news/create/');
+    const url = '$baseUrl/news/fadd_berita_ajax/';
     final body = {
-      'title': title,
-      'content': content,
-      'image': imagePath,
+      'judul': title,
+      'konten': content,
     };
 
     try {
-      final response =
-          await http.post(url, headers: _jsonHeaders, body: jsonEncode(body));
-
-      if (response.statusCode != 201) {
-        throw Exception('Failed to add news: ${response.body}');
+      final response = await request.postJson(url, jsonEncode(body));
+      print('Response: $response');
+      if (response['status'] != 200) {
+        throw Exception('Failed to add news: ${response['message']}');
       }
     } catch (e) {
       throw Exception('Error adding news: $e');
     }
   }
 
+
   // Edit news
   Future<void> editNews(
-    Map<String, dynamic> data, {
-    required int id,
+    CookieRequest request, {
+    required String id,
     required String title,
     required String content,
-    String? imagePath,
   }) async {
-    final url = Uri.parse('$baseUrl/news/$id/update/');
+    final url = '$baseUrl/news/fedit_berita/$id/';
     final body = {
-      'title': title,
-      'content': content,
-      if (imagePath != null) 'image': imagePath,
+      'judul': title, 
+      'konten': content,
     };
 
     try {
-      final response =
-          await http.put(url, headers: _jsonHeaders, body: jsonEncode(body));
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update news: ${response.body}');
+      final response = await request.postJson(url, jsonEncode(body));
+      print('Response: $response');
+      // Periksa respons server
+      if (response['status'] != 200) {
+        throw Exception('Failed to edit news: ${response['message']}');
       }
     } catch (e) {
-      throw Exception('Error updating news: $e');
+      throw Exception('Error editing news: $e');
     }
   }
 
   // Delete news
-  Future<void> deleteNews(String id) async {
-    final url = Uri.parse('$baseUrl/news/fdelete_berita/$id/');
+  Future<void> deleteNews(CookieRequest request, String id) async {
+    final url = '$baseUrl/news/fdelete_berita/$id/';
     try {
-      final response = await http.get(url, headers: _jsonHeaders);
-      if (response.statusCode != 204) {
-        throw Exception('Failed to delete news: ${response.statusCode}');
+      final response = await request.get(url);
+      print('Response: $response');
+      // Periksa apakah respons adalah JSON
+      if (response != null && response is Map<String, dynamic>) {
+        if (response['status'] != 200) {
+          throw Exception('Error from server: ${response['message']}');
+        }
+      } else if (response == null) {
+        return;
+      } else {
+        throw Exception('Unexpected response: $response');
       }
     } catch (e) {
       throw Exception('Error deleting news: $e');
     }
   }
 
-  Future<Map<String, dynamic>> toggleLike(String beritaId) async {
-    final url = Uri.parse('$baseUrl/news/like_berita/$beritaId/');
-    final token = await _getAuthToken(); // Ambil token autentikasi
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token', // Header autentikasi
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      );
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body); // Return response JSON
-      } else if (response.statusCode == 403) {
-        throw Exception("Unauthorized: Login required");
-      } else {
-        throw Exception('Failed to toggle like: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Error toggling like: $e');
+  // Toggle like
+  Future<Map<String, dynamic>> toggleLike(
+    CookieRequest request, String beritaId) async {
+  final url = '$baseUrl/news/flike_berita/$beritaId/';
+  try {
+    // Gunakan postJson untuk mengirim body kosong dengan Content-Type JSON
+    final response = await request.postJson(url, jsonEncode({})); // Pastikan body adalah valid JSON
+    if (response['status'] == 200 || response['status'] == true) {
+      return response;
+    } else {
+      throw Exception('Failed to toggle like: ${response['message']}');
     }
+  } catch (e) {
+    throw Exception('Error toggling like: $e');
   }
+}
 
-  Future<String> _getAuthToken() async {
-    final storage = FlutterSecureStorage();
-    return await storage.read(key: 'authToken') ?? '';
-  }
-
-
-
-  // Common headers for JSON requests
-  Map<String, String> get _jsonHeaders => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
 }

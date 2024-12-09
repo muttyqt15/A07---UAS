@@ -151,7 +151,8 @@ class BeritaOwnerCard extends StatelessWidget {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) => ModalDetailBerita(news: news),
+                          builder: (context) =>
+                              ModalDetailBerita(beritaId: news.pk),
                         );
                       },
                       style: ElevatedButton.styleFrom(

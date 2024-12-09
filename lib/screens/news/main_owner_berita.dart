@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uas/widgets/footer.dart';
 import '/widgets/news/berita_owner_card.dart';
 import '/widgets/news/modal_remove_berita.dart';
 import '/widgets/news/modal_edit_berita.dart';
 import '/widgets/news/modal_add_berita.dart';
 import '/services/news/news_owner_services.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class MainOwnerBerita extends StatefulWidget {
   @override
@@ -24,8 +26,9 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
   }
 
   Future<void> _loadNews() async {
+    final request = Provider.of<CookieRequest>(context, listen: false);
     try {
-      final news = await newsOwnerServices.fetchNews();
+      final news = await newsOwnerServices.fetchNews(request);
       setState(() {
         _beritaList = news;
       });
@@ -35,18 +38,43 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
   }
 
   void _addNews(Map<String, dynamic> data) async {
-    // await newsOwnerServices.addNews(data);
-    _loadNews();
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    try {
+      await newsOwnerServices.addNews(
+        request,
+        title: data['title']!,
+        content: data['content']!,
+      );
+      _loadNews(); // Refresh daftar berita
+    } catch (e) {
+      print('Error adding news in MainOwnerBerita: $e');
+    }
   }
 
+
   void _editNews(String id, Map<String, dynamic> data) async {
-    // await newsOwnerServices.editNews(id, data);
-    _loadNews();
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    try {
+      await newsOwnerServices.editNews(
+        request,
+        id: id,
+        title: data['judul'],
+        content: data['konten'],
+      );
+      _loadNews(); // Refresh daftar berita setelah edit
+    } catch (e) {
+      print('Error editing news: $e');
+    }
   }
 
   void _deleteNews(String id) async {
-    await newsOwnerServices.deleteNews(id);
-    _loadNews();
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    try {
+      await newsOwnerServices.deleteNews(request, id);
+      _loadNews();
+    } catch (e) {
+      print('Error deleting news: $e');
+    }
   }
 
   void _sortBerita(String sortBy) {
@@ -118,13 +146,11 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
                       // Write News Button
                       ElevatedButton(
                         onPressed: () {
-                          
                           showDialog(
                             context: context,
                             builder: (context) => ModalAddBerita(
                               onAdd: (data) {
-                                _addNews(
-                                    data); // Panggil fungsi untuk menambahkan berita
+                                _addNews(data);
                               },
                             ),
                           );
@@ -170,104 +196,22 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
           ),
           const SizedBox(height: 20),
 
-          // Sorting Buttons
-          Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFF44392F),
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Sort by Like Button
-                GestureDetector(
-                  onTap: () => _sortBerita('like'),
-                  child: Container(
-                    width: 120,
-                    height: 28,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _sortBy == 'like'
-                          ? const Color(0xFFDECDBE)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: const Color(0xFFFFFBF2),
-                        width: 2,
-                      ),
-                    ),
-                    child: Text(
-                      "Sort by Like",
-                      style: TextStyle(
-                        fontFamily: "Lora",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                        color: _sortBy == 'like'
-                            ? const Color(0xFF5F4D40)
-                            : const Color(0xFFFFFBF2),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-
-                // Sort by Date Button
-                GestureDetector(
-                  onTap: () => _sortBerita('tanggal'),
-                  child: Container(
-                    width: 120,
-                    height: 28,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _sortBy == 'tanggal'
-                          ? const Color(0xFFDECDBE)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: const Color(0xFFFFFBF2),
-                        width: 2,
-                      ),
-                    ),
-                    child: Text(
-                      "Sort by Date",
-                      style: TextStyle(
-                        fontFamily: "Lora",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                        color: _sortBy == 'tanggal'
-                            ? const Color(0xFF5F4D40)
-                            : const Color(0xFFFFFBF2),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
           // List of News
           ListView.builder(
-            shrinkWrap: true, // Important to allow nesting ListView in ListView
-            physics:
-                const NeverScrollableScrollPhysics(), // Disable inner scrolling
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: _beritaList.length,
             itemBuilder: (context, index) {
               final berita = _beritaList[index];
               return BeritaOwnerCard(
+                key: ValueKey(berita.pk), // Tambahkan key unik
                 news: berita,
                 onEdit: () {
                   showDialog(
                     context: context,
-                    builder: (_) => ModalEditBerita(
-                      berita:
-                          berita.fields.toMap(), // Konversi Fields menjadi Map
-                      onEdit: (data) =>
-                          _editNews(berita.pk, data), // Gunakan PK untuk ID
+                    builder: (context) => ModalEditBerita(
+                      berita: berita.fields.toMap(),
+                      onEdit: (data) => _editNews(berita.pk, data),
                     ),
                   );
                 },
@@ -282,6 +226,7 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
               );
             },
           ),
+
           const SizedBox(height: 10),
           const AppFooter(),
         ],

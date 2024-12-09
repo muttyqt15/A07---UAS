@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uas/widgets/footer.dart';
 import 'package:uas/widgets/news/berita_card.dart';
 import 'package:uas/models/news.dart';
 import 'package:uas/services/news/news_services.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class MainBeritaScreen extends StatefulWidget {
   @override
@@ -22,14 +24,17 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
   }
 
   Future<void> fetchBerita() async {
+    final request = Provider.of<CookieRequest>(context, listen: false);
+
     setState(() {
       _isLoading = true;
     });
     try {
-      final berita = await _beritaService.fetchBerita();
+      final berita = await _beritaService.fetchBerita(request);
       setState(() {
         _beritaList = berita;
-        _sortBerita(_sortBy);
+        print('beritaList: ${_beritaList[0].fields.liked}');
+        // _sortBerita(_sortBy);
       });
     } catch (e) {
       // Tampilkan error ke user
@@ -159,17 +164,19 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
 
           // List of News
           ListView.builder(
-            shrinkWrap: true, // Important to allow nesting ListView in ListView
-            physics:
-                const NeverScrollableScrollPhysics(), // Disable inner scrolling
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: _beritaList.length,
             itemBuilder: (context, index) {
-              return BeritaCard(news: _beritaList[index]);
+              return BeritaCard(
+                key: ValueKey(_beritaList[index].pk), // Tambahkan key unik
+                news: _beritaList[index],
+              );
             },
           ),
 
           const SizedBox(height: 10),
-          const  AppFooter(),
+          const AppFooter(),
         ],
       ),
     );
