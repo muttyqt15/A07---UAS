@@ -1,21 +1,20 @@
 class Menu {
   final int id;
   final String category;
-  final int restaurantId; // Reference to the restaurant's ID
+  final int? restaurantId; // Allow this field to be nullable
 
   Menu({
     required this.id,
     required this.category,
-    required this.restaurantId,
+    this.restaurantId, // Nullable field
   });
 
   // Factory method to parse JSON
   factory Menu.fromJson(Map<String, dynamic> json) {
     return Menu(
-      id: json['id'],
-      category: json['category'],
-      restaurantId:
-          json['restaurant'], // Assuming the restaurant ID is provided
+      id: json['id'] ?? 0, // Default to 0 if null
+      category: json['category'] ?? 'Unknown', // Default to "Unknown" if null
+      restaurantId: json['restaurant'], // Allow null for restaurantId
     );
   }
 

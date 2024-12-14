@@ -8,7 +8,7 @@ class RestaurantService {
       'http://localhost:8000'; // Update to your server address
 
   Future<List<Restaurant>> fetchRestaurants(int amount) async {
-    final url = Uri.parse('$baseUrl/restaurant/serialized/$amount');
+    final url = Uri.parse('$baseUrl/restaurant/serialized_list/$amount');
     final response = await http.get(url);
 
     // Debug print
@@ -41,7 +41,8 @@ class RestaurantService {
   }
 }
 
-class ReviewService { //TODO: Finish review
+class ReviewService {
+  //TODO: Finish review
   static const String baseUrl =
       'http://localhost:8000'; // Update to your server address
 
