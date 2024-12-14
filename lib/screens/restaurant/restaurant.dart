@@ -101,6 +101,26 @@ class RestaurantDetailScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            // add a button to add to bookmark
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  // Add your bookmark logic here
+                                },
+                                icon: const Icon(Icons.bookmark),
+                                label: const Text('Tambahkan ke Bookmark'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                              ),
+                            ),
+
                             const SizedBox(height: 16),
                             const Text(
                               'Kategori Makanan',
@@ -237,44 +257,23 @@ class RestaurantDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...reviews.map((review) {
-                    for (var image in review.images) {
-                      print(
-                          'Image URL: $image'); // Debugging to ensure URLs are received
-                    }
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      color: Colors.brown[700],
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            title: Text(
-                              review.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            subtitle: Text(
-                              review.text,
-                              style: TextStyle(color: Colors.grey[300]),
-                            ),
-                            trailing: Text(
-                              '${review.rating}/5',
-                              style: const TextStyle(color: Colors.orange),
-                            ),
-                          ),
-                          if (review.images.isNotEmpty)
+                  ...reviews.map(
+                    (review) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: Colors.brown[700],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 8),
                             SizedBox(
-                              height: 100,
-                              child: ListView.builder(
+                              height: 200,
+                              child: Center(
+                                  child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemCount: review.images.length,
                                 itemBuilder: (context, index) {
@@ -285,14 +284,11 @@ class RestaurantDetailScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.network(
                                         imageUrl,
-                                        height: 100,
-                                        width: 100,
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) {
-                                          print(
-                                              'Image failed to load: $imageUrl');
                                           return Container(
+                                            alignment: Alignment.center,
                                             height: 100,
                                             width: 100,
                                             color: Colors.grey[800],
@@ -306,12 +302,65 @@ class RestaurantDetailScreen extends StatelessWidget {
                                     ),
                                   );
                                 },
-                              ),
+                              )),
                             ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(children: [
+                                Text(
+                                  textAlign: TextAlign.center,
+                                  review.title,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  textAlign: TextAlign.justify,
+                                  review.text,
+                                  style: TextStyle(color: Colors.grey[300]),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  textAlign: TextAlign.start,
+                                  review.customerName,
+                                  style: TextStyle(
+                                    color: Colors.grey[300],
+                                  ),
+                                ),
+                                Text(
+                                  textAlign: TextAlign.start,
+                                  'Reviewer (${review.date.toLocal().toString().split(' ')[0]})', // Show only the date part
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ]),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Add your bookmark logic here
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text('Buat Review'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
                       ),
-                    );
-                  }),
+                    ),
+                  )
                 ],
               ),
             );
