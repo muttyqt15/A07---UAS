@@ -9,6 +9,7 @@ class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -18,7 +19,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   String? _errorMessage;
-  bool _isLoggedIn = false;
 
   @override
   void initState() {
@@ -28,9 +28,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _checkLoginStatus() async {
     final loggedIn = await _authService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-    });
   }
 
   Future<void> _handleLogin() async {
@@ -40,7 +37,6 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text,
       );
       setState(() {
-        _isLoggedIn = true;
         _errorMessage = null;
       });
     } catch (e) {
@@ -48,13 +44,6 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = e.toString();
       });
     }
-  }
-
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    setState(() {
-      _isLoggedIn = false;
-    });
   }
 
   @override
@@ -93,12 +82,11 @@ class _LoginPageState extends State<LoginPage> {
                   'username': username,
                   'password': password,
                 });
-                print('hellaii');
+                print('hrl');
                 print(request.getJsonData());
 
                 if (request.loggedIn) {
                   String message = response['message'];
-                  String uname = response['username'];
                   print('hellaii');
                   print(request.getJsonData());
                   if (context.mounted) {
@@ -109,8 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
                       ..showSnackBar(
-                        SnackBar(
-                            content: Text("$message Selamat datang, $uname.")),
+                        SnackBar(content: Text("$message")),
                       );
                   }
                 } else {

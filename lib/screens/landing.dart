@@ -13,21 +13,9 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final AuthService _authService = AuthService();
-  bool _isLoggedIn = false;
-
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-  }
-
-  // Check if user is logged in
-  Future<void> _checkLoginStatus() async {
-    final loggedIn = await _authService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-    });
   }
 
   @override
@@ -71,7 +59,7 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: _handleLogout,
+            onPressed: () {},
             child: const Text('Logout'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -148,13 +136,5 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> _handleSignUp() async {
     // Replace this with your sign up functionality
     Navigator.pushNamed(context, '/signup'); // Navigate to your signup page
-  }
-
-  // Handle Logout button press
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    setState(() {
-      _isLoggedIn = false;
-    });
   }
 }

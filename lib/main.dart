@@ -11,7 +11,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return Provider(
@@ -28,6 +27,18 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch(
             primarySwatch: Colors.deepPurple,
           ).copyWith(secondary: Colors.deepPurple[400]),
+          snackBarTheme: SnackBarThemeData(
+            backgroundColor: Colors.deepPurple[400],
+            contentTextStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+            actionTextColor: Colors.amber,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
         home: LandingPage(),
       ),

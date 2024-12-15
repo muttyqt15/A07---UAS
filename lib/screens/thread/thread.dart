@@ -23,20 +23,18 @@ class _ThreadScreenState extends State<ThreadScreen> {
   }
 
   String? imagePath;
-  final TextEditingController _contentController = TextEditingController();
+  String _content = "";
 
   Future<void> createThread(request) async {
     try {
-      final response = request.postJson(
-          'http://localhost:8000',
-          jsonEncode({
-            {"content": _contentController}
-          }));
+      final data = {"content": _content};
+      final response = await request.postJson(
+          'http://localhost:8000/thread/fcreate/', jsonEncode(data));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response['message'])),
       );
       fetchThreads(); // Refresh threads
-      _contentController.clear();
+      _content = "";
       setState(() {
         imagePath = null;
       });
@@ -105,10 +103,8 @@ class _ThreadScreenState extends State<ThreadScreen> {
   Future<void> deleteThread(int threadId) async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.post(
-        'http://localhost:8000/thread/$threadId/fdelete/',
-        jsonEncode({}),
-      );
+      final response = await request
+          .post('http://localhost:8000/thread/$threadId/fdelete/', {});
 
       // Show success message
       if (context.mounted) {
@@ -198,7 +194,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                 color: Color(0xFFFFFFFF)),
                           ),
                           const SizedBox(height: 12),
-                          TextField(
+                          TextFormField(
                             maxLines: 3,
                             maxLength: 450,
                             decoration: InputDecoration(
@@ -209,6 +205,11 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               fillColor: Colors.white,
                               filled: true,
                             ),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _content = value!;
+                              });
+                            },
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -228,7 +229,6 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  // Handle thread publication
                                   createThread(request);
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -295,131 +295,137 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                 ),
                                               ),
                                               const SizedBox(height: 8),
-                                              Row(
-                                                children: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      // Show edit dialog
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          final TextEditingController
-                                                              editController =
-                                                              TextEditingController(
-                                                                  text: thread[
-                                                                      'content']);
+                                              if (request.getJsonData()['data']
+                                                      ['id'] ==
+                                                  thread['author_id'])
+                                                Row(
+                                                  children: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // Show edit dialog
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            final TextEditingController
+                                                                editController =
+                                                                TextEditingController(
+                                                                    text: thread[
+                                                                        'content']);
 
-                                                          return AlertDialog(
-                                                            title: const Text(
-                                                                'Edit Thread'),
-                                                            content: TextField(
-                                                              controller:
-                                                                  editController,
-                                                              maxLines: 3,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                hintText:
-                                                                    'Edit your thread',
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
+                                                            return AlertDialog(
+                                                              title: const Text(
+                                                                  'Edit Thread'),
+                                                              content:
+                                                                  TextField(
+                                                                controller:
+                                                                    editController,
+                                                                maxLines: 3,
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  hintText:
+                                                                      'Edit your thread',
+                                                                  border:
+                                                                      OutlineInputBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(8),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed: () =>
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop(),
-                                                                child: const Text(
-                                                                    'Cancel'),
-                                                              ),
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  // Call edit method
-                                                                  editThread(
-                                                                      thread[
-                                                                          'id'],
-                                                                      editController
-                                                                          .text);
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                child:
-                                                                    const Text(
-                                                                        'Save'),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
-                                                    },
-                                                    child: const Text("Edit",
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                'CrimsonPro',
-                                                            color:
-                                                                Colors.white)),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      // Show confirmation dialog
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return AlertDialog(
-                                                            title: const Text(
-                                                                'Delete Thread'),
-                                                            content: const Text(
-                                                                'Are you sure you want to delete this thread?'),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed: () =>
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop(),
-                                                                child: const Text(
-                                                                    'Cancel'),
-                                                              ),
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  // Call delete method
-                                                                  deleteThread(
-                                                                      thread[
-                                                                          'id']);
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .red,
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop(),
+                                                                  child: const Text(
+                                                                      'Cancel'),
                                                                 ),
-                                                                child: const Text(
-                                                                    'Delete'),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
-                                                    },
-                                                    child: const Text("Delete",
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                'CrimsonPro',
-                                                            color:
-                                                                Colors.white)),
-                                                  ),
-                                                ],
-                                              ),
+                                                                ElevatedButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // Call edit method
+                                                                    editThread(
+                                                                        thread[
+                                                                            'id'],
+                                                                        editController
+                                                                            .text);
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                  child:
+                                                                      const Text(
+                                                                          'Save'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
+                                                      },
+                                                      child: const Text("Edit",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'CrimsonPro',
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // Show confirmation dialog
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return AlertDialog(
+                                                              title: const Text(
+                                                                  'Delete Thread'),
+                                                              content: const Text(
+                                                                  'Are you sure you want to delete this thread?'),
+                                                              actions: [
+                                                                TextButton(
+                                                                  onPressed: () =>
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop(),
+                                                                  child: const Text(
+                                                                      'Cancel'),
+                                                                ),
+                                                                ElevatedButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // Call delete method
+                                                                    deleteThread(
+                                                                        thread[
+                                                                            'id']);
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .red,
+                                                                  ),
+                                                                  child: const Text(
+                                                                      'Delete'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
+                                                      },
+                                                      child: const Text(
+                                                          "Delete",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  'CrimsonPro',
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  ],
+                                                ),
                                             ],
                                           ),
                                         ),
