@@ -41,7 +41,7 @@ class _LandingPageState extends State<LandingPage> {
       ),
       drawer: const LeftDrawer(),
       body: Center(
-        child: request.loggedIn ? const ThreadScreen() : ThreadScreen(),
+        child: request.loggedIn ? const ThreadScreen() : RegisterPage(),
       ),
     );
   }

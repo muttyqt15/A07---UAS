@@ -13,7 +13,7 @@ class ThreadScreen extends StatefulWidget {
 }
 
 class _ThreadScreenState extends State<ThreadScreen> {
-  List threads = [];
+  List<dynamic> threads = [];
   bool isLoading = true;
 
   @override
@@ -47,31 +47,86 @@ class _ThreadScreenState extends State<ThreadScreen> {
     }
   }
 
-// void pickImage() async {
-//   final pickedFile = await ImagePicke().pickImage(source: ImageSource.gallery);
-//   if (pickedFile != null) {
-//     setState(() {
-//       imagePath = pickedFile.path;
-//     });
-//   }
-// }
-
   Future<void> fetchThreads() async {
     final request = context.read<CookieRequest>();
     try {
-      final response =
+      final res =
           await request.get("http://localhost:8000/thread/fget_thread/");
+
+      print('Raw response: $res'); // Debug print
+
       setState(() {
-        threads = jsonDecode(response);
+        // Adjust based on actual response structure
+        // For example:
+        threads = res['threads'] ?? [];
         isLoading = false;
       });
     } catch (e) {
+      print('Error details: $e'); // More detailed error logging
       setState(() {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to fetch threads: $e')),
       );
+    }
+  }
+
+  Future<void> editThread(int threadId, String newContent) async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.postJson(
+        'http://localhost:8000/thread/$threadId/fedit/',
+        jsonEncode({
+          'content': newContent,
+        }),
+      );
+
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text(response['message'] ?? 'Thread updated successfully')),
+        );
+      }
+
+      // Refresh threads after editing
+      await fetchThreads();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to edit thread: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> deleteThread(int threadId) async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.post(
+        'http://localhost:8000/thread/$threadId/fdelete/',
+        jsonEncode({}),
+      );
+
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text(response['message'] ?? 'Thread deleted successfully')),
+        );
+      }
+
+      // Refresh threads after deletion
+      await fetchThreads();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete thread: $e')),
+        );
+      }
     }
   }
 
@@ -93,6 +148,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+    print(request.getJsonData());
     return Scaffold(
       body: Stack(
         children: [
@@ -228,7 +284,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                thread['title'],
+                                                thread['content'],
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
@@ -243,7 +299,65 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                 children: [
                                                   TextButton(
                                                     onPressed: () {
-                                                      // Handle edit
+                                                      // Show edit dialog
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          final TextEditingController
+                                                              editController =
+                                                              TextEditingController(
+                                                                  text: thread[
+                                                                      'content']);
+
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                                'Edit Thread'),
+                                                            content: TextField(
+                                                              controller:
+                                                                  editController,
+                                                              maxLines: 3,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText:
+                                                                    'Edit your thread',
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              8),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(),
+                                                                child: const Text(
+                                                                    'Cancel'),
+                                                              ),
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  // Call edit method
+                                                                  editThread(
+                                                                      thread[
+                                                                          'id'],
+                                                                      editController
+                                                                          .text);
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                child:
+                                                                    const Text(
+                                                                        'Save'),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     child: const Text("Edit",
                                                         style: TextStyle(
@@ -255,7 +369,47 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                   const SizedBox(width: 8),
                                                   TextButton(
                                                     onPressed: () {
-                                                      // Handle delete
+                                                      // Show confirmation dialog
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return AlertDialog(
+                                                            title: const Text(
+                                                                'Delete Thread'),
+                                                            content: const Text(
+                                                                'Are you sure you want to delete this thread?'),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(),
+                                                                child: const Text(
+                                                                    'Cancel'),
+                                                              ),
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  // Call delete method
+                                                                  deleteThread(
+                                                                      thread[
+                                                                          'id']);
+                                                                  Navigator.of(
+                                                                          context)
+                                                                      .pop();
+                                                                },
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                ),
+                                                                child: const Text(
+                                                                    'Delete'),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        },
+                                                      );
                                                     },
                                                     child: const Text("Delete",
                                                         style: TextStyle(
