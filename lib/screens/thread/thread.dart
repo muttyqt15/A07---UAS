@@ -34,8 +34,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
         SnackBar(content: Text(response['message'])),
       );
       fetchThreads(); // Refresh threads
-      _content = "";
+
       setState(() {
+        _content = "";
         imagePath = null;
       });
     } catch (e) {
