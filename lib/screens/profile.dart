@@ -1,6 +1,69 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class ProfilePage extends StatelessWidget {
+class Profile {
+  final String profilePic;
+  final String bio;
+  final String email;
+
+  Profile({required this.profilePic, required this.bio, required this.email});
+
+  factory Profile.fromJson(Map<String, dynamic> json) {
+    return Profile(
+      profilePic: json['fields']['profile_pic'] ?? 'https://via.placeholder.com/150',
+      bio: json['fields']['bio'] ?? 'No bio available',
+      email: json['fields']['email'] ?? 'No email available',
+    );
+  }
+}
+
+// Dummy JSON data
+const String dummyJson = '''
+[
+  {
+    "fields": {
+      "profile_pic": "https://via.placeholder.com/150",
+      "bio": "Food enthusiast and traveler. Exploring Solo one dish at a time.",
+      "email": "customer@example.com"
+    }
+  }
+]
+''';
+
+// Method to fetch dummy profile data
+Future<List<Profile>> fetchDummyProfile() async {
+  final List<dynamic> jsonData = jsonDecode(dummyJson);
+  return jsonData.map((item) => Profile.fromJson(item)).toList();
+}
+
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late Future<Profile> futureProfile;
+  late Future<List<Profile>> dummyProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    futureProfile = fetchProfile();
+    dummyProfile = fetchDummyProfile();
+  }
+
+  Future<Profile> fetchProfile() async {
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/profile/json'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Profile.fromJson(data[0]); // Assuming the API returns a list of profiles
+    } else {
+      throw Exception('Failed to load profile');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,159 +79,90 @@ class ProfilePage extends StatelessWidget {
           onPressed: () {},
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background_batik.jpg'),
-            fit: BoxFit.cover,
-          ),
+      body: FutureBuilder<Profile>(
+        future: futureProfile,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return const Center(child: Text('No profile data available'));
+          }
+
+          final profile = snapshot.data!;
+          return buildProfilePage(profile);
+        },
+      ),
+    );
+  }
+
+  Widget buildProfilePage(Profile profile) {
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/background_batik.jpg'),
+          fit: BoxFit.cover,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 30),
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey.shade300,
-                child: const Icon(
-                  Icons.person,
-                  size: 50,
-                  color: Colors.brown,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Adel',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.brown.shade800,
-                ),
-              ),
-              Text(
-                'Customer',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.brown.shade600,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                decoration: BoxDecoration(
-                  color: Colors.brown.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildTextField(
-                      label: 'Email',
-                      value: 'myemail@email.com',
-                    ),
-                    const SizedBox(height: 20),
-                    buildTextField(
-                      label: 'Email',
-                      value: 'myemail@email.com',
-                      multiline: true,
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown.shade600,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Colors.brown, width: 1.5),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 12),
-                        ),
-                        onPressed: () {},
-                        child: const Text(
-                          'Edit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              buildActionButton('Review Saya', context),
-              buildActionButton('Bookmark Saya', context),
-              buildActionButton('Lihat Lebih Lanjut', context),
-              const SizedBox(height: 20),
-              Container(
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(profile.profilePic),
+              backgroundColor: Colors.grey.shade300,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              profile.email,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
                 color: Colors.brown.shade800,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    const Text(
-                      'MANGAN" SOLO',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      '"Kuliner Solo, perpaduan sempurna antara budaya, rasa, dan cinta yang selalu bikin rindu"',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Restoran',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Thread',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Berita',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            'Bookmark',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      '© 2024 MANGAN"SOLO. All rights reserved.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              decoration: BoxDecoration(
+                color: Colors.brown.shade100,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildTextField(label: 'Email', value: profile.email),
+                  const SizedBox(height: 20),
+                  buildTextField(label: 'Bio', value: profile.bio, multiline: true),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.brown.shade600,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(color: Colors.brown, width: 1.5),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        'Edit',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            buildActionButton('Review Saya', context),
+            buildActionButton('Bookmark Saya', context),
+            buildActionButton('Lihat Lebih Lanjut', context),
+          ],
         ),
       ),
     );
