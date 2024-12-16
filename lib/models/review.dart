@@ -1,55 +1,77 @@
+import 'dart:convert';
+
+List<Review> reviewFromJson(String str) => List<Review>.from(json.decode(str).map((x) => Review.fromJson(x)));
+
+String reviewToJson(List<Review> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 class Review {
-  final String id;
-  final String customerName; // Equivalent to `display_name` in Django
-  final String title; // Equivalent to `judul_ulasan`
-  final String text; // Equivalent to `teks_ulasan`
-  final DateTime date; // Equivalent to `tanggal`
-  final int rating; // Equivalent to `penilaian`
-  final int totalLikes; // Total likes for the review
-  final List<String> images; // List of image URLs associated with the review
+    String model;
+    String pk;
+    Fields fields;
 
-  Review({
-    required this.id,
-    required this.customerName,
-    required this.title,
-    required this.text,
-    required this.date,
-    required this.rating,
-    required this.totalLikes,
-    required this.images,
-  });
+    Review({
+        required this.model,
+        required this.pk,
+        required this.fields,
+    });
 
-  factory Review.fromJson(Map<String, dynamic> json) {
-    return Review(
-      id: json['id'] ?? 'unknown', // Default value for `id`
-      customerName: json['display_name'] ??
-          'Anonymous', // Default value for `display_name`
-      title: json['judul_ulasan'] ??
-          'No title', // Default value for `judul_ulasan`
-      text: json['teks_ulasan'] ??
-          'No review text available', // Default value for `teks_ulasan`
-      date: json['tanggal'] != null
-          ? DateTime.parse(json['tanggal'])
-          : DateTime.now(), // Fallback to current date if null
-      rating: json['penilaian'] ?? 0, // Default value for `penilaian`
-      totalLikes: json['total_likes'] ?? 0, // Default value for `total_likes`
-      images: (json['images'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [], // Default to empty list if null
+    factory Review.fromJson(Map<String, dynamic> json) => Review(
+        model: json["model"],
+        pk: json["pk"],
+        fields: Fields.fromJson(json["fields"]),
     );
-  }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'display_name': customerName,
-      'judul_ulasan': title,
-      'teks_ulasan': text,
-      'tanggal': date.toIso8601String(),
-      'penilaian': rating,
-      'total_likes': totalLikes,
-      'images': images,
+    Map<String, dynamic> toJson() => {
+        "model": model,
+        "pk": pk,
+        "fields": fields.toJson(),
     };
-  }
+}
+
+class Fields {
+    int customer;
+    int restoran;
+    String judulUlasan;
+    DateTime tanggal;
+    String teksUlasan;
+    int penilaian;
+    DateTime waktuEditTerakhir;
+    String displayName;
+    List<int> likes;
+
+    Fields({
+        required this.customer,
+        required this.restoran,
+        required this.judulUlasan,
+        required this.tanggal,
+        required this.teksUlasan,
+        required this.penilaian,
+        required this.waktuEditTerakhir,
+        required this.displayName,
+        required this.likes,
+    });
+
+    factory Fields.fromJson(Map<String, dynamic> json) => Fields(
+        customer: json["customer"],
+        restoran: json["restoran"],
+        judulUlasan: json["judul_ulasan"],
+        tanggal: DateTime.parse(json["tanggal"]),
+        teksUlasan: json["teks_ulasan"],
+        penilaian: json["penilaian"],
+        waktuEditTerakhir: DateTime.parse(json["waktu_edit_terakhir"]),
+        displayName: json["display_name"],
+        likes: List<int>.from(json["likes"].map((x) => x)),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "customer": customer,
+        "restoran": restoran,
+        "judul_ulasan": judulUlasan,
+        "tanggal": "${tanggal.year.toString().padLeft(4, '0')}-${tanggal.month.toString().padLeft(2, '0')}-${tanggal.day.toString().padLeft(2, '0')}",
+        "teks_ulasan": teksUlasan,
+        "penilaian": penilaian,
+        "waktu_edit_terakhir": waktuEditTerakhir.toIso8601String(),
+        "display_name": displayName,
+        "likes": List<dynamic>.from(likes.map((x) => x)),
+    };
 }

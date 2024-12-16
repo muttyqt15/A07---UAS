@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:uas/services/auth.dart'; // Assuming you have AuthService for login management
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/screens/authentication/login.dart';
+import 'package:uas/screens/authentication/register.dart';
+import 'package:uas/services/auth.dart';
+import 'package:uas/widgets/left_drawer.dart'; // Assuming you have AuthService for login management
 import 'package:uas/screens/landing/landing_page.dart';
 import 'package:uas/services/landing.dart';
 import 'package:uas/screens/restaurant/restaurant.dart';
@@ -29,13 +34,16 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Welcome to Mangan Solo'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+      drawer: const LeftDrawer(),
       body: Center(
-        child: _isLoggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
+        child: request.loggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
       ),
     );
   }
@@ -69,7 +77,12 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: _handleLogin,
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+            },
             child: const Text('Login'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.cyan,
@@ -78,7 +91,12 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: _handleSignUp,
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPage()),
+                );
+            },
             child: const Text('Sign Up'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
