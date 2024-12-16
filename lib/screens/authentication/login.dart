@@ -89,7 +89,6 @@ class _LoginPageState extends State<LoginPage> {
                   String message = response['message'];
                   print('hellaii');
                   print(request.getJsonData());
-                  print('==============================');
                   if (context.mounted) {
                     Navigator.pushReplacement(
                       context,

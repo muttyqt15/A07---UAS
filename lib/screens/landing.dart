@@ -3,8 +3,9 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/screens/authentication/register.dart';
+import 'package:uas/screens/thread/thread.dart';
 import 'package:uas/services/auth.dart';
-import 'package:uas/widgets/left_drawer.dart'; // Assuming you have AuthService for login management
+import 'package:uas/widgets/left_drawer.dart';
 import 'package:uas/screens/landing/landing_page.dart';
 import 'package:uas/services/landing.dart';
 import 'package:uas/screens/restaurant/restaurant.dart';
@@ -15,21 +16,9 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final AuthService _authService = AuthService();
-  bool _isLoggedIn = false;
-
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-  }
-
-  // Check if user is logged in
-  Future<void> _checkLoginStatus() async {
-    final loggedIn = await _authService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-    });
   }
 
   @override
@@ -43,17 +32,46 @@ class _LandingPageState extends State<LandingPage> {
       ),
       drawer: const LeftDrawer(),
       body: Center(
-        child: request.loggedIn
-            ? _buildLoggedInContent()
-            : _buildLoggedOutContent(),
+        child: request.loggedIn ? const ThreadScreen() : RegisterPage(),
       ),
     );
   }
 
   // Content for logged-in users
   Widget _buildLoggedInContent() {
-    // Use the LandingPage widget for logged-in users
-    return LandingPageScreen();
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Welcome Back!',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepPurple,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'You are successfully logged in.',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 30),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text('Logout'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // Content for non-logged-in users
@@ -120,13 +138,5 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> _handleSignUp() async {
     // Replace this with your sign up functionality
     Navigator.pushNamed(context, '/signup'); // Navigate to your signup page
-  }
-
-  // Handle Logout button press
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    setState(() {
-      _isLoggedIn = false;
-    });
   }
 }
