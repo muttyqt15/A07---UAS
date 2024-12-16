@@ -48,7 +48,10 @@ class ReviewPage extends StatelessWidget {
       rating: 4.5,
       reviewText: "The food was amazing. I loved the ambiance.",
       date: "2024-11-28",
-      images: ["https://via.placeholder.com/150", "https://via.placeholder.com/150"],
+      images: [
+        "https://via.placeholder.com/150",
+        "https://via.placeholder.com/150"
+      ],
       likes: 10,
     ),
     // Add more reviews here
@@ -152,7 +155,10 @@ class ReviewCard extends StatelessWidget {
             ),
             Text(
               review.title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white70),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white70),
             ),
             SizedBox(height: 8),
             Text(

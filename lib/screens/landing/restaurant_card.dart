@@ -27,7 +27,7 @@ class RestaurantCard extends StatelessWidget {
             ), // Rounded corners for the image
             child: Image.network(
               restaurant.photoUrl.isNotEmpty
-                  ? 'http://localhost:8000${restaurant.photoUrl}'
+                  ? restaurant.photoUrl
                   : 'https://via.placeholder.com/150', // Fallback image
               height: 150,
               width: double.infinity,

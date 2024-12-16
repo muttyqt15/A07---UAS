@@ -11,11 +11,6 @@ class RestaurantService {
     final url = Uri.parse('$baseUrl/restaurant/serialized_list/$amount');
     final response = await http.get(url);
 
-    // Debug print
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    // End debug print
-
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
 
@@ -47,12 +42,17 @@ class ReviewService {
       'http://localhost:8000'; // Update to your server address
 
   Future<List<Review>> fetchReviewsForRestaurant(int restaurantId) async {
-    final url = Uri.parse('$baseUrl/reviews/?restaurant_id=$restaurantId');
+    final url = Uri.parse('$baseUrl/restaurant/serialized/$restaurantId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Review.fromJson(json)).toList();
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      // Parse review data
+      final List<dynamic> reviewJson = data['reviews'] ?? [];
+      final List<Review> reviews =
+          reviewJson.map((json) => Review.fromJson(json)).toList();
+
+      return reviews;
     } else {
       throw Exception('Failed to load reviews');
     }

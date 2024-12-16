@@ -18,15 +18,14 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
   String _judulUlasan = "";
   int _rating = 1;
   String _teksUlasan = "";
-  String? _image; 
-  
-  final List<String> restoranChoices = [];
+  String? _image;
 
+  final List<String> restoranChoices = [];
 
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Center(
@@ -37,7 +36,7 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
-      drawer: const LeftDrawer(),//drawer
+      drawer: const LeftDrawer(), //drawer
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -229,36 +228,37 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                          // Kirim ke Django dan tunggu respons
-                          final response = await request.postJson(
-                              "http://127.0.0.1:8000/create-review/",
-                              jsonEncode(<String, dynamic>{
-                                  'name': _name,
-                                  'description': _description,
-                                  'category': _category,
-                                  'amount': int.parse(_amount.toString()),
-                                  'price': int.parse(_price.toString()),
-                                  'rating': int.parse(_rating.toString()),
-                              }),
-                          );
-                          if (context.mounted) {
-                              if (response['status'] == 'success') {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                  content: Text("Product baru berhasil disimpan!"),
-                                  ));
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => MyHomePage()),
-                                  );
-                              } else {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                      content:
-                                          Text("Terdapat kesalahan, silakan coba lagi."),
-                                  ));
-                              }
+                        // Kirim ke Django dan tunggu respons
+                        final response = await request.postJson(
+                          "http://127.0.0.1:8000/create-review/",
+                          jsonEncode(<String, dynamic>{
+                            'name': _name,
+                            'description': _description,
+                            'category': _category,
+                            'amount': int.parse(_amount.toString()),
+                            'price': int.parse(_price.toString()),
+                            'rating': int.parse(_rating.toString()),
+                          }),
+                        );
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Product baru berhasil disimpan!"),
+                            ));
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text(
+                                  "Terdapat kesalahan, silakan coba lagi."),
+                            ));
                           }
+                        }
                       }
                     },
                     child: const Text(

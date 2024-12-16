@@ -210,8 +210,6 @@ class RestaurantDetailScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Menu Section
-
                   // Food Section
                   const SizedBox(height: 24),
                   const Text(
@@ -257,40 +255,60 @@ class RestaurantDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...reviews.map(
-                    (review) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        color: Colors.brown[700],
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 8),
+                  ...reviews.map((review) {
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      color: Colors.brown[700],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 8),
+                          // Safely render images
+                          if (review.fields.images != null &&
+                              review.fields.images.isNotEmpty)
                             SizedBox(
                               height: 200,
-                              child: Center(
-                                  child: ListView.builder(
+                              child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: review.images.length,
+                                itemCount: review.fields.images.length,
                                 itemBuilder: (context, index) {
-                                  final imageUrl = review.images[index];
+                                  final imageUrl = review.fields.images[index];
+
+                                  // Check if imageUrl is null
+                                  if (imageUrl == null || imageUrl.isEmpty) {
+                                    print('Invalid image URL at index $index');
+                                    return Container(
+                                      alignment: Alignment.center,
+                                      height: 150,
+                                      width: 150,
+                                      color: Colors.grey[800],
+                                      child: const Icon(
+                                        Icons.broken_image,
+                                        color: Colors.grey,
+                                      ),
+                                    );
+                                  }
+                                  final validImageUrl =
+                                      imageUrl.startsWith('http')
+                                          ? imageUrl
+                                          : 'http://localhost:8000$imageUrl';
+
                                   return Padding(
                                     padding: const EdgeInsets.only(right: 8.0),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.network(
-                                        imageUrl,
+                                        validImageUrl,
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) {
                                           return Container(
                                             alignment: Alignment.center,
-                                            height: 100,
-                                            width: 100,
+                                            height: 150,
+                                            width: 150,
                                             color: Colors.grey[800],
                                             child: const Icon(
                                               Icons.broken_image,
@@ -302,52 +320,70 @@ class RestaurantDetailScreen extends StatelessWidget {
                                     ),
                                   );
                                 },
-                              )),
+                              ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(children: [
+
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  textAlign: TextAlign.center,
-                                  review.title,
+                                  review.fields.displayName,
                                   style: const TextStyle(
-                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                     color: Colors.white,
                                   ),
                                 ),
+                                const SizedBox(height: 8),
                                 Text(
-                                  textAlign: TextAlign.justify,
-                                  review.text,
-                                  style: TextStyle(color: Colors.grey[300]),
+                                  '"${review.fields.judulUlasan}"',
+                                  style: const TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 14,
+                                    color: Colors.white70,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  textAlign: TextAlign.start,
-                                  review.customerName,
-                                  style: TextStyle(
-                                    color: Colors.grey[300],
+                                  review.fields.teksUlasan,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
                                   ),
                                 ),
+                                const SizedBox(height: 8),
                                 Text(
-                                  textAlign: TextAlign.start,
-                                  'Reviewer (${review.date.toLocal().toString().split(' ')[0]})', // Show only the date part
-                                  style: const TextStyle(color: Colors.grey),
+                                  '${review.fields.penilaian}/5',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.orange,
+                                  ),
                                 ),
-                              ]),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Diterbitkan pada: ${review.fields.tanggal}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Add your bookmark logic here
+                          // Add bookmark logic here
                         },
                         icon: const Icon(Icons.add),
                         label: const Text('Buat Review'),

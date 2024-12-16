@@ -214,7 +214,7 @@ class RestaurantReviewCard extends StatelessWidget {
                     Icon(Icons.person, color: Colors.orange),
                     const SizedBox(width: 8),
                     Text(
-                      review.customerName,
+                      review.fields.displayName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -224,7 +224,7 @@ class RestaurantReviewCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '"${review.title}"',
+                  '"${review.fields.judulUlasan}"',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -232,7 +232,7 @@ class RestaurantReviewCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  review.text,
+                  review.fields.teksUlasan,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
@@ -243,16 +243,16 @@ class RestaurantReviewCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.thumb_up, size: 16),
                     const SizedBox(width: 4),
-                    Text('${review.totalLikes} Likes'),
+                    Text('${review.fields.likes} Likes'),
                     const SizedBox(width: 16),
                     const Icon(Icons.star, size: 16, color: Colors.orange),
                     const SizedBox(width: 4),
-                    Text('${review.rating}/5'),
+                
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Diterbitkan pada: ${review.date.toLocal().toString().split(' ')[0]}',
+                  'Diterbitkan pada: ${review.fields.tanggal}',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],

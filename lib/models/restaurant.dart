@@ -7,23 +7,22 @@ class Restaurant {
   final String photoUrl;
 
   Restaurant({
-    required this.id,
-    required this.name,
-    required this.district,
-    required this.address,
-    required this.operationalHours,
-    required this.photoUrl,
+    this.id = 0,
+    this.name = 'Unknown',
+    this.district = 'Unknown',
+    this.address = 'Unknown',
+    this.operationalHours = 'Unknown',
+    this.photoUrl = '',
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
-    final fields = json['fields'] ?? {}; // Extract fields safely
     return Restaurant(
-      id: json['pk'] ?? 0, // Use "pk" or default to 0 if null
-      name: fields['name'] ?? 'Unknown', // Handle null gracefully
-      district: fields['district'] ?? 'Unknown',
-      address: fields['address'] ?? 'Unknown',
-      operationalHours: fields['operational_hours'] ?? 'Unknown',
-      photoUrl: fields['photo_url'] ?? '',
+      id: json['pk'] ?? 0,
+      name: json['fields']?['name'] ?? 'Unknown',
+      district: json['fields']?['district'] ?? 'Unknown',
+      address: json['fields']?['address'] ?? 'Unknown',
+      operationalHours: json['fields']?['operational_hours'] ?? 'Unknown',
+      photoUrl: json['fields']?['photo_url'] ?? '',
     );
   }
 }

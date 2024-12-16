@@ -4,6 +4,9 @@ import 'package:uas/models/review.dart';
 import 'package:uas/services/landing.dart';
 import 'restaurant_card.dart';
 import 'other_cards.dart';
+import 'package:uas/screens/restaurant/add_restaurant.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class LandingPageScreen extends StatefulWidget {
   @override
@@ -17,11 +20,14 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   void initState() {
     super.initState();
     // Fetch restaurants using the service
-    _restaurants = RestaurantService().fetchRestaurants(3);
+    _restaurants = RestaurantService().fetchRestaurants(11);
+    final request = context.read<CookieRequest>();
+    print(request.getJsonData()['data']);
   }
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       backgroundColor: Colors.brown[800],
       body: ListView(
@@ -34,6 +40,17 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
           // 'Tahukah Anda?' Section
           TahukahAndaCard(),
           const SizedBox(height: 16),
+
+          if (request.getJsonData()['data']['role'] == 'RESTO_OWNER')
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddRestaurantPage()),
+                );
+              },
+              child: const Text('Buat Restoran Baru'),
+            ),
 
           // 'Restoran Populer' Section
           const Text(
