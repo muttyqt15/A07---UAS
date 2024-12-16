@@ -6,6 +6,9 @@ import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/thread/thread.dart';
 import 'package:uas/services/auth.dart';
 import 'package:uas/widgets/left_drawer.dart';
+import 'package:uas/screens/landing/landing_page.dart';
+import 'package:uas/services/landing.dart';
+import 'package:uas/screens/restaurant/restaurant.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -86,7 +89,6 @@ class _LandingPageState extends State<LandingPage> {
               color: Colors.deepPurple,
             ),
           ),
-          const SizedBox(height: 20),
           const Text(
             'Please log in to continue.',
             style: TextStyle(
