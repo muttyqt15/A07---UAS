@@ -92,3 +92,20 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  flutter:
+  fonts:
+    - family: Lora
+      fonts:
+        - asset: fonts/Lora-Regular.ttf
+        - asset: fonts/Lora-Bold.ttf
+          weight: 700
+    - family: Crimson Pro
+      fonts:
+        - asset: fonts/CrimsonPro-Regular.ttf
+        - asset: fonts/CrimsonPro-Bold.ttf
+          weight: 700
+  assets:
+    - assets/warung_example.jpg
+    - assets/restoran_nusantara.jpg
+

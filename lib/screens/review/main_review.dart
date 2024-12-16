@@ -1,258 +1,226 @@
 import 'package:flutter/material.dart';
+import 'package:uas/models/review.dart';
+import 'package:uas/services/review_service.dart';
 import 'package:uas/screens/review/create_form.dart';
 import 'package:uas/screens/review/edit_form.dart';
-import 'package:uas/models/review.dart';
+import 'package:uas/widgets/footer.dart';
+import 'package:uas/widgets/left_drawer.dart';
+import 'package:uas/widgets/review_card.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
-class ReviewPage extends StatelessWidget {
-  ReviewPage({super.key});
+class ReviewPage extends StatefulWidget {
+  const ReviewPage({super.key});
 
-  final List<Map<String, String>> reviews = [
-    {
-      "name": "Nama Restoran",
-      "title": "Judul Review",
-      "author": "Delya",
-      "rating": "5/5",
-      "comment": "Bagus Banget!",
-      "date": "26 November 2024",
-      "image": "assets/warung_example.jpg",
-      "likes": "100"
-    },
-  ];
+  @override
+  State<ReviewPage> createState() => _ReviewPageState();
+}
+
+class _ReviewPageState extends State<ReviewPage> {
+  final ReviewService _reviewService = ReviewService();
+  List<Review> _reviews = [];
+  bool _isLoading = true;
+  String _currentSort = 'like';
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchReviews();
+  }
+
+  Future<void> fetchReviews() async {
+    try {
+      List<Review> reviews = await _reviewService.fetchReviews();
+      setState(() {
+        _reviews = reviews;
+        _sortReviews(_currentSort);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _sortReviews(String sortBy) {
+    setState(() {
+      _currentSort = sortBy;
+      if (sortBy == 'like') {
+        _reviews.sort((a, b) => b.totalLikes.compareTo(a.totalLikes));
+      } else if (sortBy == 'date') {
+        _reviews.sort((a, b) => b.tanggal.compareTo(a.tanggal));
+      } else if (sortBy == 'rate') {
+        _reviews.sort((a, b) => b.penilaian.compareTo(a.penilaian));
+      }
+    });
+  }
+
+  Future<void> _deleteReview(String id, int index) async {
+    bool confirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Hapus"),
+          content: const Text("Apakah Anda yakin ingin menghapus review ini?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Tidak jadi hapus
+              },
+              child: const Text("Batal"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Konfirmasi hapus
+              },
+              child: const Text(
+                "Hapus",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm) {
+      try {
+        await _reviewService.deleteReview(id);
+        setState(() {
+          _reviews.removeAt(index);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Review berhasil dihapus')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus review: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _editReview(Review review, int index) async {
+    final updatedReview = await showDialog<Review>(
+      context: context,
+      builder: (BuildContext context) {
+        return EditReviewDialog(
+          initialReview: review,
+        );
+      },
+    );
+
+    if (updatedReview != null) {
+      try {
+        Review savedReview = await _reviewService.updateReview(updatedReview);
+        setState(() {
+          _reviews[index] = savedReview;
+          _sortReviews(_currentSort);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Review berhasil diperbarui')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal memperbarui review: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _addReview() async {
+    final newReview = await Navigator.push<Review>(
+      context,
+      MaterialPageRoute(builder: (context) => const ReviewFormPage()),
+    );
+
+    if (newReview != null) {
+      try {
+        Review createdReview = await _reviewService.createReview(newReview);
+        setState(() {
+          _reviews.add(createdReview);
+          _sortReviews(_currentSort);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Review berhasil ditambahkan')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menambahkan review: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Mangan" Solo', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.brown,
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            WriteReviewButton(),
-            const SizedBox(height: 16),
-            const SortButtons(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: reviews.length,
-                itemBuilder: (context, index) {
-                  final review = reviews[index];
-                  return ReviewCard(
-                    name: review["name"]!,
-                    title: review["title"]!,
-                    author: review["author"]!,
-                    rating: review["rating"]!,
-                    comment: review["comment"]!,
-                    date: review["date"]!,
-                    image: review["image"]!,
-                    likes: review["likes"]!,
-                    onEdit: () {
-                      // Open the EditReviewDialog when the "Edit" button is pressed
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return EditReviewDialog(
-                            initialTitle: review["title"]!,
-                            initialRating: review["rating"]!,
-                            initialReview: review["comment"]!,
-                            initialDisplayName: review["author"]!,
-                            onSave: (String title, String rating, String reviewText) {
-                              // Handle the save logic here (e.g., send the data to the backend)
-                              print('Saved Review: Title=$title, Rating=$rating, Review=$reviewText');
-                            },
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+        title: const Text(
+          'Mangan Solo',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: "Lora",
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
         ),
+        backgroundColor: Colors.brown[800],
+        centerTitle: true,
+        elevation: 0,
       ),
-    );
-  }
-}
-
-class WriteReviewButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.brown[200],
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
+      drawer: const LeftDrawer(), // Drawer
+      body: Column(
         children: [
-          Text(
-            "Review",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: "Crimson Pro",
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-              foreground: Paint()
-                ..shader = const LinearGradient(
-                  colors: [Color(0xFFD7C3B0), Color(0xFFFFFBF2)],
-                ).createShader(const Rect.fromLTWH(0, 0, 300, 0)),
-            ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                    ? Center(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red, fontSize: 18),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              _reviews.isEmpty
+                                  ? const Text(
+                                      "Tidak ada ulasan.",
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 16,
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: _reviews.length,
+                                      itemBuilder: (context, index) {
+                                        final review = _reviews[index];
+                                        return ReviewCard(
+                                          review: review,
+                                          onEdit: () => _editReview(review, index),
+                                          onDelete: () => _deleteReview(review.id, index),
+                                        );
+                                      },
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ),
           ),
-          const SizedBox(height: 14),
-          const Text(
-            "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Ulasan!",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: "Crimson Pro",
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFFFFFBF2),
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 14),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to CreateReviewPage
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ReviewFormPage()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.brown[400],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-            ),
-            child: const Text('Tulis Review'),
-          ),
+          const AppFooter(),
         ],
       ),
     );
   }
 }
-
-class SortButtons extends StatelessWidget {
-  const SortButtons({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.brown[400],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-          child: const Text('Sort by Like'),
-        ),
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.brown[400],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-          child: const Text('Sort by Date'),
-        ),
-        ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.brown[400],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-          child: const Text('Sort by Rate'),
-        ),
-      ],
-    );
-  }
-}
-
-class ReviewCard extends StatelessWidget {
-  final String name;
-  final String title;
-  final String author;
-  final String rating;
-  final String comment;
-  final String date;
-  final String image;
-  final String likes;
-  final VoidCallback onEdit;
-
-  const ReviewCard({
-    super.key,
-    required this.name,
-    required this.title,
-    required this.author,
-    required this.rating,
-    required this.comment,
-    required this.date,
-    required this.image,
-    required this.likes,
-    required this.onEdit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      elevation: 4.0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-            ),
-            Text("Judul Review: $title"),
-            Text("Penulis: $author"),
-            const SizedBox(height: 8.0),
-            Text("Rating: $rating"),
-            Text("Comment: $comment"),
-            Text("Tanggal: $date"),
-            const SizedBox(height: 8.0),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Image.asset(image),
-            ),
-            const SizedBox(height: 8.0),
-            Text("Like: $likes"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                    onPressed: onEdit,
-                    child: const Text("Edit"),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text("Delete"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
