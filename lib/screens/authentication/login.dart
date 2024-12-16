@@ -10,6 +10,7 @@ class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -19,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   String? _errorMessage;
-  bool _isLoggedIn = false;
 
   @override
   void initState() {
@@ -29,9 +29,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _checkLoginStatus() async {
     final loggedIn = await _authService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-    });
   }
 
   Future<void> _handleLogin() async {
@@ -41,7 +38,6 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text,
       );
       setState(() {
-        _isLoggedIn = true;
         _errorMessage = null;
       });
     } catch (e) {
@@ -49,13 +45,6 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = e.toString();
       });
     }
-  }
-
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    setState(() {
-      _isLoggedIn = false;
-    });
   }
 
   @override
@@ -86,52 +75,52 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ElevatedButton(
               onPressed: () async {
-                      String username = _usernameController.text;
-                      String password = _passwordController.text;
+                String username = _usernameController.text;
+                String password = _passwordController.text;
 
-                      final response = await request
-                          .login("http://localhost:8000/auth/flogin/", {
-                        'username': username,
-                        'password': password,
-                      });
+                final response =
+                    await request.login("http://localhost:8000/auth/flogin/", {
+                  'username': username,
+                  'password': password,
+                });
+                print('hrl');
+                print(request.getJsonData());
 
-                      if (request.loggedIn) {
-                        String message = response['message'];
-                        String uname = response['username'];
-                        if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LandingPage()),
-                          );
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text("$message Selamat datang, $uname.")),
-                            );
-                        }
-                      } else {
-                        if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Login Gagal'),
-                              content: Text(response['message']),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      }
-                    },
+                if (request.loggedIn) {
+                  String message = response['message'];
+                  print('hellaii');
+                  print(request.getJsonData());
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LandingPage()),
+                    );
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(content: Text("$message")),
+                      );
+                  }
+                } else {
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Login Gagal'),
+                        content: Text(response['message']),
+                        actions: [
+                          TextButton(
+                            child: const Text('OK'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                }
+              },
               child: const Text('Login'),
             ),
             ElevatedButton(

@@ -3,8 +3,9 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/screens/authentication/register.dart';
+import 'package:uas/screens/thread/thread.dart';
 import 'package:uas/services/auth.dart';
-import 'package:uas/widgets/left_drawer.dart'; // Assuming you have AuthService for login management
+import 'package:uas/widgets/left_drawer.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -12,21 +13,9 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final AuthService _authService = AuthService();
-  bool _isLoggedIn = false;
-
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-  }
-
-  // Check if user is logged in
-  Future<void> _checkLoginStatus() async {
-    final loggedIn = await _authService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-    });
   }
 
   @override
@@ -40,7 +29,7 @@ class _LandingPageState extends State<LandingPage> {
       ),
       drawer: const LeftDrawer(),
       body: Center(
-        child: request.loggedIn ? _buildLoggedInContent() : _buildLoggedOutContent(),
+        child: request.loggedIn ? const ThreadScreen() : RegisterPage(),
       ),
     );
   }
@@ -70,7 +59,7 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: _handleLogout,
+            onPressed: () {},
             child: const Text('Logout'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -108,9 +97,9 @@ class _LandingPageState extends State<LandingPage> {
           ElevatedButton(
             onPressed: () {
               Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
             },
             child: const Text('Login'),
             style: ElevatedButton.styleFrom(
@@ -122,9 +111,9 @@ class _LandingPageState extends State<LandingPage> {
           ElevatedButton(
             onPressed: () {
               Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterPage()),
-                );
+                context,
+                MaterialPageRoute(builder: (context) => RegisterPage()),
+              );
             },
             child: const Text('Sign Up'),
             style: ElevatedButton.styleFrom(
@@ -147,13 +136,5 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> _handleSignUp() async {
     // Replace this with your sign up functionality
     Navigator.pushNamed(context, '/signup'); // Navigate to your signup page
-  }
-
-  // Handle Logout button press
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    setState(() {
-      _isLoggedIn = false;
-    });
   }
 }

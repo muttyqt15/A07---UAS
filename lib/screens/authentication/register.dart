@@ -73,73 +73,72 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-                children: [
-                  TextField(
-                    controller: _usernameController,
-                    decoration: const InputDecoration(labelText: 'Username'),
-                  ),
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                  ),
-                  TextField(
-                    controller: _confirmPasswordController,
-                    decoration:
-                        const InputDecoration(labelText: 'Confirm Password'),
-                    obscureText: true,
-                  ),
-                  DropdownButton<String>(
-                    hint: const Text('Select an option'),
-                    value: _selectedValue,
-                    items: [
-                      {'label': 'Pemilik Restoran', 'value': 'RESTO_OWNER'},
-                      {'label': 'Pelanggan', 'value': 'CUSTOMER'}
-                    ].map((option) {
-                      return DropdownMenuItem<String>(
-                        value: option['value'],
-                        child: Text(option['label']!),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedValue = newValue!;
-                      });
-                    },
-                  ),
-                  if (_errorMessage != null)
-                    Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ElevatedButton(
-                    onPressed: _handleSignUp,
-                    child: const Text('Sign Up'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    },
-                    child: const Text('Login'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LandingPage()),
-                      );
-                    },
-                    child: const Text('Landing Page'),
-                  ),
-                ],
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: 'Username'),
+            ),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            TextField(
+              controller: _confirmPasswordController,
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
+              obscureText: true,
+            ),
+            DropdownButton<String>(
+              hint: const Text('Select an option'),
+              value: _selectedValue,
+              items: [
+                {'label': 'Pemilik Restoran', 'value': 'RESTO_OWNER'},
+                {'label': 'Pelanggan', 'value': 'CUSTOMER'}
+              ].map((option) {
+                return DropdownMenuItem<String>(
+                  value: option['value'],
+                  child: Text(option['label']!),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedValue = newValue!;
+                });
+              },
+            ),
+            if (_errorMessage != null)
+              Text(
+                _errorMessage!,
+                style: const TextStyle(color: Colors.red),
               ),
+            ElevatedButton(
+              onPressed: _handleSignUp,
+              child: const Text('Sign Up'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+              child: const Text('Login'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LandingPage()),
+                );
+              },
+              child: const Text('Landing Page'),
+            ),
+          ],
+        ),
       ),
     );
   }
