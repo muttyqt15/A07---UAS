@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/services/profile.dart';
 
 class Profile {
   final String profilePic;
@@ -49,12 +52,11 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    futureProfile = fetchProfile();
     dummyProfile = fetchDummyProfile();
   }
 
-  Future<Profile> fetchProfile() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/profile/json'));
+  Future<Profile> fetchProfile(request) async {
+    final response = await request.get('http://127.0.0.1:8000/profile/json/');
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -64,8 +66,10 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  @override
+  @override 
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    futureProfile = fetchProfile(request);
     return Scaffold(
       appBar: AppBar(
         title: const Text(

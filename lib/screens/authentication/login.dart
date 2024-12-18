@@ -85,54 +85,55 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ElevatedButton(
               onPressed: () async {
-                      String username = _usernameController.text;
-                      String password = _passwordController.text;
+                String username = _usernameController.text;
+                String password = _passwordController.text;
 
-                      final response = await request
-                          .login("http://localhost:8000/auth/flogin/", {
-                        'username': username,
-                        'password': password,
-                      });
+                final response = await request.login(
+                  "http://localhost:8000/auth/flogin/",
+                  {'username': username, 'password': password},
+                );
 
-                      if (request.loggedIn) {
-                        String message = response['message'];
-                        String uname = response['username'];
-                        if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LandingPage()),
-                          );
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text("$message Selamat datang, $uname.")),
-                            );
-                        }
-                      } else {
-                        if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Login Gagal'),
-                              content: Text(response['message']),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      }
-                    },
+                if (request.loggedIn) {
+                  String message = response['message'] ?? 'Login successful';
+                  Map<String, dynamic>? userData = response['data'];
+
+                  String uname = userData?['username'] ?? 'Unknown User';
+
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LandingPage()),
+                    );
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(
+                          content: Text("$message. Welcome, $uname."),
+                        ),
+                      );
+                  }
+                } else {
+                  if (context.mounted) {
+                    String errorMessage = response['message'] ?? 'Login failed.';
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Login Failed'),
+                        content: Text(errorMessage),
+                        actions: [
+                          TextButton(
+                            child: const Text('OK'),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                }
+              },
               child: const Text('Login'),
             ),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.pushReplacement(
