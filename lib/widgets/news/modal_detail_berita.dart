@@ -9,8 +9,10 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class ModalDetailBerita extends StatefulWidget {
   final String beritaId; // ID berita untuk fetch data
+  final VoidCallback? onModalClosed;
 
-  const ModalDetailBerita({super.key, required this.beritaId});
+  const ModalDetailBerita({super.key, required this.beritaId, this.onModalClosed,
+  });
 
   @override
   _ModalDetailBeritaState createState() => _ModalDetailBeritaState();
@@ -176,6 +178,9 @@ class _ModalDetailBeritaState extends State<ModalDetailBerita> {
                               ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
+                                  if (widget.onModalClosed != null) {
+                                    widget.onModalClosed!(); // Panggil callback
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFE5D2B0),

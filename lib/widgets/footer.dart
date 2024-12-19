@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uas/screens/news/main_berita.dart';
+import 'package:uas/screens/news/main_owner_berita.dart';
 
 class AppFooter extends StatelessWidget {
   const AppFooter({super.key});
@@ -72,7 +73,7 @@ class AppFooter extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MainBeritaScreen()),
+                              builder: (context) => MainOwnerBerita()),
                         );
                       },
                       child: const Text('Restoran', style:

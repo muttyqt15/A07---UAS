@@ -28,33 +28,28 @@ class NewsOwnerServices {
     File? imageFile, // For mobile/desktop
     Uint8List? imageBytes, // For web
   }) async {
-    final String url = '$baseUrl/news/fadd_berita_ajax/';
+    const String url = '$baseUrl/news/fadd_berita_ajax/';
 
     Map<String, String> fields = {'judul': title, 'konten': content};
 
     try {
       if (imageFile != null) {
-        // if (await imageFile.exists()) {
-        //   Map<String, File> files = {'gambar': imageFile};
-        //   // Multipart request with file
-        //   final response = await request.postMultipart(url, fields, files);
-        //   if (response['status'] != 200) {
-        //     throw Exception('Failed to add news: ${response['message']}');
-        //   }
-        //   print("DEBUG: News successfully added with file.");
-        // } else {
-        //   throw Exception('Image file does not exist.');
-        // }
+        // Convert File to Uint8List
+        Uint8List fileBytes = await imageFile.readAsBytes();
+        String base64Image = base64Encode(fileBytes);
+        fields['gambar_base64'] = base64Image;
 
+        // POST request with base64 image
         final response = await request.post(url, fields);
         if (response['status'] != 200) {
-          throw Exception('Failed to edit news: ${response['message']}');
+          throw Exception('Failed to add news: ${response['message']}');
         }
-        print("DEBUG: News successfully edited with base64 image.");
+        print("DEBUG: News successfully added with file converted to base64.");
       } else if (imageBytes != null) {
         // Encode Uint8List to base64
         String base64Image = base64Encode(imageBytes);
         fields['gambar_base64'] = base64Image;
+
         // POST request with base64 image
         final response = await request.post(url, fields);
         if (response['status'] != 200) {
@@ -83,33 +78,28 @@ Future<void> editNews(
 
     try {
       if (imageFile != null) {
-        // if (await imageFile.exists()) {
-        //   Map<String, File> files = {'gambar': imageFile};
-        //   // Multipart request dengan file
-        //   final response = await request.postMultipart(url, fields, files);
-        //   if (response['status'] != 200) {
-        //     throw Exception('Failed to edit news: ${response['message']}');
-        //   }
-        //   print("DEBUG: News successfully edited with file.");
-        // } else {
-        //   throw Exception('Image file does not exist.');
-        // }
+        // Konversi File menjadi Uint8List
+        Uint8List fileBytes = await imageFile.readAsBytes();
+        String base64Image = base64Encode(fileBytes);
+        fields['gambar_base64'] = base64Image;
 
+        // Kirim POST request dengan base64 image
         final response = await request.post(url, fields);
         if (response['status'] != 200) {
           throw Exception('Failed to edit news: ${response['message']}');
         }
-        print("DEBUG: News successfully edited with base64 image.");
+        print("DEBUG: News successfully edited with imageFile as base64.");
       } else if (imageBytes != null) {
         // Encode Uint8List ke base64
         String base64Image = base64Encode(imageBytes);
         fields['gambar_base64'] = base64Image;
-        // POST request dengan base64
+
+        // Kirim POST request dengan base64 image
         final response = await request.post(url, fields);
         if (response['status'] != 200) {
           throw Exception('Failed to edit news: ${response['message']}');
         }
-        print("DEBUG: News successfully edited with base64 image.");
+        print("DEBUG: News successfully edited with imageBytes.");
       } else {
         // Jika tidak ada gambar baru
         final response = await request.post(url, fields);
@@ -123,7 +113,6 @@ Future<void> editNews(
       rethrow;
     }
   }
-
 
   // Delete news
   Future<void> deleteNews(CookieRequest request, String id) async {

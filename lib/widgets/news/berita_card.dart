@@ -138,7 +138,7 @@ class BeritaCard extends StatelessWidget {
                         context: context,
                         isScrollControlled: true,
                         builder: (context) =>
-                            ModalDetailBerita(beritaId: news.pk),
+                            ModalDetailBerita(beritaId: news.pk, onModalClosed: onLikeToggled,),
                       );
                     },
                     style: ElevatedButton.styleFrom(
