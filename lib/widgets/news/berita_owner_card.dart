@@ -9,12 +9,14 @@ class BeritaOwnerCard extends StatelessWidget {
   final News news;
   final VoidCallback onEdit;
   final VoidCallback onRemove;
+  final VoidCallback onLikeToggled;
 
   const BeritaOwnerCard({
     super.key,
     required this.news,
     required this.onEdit,
     required this.onRemove,
+    required this.onLikeToggled,
   });
 
   String formatTanggal() {
@@ -35,26 +37,24 @@ class BeritaOwnerCard extends StatelessWidget {
     return GestureDetector(
       child: Container(
         margin: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40),
+        child: CustomPaint(
+        painter: GradientBorderPainter(
+          borderRadius: 40.0,
           gradient: const LinearGradient(
             colors: [
-              Color(0xFF8D7762),
-              Color(0xFFE3D6C9),
+              Color(0xFF8D7762), // Warna awal
+              Color(0xFFE3D6C9), // Warna akhir
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
+          strokeWidth: 6.0,
         ),
         child: Container(
           padding: const EdgeInsets.fromLTRB(40, 40, 34, 40),
           decoration: BoxDecoration(
             color: const Color.fromRGBO(95, 77, 64, 0.80),
             borderRadius: BorderRadius.circular(40),
-            border: Border.all(
-              color: const Color(0xFF8D7762),
-              width: 4,
-            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,20 +121,12 @@ class BeritaOwnerCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(""),
-                  // Text(
-                  //   "${news.fields.like} Likes",
-                  //   style: const TextStyle(
-                  //     fontSize: 16,
-                  //     fontStyle: FontStyle.normal,
-                  //     fontWeight: FontWeight.w500,
-                  //     height: 1.4,
-                  //     color: Color(0xFFFFFBF2),
-                  //   ),
-                  // ),
                   LikeButton(
                     beritaId: news.pk, // ID berita
-                    isLiked: news.fields.liked, // Status awal (bisa diambil dari API jika ada)
+                    isLiked: news.fields
+                        .liked, // Status awal (bisa diambil dari API jika ada)
                     initialLikes: news.fields.like, // Jumlah likes
+                    onToggleLikeComplete: onLikeToggled,
                   ),
                 ],
               ),
@@ -227,6 +219,37 @@ class BeritaOwnerCard extends StatelessWidget {
           ),
         ),
       ),
+      )
     );
   }
+}
+
+class GradientBorderPainter extends CustomPainter {
+  final double borderRadius;
+  final Gradient gradient;
+  final double strokeWidth;
+
+  GradientBorderPainter({
+    required this.borderRadius,
+    required this.gradient,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect rect = Offset.zero & size;
+    final RRect rrect = RRect.fromRectAndRadius(
+      rect,
+      Radius.circular(borderRadius),
+    );
+    final Paint paint = Paint()
+      ..shader = gradient.createShader(rect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

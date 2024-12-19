@@ -1,10 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 class ModalEditBerita extends StatefulWidget {
-  final Function(Map<String, dynamic>) onEdit;
+  final Function(Map<String, dynamic>, File?, Uint8List?) onEdit;
   final Map<String, dynamic> berita;
 
   const ModalEditBerita({
@@ -22,6 +24,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
   late TextEditingController titleController;
   late TextEditingController contentController;
   File? _selectedImageFile;
+  Uint8List? _selectedImageBytes; // For Web
   String? _selectedImageUrl;
   final ImagePicker _picker = ImagePicker();
 
@@ -34,15 +37,20 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       if (kIsWeb) {
-        // Use network URL or web-compatible logic
+        // Handle image selection for Flutter Web
+        final bytes = await pickedFile.readAsBytes();
         setState(() {
-          _selectedImageUrl = pickedFile.path; // Temporary path for Flutter Web
+          _selectedImageBytes = bytes;
+          _selectedImageFile = null; // File tidak relevan di web
         });
       } else {
+        // Handle image selection for Flutter Mobile/Desktop
         setState(() {
           _selectedImageFile = File(pickedFile.path);
+          _selectedImageBytes = null; // Bytes tidak relevan di non-web
         });
       }
     }
@@ -52,7 +60,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
     if (_formKey.currentState!.validate()) {
       String title = titleController.text.trim();
       String content = contentController.text.trim();
-      
+
       if (title.isEmpty || content.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -64,18 +72,44 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
       }
 
       try {
-        widget.onEdit({
+        Map<String, dynamic> data = {
           'judul': title,
           'konten': content,
-        });
+        };
+
+         // Validasi gambar
+        // if (kIsWeb) {
+        //   if (_selectedImageBytes == null) {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       const SnackBar(
+        //         content: Text("Harap pilih gambar."),
+        //         backgroundColor: Colors.red,
+        //       ),
+        //     );
+        //     return;
+        //   }
+        // } else {
+        //   if (_selectedImageFile == null) {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       const SnackBar(
+        //         content: Text("Harap pilih gambar."),
+        //         backgroundColor: Colors.red,
+        //       ),
+        //     );
+        //     return;
+        //   }
+        // }
+
+        widget.onEdit(data, _selectedImageFile, _selectedImageBytes); // Panggil callback dengan data
         Navigator.of(context).pop(); // Tutup modal setelah sukses
       } catch (e) {
-        print('Error editing news in ModalAddBerita: $e');
+        print('Error editing news in ModalEditBerita: $e');
       }
     } else {
       print("Form validation failed");
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +154,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
               const SizedBox(height: 20),
 
               // Current or Selected Image
-              if (widget.berita['gambar'] != null &&
-                  _selectedImageFile == null &&
-                  _selectedImageUrl == null)
+              if (_selectedImageBytes != null) // Gambar baru untuk web
                 Container(
                   width: double.infinity,
                   height: 150,
@@ -131,13 +163,13 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      'http://127.0.0.1:8000/${widget.berita['gambar']}',
+                    child: Image.memory(
+                      _selectedImageBytes!,
                       fit: BoxFit.cover,
                     ),
                   ),
                 )
-              else if (_selectedImageFile != null)
+              else if (_selectedImageFile != null) // Gambar baru untuk mobile
                 Container(
                   width: double.infinity,
                   height: 150,
@@ -152,7 +184,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
                     ),
                   ),
                 )
-              else if (_selectedImageUrl != null)
+              else if (widget.berita['gambar'] != null) // Gambar asli
                 Container(
                   width: double.infinity,
                   height: 150,
@@ -162,8 +194,27 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(
-                      _selectedImageUrl!,
+                      'http://127.0.0.1:8000/${widget.berita['gambar']}',
                       fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              else // Placeholder jika tidak ada gambar
+                Container(
+                  width: double.infinity,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFABA197),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "Belum ada gambar yang dipilih",
+                      style: TextStyle(
+                        color: Color(0xFFFFFBF2),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -261,7 +312,6 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
-                  // Save Button
                 ],
               ),
             ],

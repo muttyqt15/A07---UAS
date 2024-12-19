@@ -33,8 +33,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
       final berita = await _beritaService.fetchBerita(request);
       setState(() {
         _beritaList = berita;
-        print('beritaList: ${_beritaList[0].fields.liked}');
-        // _sortBerita(_sortBy);
+        _sortBerita(_sortBy);
       });
     } catch (e) {
       // Tampilkan error ke user
@@ -63,122 +62,147 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Berita')),
-      body: ListView(
-        children: [
-          // Daftar Berita Header
-          Text(
-            "Daftar Berita",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
-              foreground: Paint()
-                ..shader = const LinearGradient(
-                  colors: [Color(0xFFD7C3B0), Color(0xFFFFFBF2)],
-                ).createShader(const Rect.fromLTWH(0, 0, 300, 0)),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Sorting Buttons
-          Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFF44392F),
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Sort by Like Button
-                GestureDetector(
-                  onTap: () => _sortBerita('like'),
-                  child: Container(
-                    width: 120,
-                    height: 28,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _sortBy == 'like'
-                          ? const Color(0xFFDECDBE)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: const Color(0xFFFFFBF2),
-                        width: 2,
-                      ),
-                    ),
-                    child: Text(
-                      "Sort by Like",
-                      style: TextStyle(
-                        fontFamily: "Lora",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                        color: _sortBy == 'like'
-                            ? const Color(0xFF5F4D40)
-                            : const Color(0xFFFFFBF2),
-                      ),
-                    ),
+        appBar: AppBar(title: const Text('Daftar Berita')),
+        body: Stack(
+          children: [
+            // Background Image
+            Positioned.fill(
+              child: Stack(
+                children: [
+                  // Image Layer
+                  Image.asset(
+                    'assets/images/batik.png',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
                   ),
-                ),
-                const SizedBox(width: 10),
-
-                // Sort by Date Button
-                GestureDetector(
-                  onTap: () => _sortBerita('tanggal'),
-                  child: Container(
-                    width: 120,
-                    height: 28,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: _sortBy == 'tanggal'
-                          ? const Color(0xFFDECDBE)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: const Color(0xFFFFFBF2),
-                        width: 2,
-                      ),
-                    ),
-                    child: Text(
-                      "Sort by Date",
-                      style: TextStyle(
-                        fontFamily: "Lora",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                        color: _sortBy == 'tanggal'
-                            ? const Color(0xFF5F4D40)
-                            : const Color(0xFFFFFBF2),
-                      ),
-                    ),
+                  // Dark Overlay
+                  Container(
+                    color: Colors.black.withOpacity(0.7), // 70% dark overlay
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
+          ListView(
+            children: [
+              // Daftar Berita Header
+              Text(
+                "Daftar Berita",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                  foreground: Paint()
+                    ..shader = const LinearGradient(
+                      colors: [Color(0xFFD7C3B0), Color(0xFFFFFBF2)],
+                    ).createShader(const Rect.fromLTWH(0, 0, 300, 0)),
+                ),
+              ),
+              const SizedBox(height: 20),
 
-          // List of News
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _beritaList.length,
-            itemBuilder: (context, index) {
-              return BeritaCard(
-                key: ValueKey(_beritaList[index].pk), // Tambahkan key unik
-                news: _beritaList[index],
-              );
-            },
-          ),
+              // Sorting Buttons
+              Container(
+                margin: const EdgeInsets.all(20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF44392F),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Sort by Like Button
+                    GestureDetector(
+                      onTap: () => _sortBerita('like'),
+                      child: Container(
+                        width: 120,
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: _sortBy == 'like'
+                              ? const Color(0xFFDECDBE)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(
+                            color: const Color(0xFFFFFBF2),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          "Sort by Like",
+                          style: TextStyle(
+                            fontFamily: "Lora",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                            color: _sortBy == 'like'
+                                ? const Color(0xFF5F4D40)
+                                : const Color(0xFFFFFBF2),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
 
-          const SizedBox(height: 10),
-          const AppFooter(),
-        ],
-      ),
-    );
+                    // Sort by Date Button
+                    GestureDetector(
+                      onTap: () => _sortBerita('tanggal'),
+                      child: Container(
+                        width: 120,
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: _sortBy == 'tanggal'
+                              ? const Color(0xFFDECDBE)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(
+                            color: const Color(0xFFFFFBF2),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          "Sort by Date",
+                          style: TextStyle(
+                            fontFamily: "Lora",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                            color: _sortBy == 'tanggal'
+                                ? const Color(0xFF5F4D40)
+                                : const Color(0xFFFFFBF2),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // List of News
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _beritaList.length,
+                itemBuilder: (context, index) {
+                  return BeritaCard(
+                    key: ValueKey(_beritaList[index].pk), // Tambahkan key unik
+                    news: _beritaList[index],
+                    onLikeToggled: () {
+                      // Callback untuk memperbarui data setelah aksi like
+                      fetchBerita(); // Refetch daftar berita untuk memastikan data terbaru
+                    },
+                  );
+                },
+              ),
+
+              const SizedBox(height: 10),
+              const AppFooter(),
+            ],
+          ),
+        ]));
   }
 }

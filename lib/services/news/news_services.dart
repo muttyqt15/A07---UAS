@@ -10,7 +10,7 @@ class NewsServices {
     const url = '$baseUrl/news/show_berita_json/';
     try {
       final response = await request.get(url);
-      print('Raw response: $response'); 
+      // print('Raw response: $response'); 
       final List<dynamic> data = response;
       return data.map((json) => News.fromJson(json)).toList();
     } catch (e) {
@@ -23,7 +23,7 @@ class NewsServices {
       final url = '$baseUrl/news/fshow_berita_id/$beritaId/';
       try {
         final response = await request.get(url);
-        print('Raw response for berita by ID: $response');
+        // print('Raw response for berita by ID: $response');
         return News.fromJson(
             response); // Assume the response is a single berita object
       } catch (e) {

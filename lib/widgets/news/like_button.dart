@@ -7,12 +7,14 @@ class LikeButton extends StatefulWidget {
   final String beritaId;
   final bool isLiked;
   final int initialLikes;
+  final VoidCallback? onToggleLikeComplete; // Tambahkan parameter baru
 
   const LikeButton({
     Key? key,
     required this.beritaId,
     required this.isLiked,
     required this.initialLikes,
+    this.onToggleLikeComplete, // Inisialisasi parameter
   }) : super(key: key);
 
   @override
@@ -36,7 +38,7 @@ class _LikeButtonState extends State<LikeButton> {
   @override
   void didUpdateWidget(covariant LikeButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Perbarui state jika properti widget berubah
+    // Update state jika properti widget berubah
     if (oldWidget.isLiked != widget.isLiked ||
         oldWidget.initialLikes != widget.initialLikes) {
       setState(() {
@@ -58,7 +60,7 @@ class _LikeButtonState extends State<LikeButton> {
           await _newsOwnerServices.toggleLike(request, widget.beritaId);
 
       final loggedIn = response['logged_in'] ?? false;
-      final liked = response['liked'] ?? false;
+      final liked = response['liked'] ?? false; // Gunakan langsung dari API
       final likes = response['likes'] ?? _likesCount;
 
       if (!loggedIn) {
@@ -68,6 +70,11 @@ class _LikeButtonState extends State<LikeButton> {
           _isLiked = liked;
           _likesCount = likes;
         });
+
+        // Panggil callback jika disediakan
+        if (widget.onToggleLikeComplete != null) {
+          widget.onToggleLikeComplete!();
+        }
       }
     } catch (e) {
       print('Error toggling like: $e');
@@ -78,13 +85,15 @@ class _LikeButtonState extends State<LikeButton> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: _isLoading ? null : _handleLike,
       icon: Icon(
-        _isLiked ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
-        color: Color(0xFF5F4D40),
+        Icons.thumb_up_alt_outlined,
+        color: const Color(0xFF5F4D40),
       ),
       label: Text(
         '$_likesCount Likes',
@@ -97,7 +106,7 @@ class _LikeButtonState extends State<LikeButton> {
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor:
-            _isLiked ? const Color(0xFFC4B09D) : const Color(0xFFE5D2B0),
+          const Color(0xFFE5D2B0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40),
         ),

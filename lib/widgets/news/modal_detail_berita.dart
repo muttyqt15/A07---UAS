@@ -54,6 +54,7 @@ class _ModalDetailBeritaState extends State<ModalDetailBerita> {
     }
   }
 
+
   @override
   void initState() {
     super.initState();

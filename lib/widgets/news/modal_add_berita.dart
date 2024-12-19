@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 class ModalAddBerita extends StatefulWidget {
-  final Function(Map<String, dynamic>) onAdd;
+  final Function(Map<String, dynamic>, File?, Uint8List?) onAdd;
 
-  const ModalAddBerita({super.key, required this.onAdd});
+  ModalAddBerita({super.key, required this.onAdd});
 
   @override
   _ModalAddBeritaState createState() => _ModalAddBeritaState();
@@ -30,15 +30,18 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
         final bytes = await pickedFile.readAsBytes();
         setState(() {
           _selectedImageBytes = bytes;
+          _selectedImageFile = null; // File tidak relevan di web
         });
       } else {
         // Handle image selection for Flutter Mobile/Desktop
         setState(() {
           _selectedImageFile = File(pickedFile.path);
+          _selectedImageBytes = null; // Bytes tidak relevan di non-web
         });
       }
     }
   }
+
 
   void _handleAddNews() async {
     if (_formKey.currentState!.validate()) {
@@ -52,15 +55,38 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
             backgroundColor: Colors.red,
           ),
         );
-        return; // Hentikan proses jika data kosong
+        return;
+      }
+
+      // Validasi gambar
+      if (kIsWeb) {
+        if (_selectedImageBytes == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Harap pilih gambar."),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      } else {
+        if (_selectedImageFile == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Harap pilih gambar."),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
       }
 
       try {
-        widget.onAdd({
-          'title': title,
-          'content': content,
-        });
-        Navigator.of(context).pop(); // Tutup modal setelah sukses
+        widget.onAdd(
+          {'title': title, 'content': content},
+          _selectedImageFile, _selectedImageBytes // null untuk web
+        );
+        Navigator.of(context).pop();
       } catch (e) {
         print('Error adding news in ModalAddBerita: $e');
       }
