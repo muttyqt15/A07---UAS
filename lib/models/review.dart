@@ -9,41 +9,77 @@ List<Review> reviewFromJson(String str) => List<Review>.from(json.decode(str).ma
 String reviewToJson(List<Review> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Review {
-    String id;
-    String judulUlasan;
-    String teksUlasan;
-    int penilaian;
-    DateTime tanggal;
-    int totalLikes;
-    List<String> images;
+    String model;
+    String pk;
+    Fields fields;
 
     Review({
-        required this.id,
-        required this.judulUlasan,
-        required this.teksUlasan,
-        required this.penilaian,
-        required this.tanggal,
-        required this.totalLikes,
-        required this.images,
+        required this.model,
+        required this.pk,
+        required this.fields,
     });
 
     factory Review.fromJson(Map<String, dynamic> json) => Review(
-        id: json["id"],
+        model: json["model"],
+        pk: json["pk"],
+        fields: Fields.fromJson(json["fields"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "model": model,
+        "pk": pk,
+        "fields": fields.toJson(),
+    };
+}
+
+class Fields {
+    int customer;
+    int restoran;
+    String judulUlasan;
+    DateTime tanggal;
+    String teksUlasan;
+    int penilaian;
+    DateTime waktuEditTerakhir;
+    String displayName;
+    List<dynamic> likes;
+    List<String> images;
+
+    Fields({
+        required this.customer,
+        required this.restoran,
+        required this.judulUlasan,
+        required this.tanggal,
+        required this.teksUlasan,
+        required this.penilaian,
+        required this.waktuEditTerakhir,
+        required this.displayName,
+        required this.likes,
+        required this.images,
+    });
+
+    factory Fields.fromJson(Map<String, dynamic> json) => Fields(
+        customer: json["customer"],
+        restoran: json["restoran"],
         judulUlasan: json["judul_ulasan"],
+        tanggal: DateTime.parse(json["tanggal"]),
         teksUlasan: json["teks_ulasan"],
         penilaian: json["penilaian"],
-        tanggal: DateTime.parse(json["tanggal"]),
-        totalLikes: json["total_likes"],
+        waktuEditTerakhir: DateTime.parse(json["waktu_edit_terakhir"]),
+        displayName: json["display_name"],
+        likes: List<dynamic>.from(json["likes"].map((x) => x)),
         images: List<String>.from(json["images"].map((x) => x)),
     );
 
     Map<String, dynamic> toJson() => {
-        "id": id,
+        "customer": customer,
+        "restoran": restoran,
         "judul_ulasan": judulUlasan,
+        "tanggal": "${tanggal.year.toString().padLeft(4, '0')}-${tanggal.month.toString().padLeft(2, '0')}-${tanggal.day.toString().padLeft(2, '0')}",
         "teks_ulasan": teksUlasan,
         "penilaian": penilaian,
-        "tanggal": "${tanggal.year.toString().padLeft(4, '0')}-${tanggal.month.toString().padLeft(2, '0')}-${tanggal.day.toString().padLeft(2, '0')}",
-        "total_likes": totalLikes,
+        "waktu_edit_terakhir": waktuEditTerakhir.toIso8601String(),
+        "display_name": displayName,
+        "likes": List<dynamic>.from(likes.map((x) => x)),
         "images": List<dynamic>.from(images.map((x) => x)),
     };
 }

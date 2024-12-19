@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:uas/models/review.dart';
-import 'package:uas/services/review_service.dart';
-import 'package:uas/screens/review/create_form.dart';
-import 'package:uas/screens/review/edit_form.dart';
-import 'package:uas/widgets/footer.dart';
-import 'package:uas/widgets/left_drawer.dart';
-import 'package:uas/widgets/review_card.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/screens/review/create_form.dart';
+import 'package:uas/widgets/left_drawer.dart';
 
-class ReviewPage extends StatefulWidget {
-  const ReviewPage({super.key});
+class MainReviewPage extends StatefulWidget {
+  const MainReviewPage({super.key});
 
   @override
-  State<ReviewPage> createState() => _ReviewPageState();
+  State<MainReviewPage> createState() => _MainReviewPageState();
 }
 
-class _ReviewPageState extends State<ReviewPage> {
-  final ReviewService _reviewService = ReviewService();
-  List<Review> _reviews = [];
-  bool _isLoading = true;
-  String _currentSort = 'like';
-  String? _errorMessage;
+class _MainReviewPageState extends State<MainReviewPage> {
+  List<Map<String, dynamic>> _reviewList = [];
+  String _sortBy = ''; // '', 'like', 'date', 'rate'
 
   @override
   void initState() {
@@ -30,196 +22,173 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<void> fetchReviews() async {
+    final request = context.read<CookieRequest>();
+    final url = "http://127.0.0.1:8000/review/flutter/user-reviews/?sort_by=$_sortBy";
+
     try {
-      List<Review> reviews = await _reviewService.fetchReviews();
-      setState(() {
-        _reviews = reviews;
-        _sortReviews(_currentSort);
-        _isLoading = false;
-      });
+      final response = await request.get(url);
+      print("Response JSON: $response"); // Debug respons JSON
+
+      if (response['status'] == 'success' && response['data'] != null) {
+        setState(() {
+          _reviewList = List<Map<String, dynamic>>.from(response['data'].map((review) {
+            return {
+              "id": review['id'] ?? "",
+              "restoran_name": review['restoran_name'] ?? "Nama Restoran",
+              "judul_ulasan": review['judul_ulasan'] ?? "Judul Review",
+              "teks_ulasan": review['teks_ulasan'] ?? "",
+              "penilaian": review['penilaian'] ?? 0,
+              "tanggal": review['tanggal'] ?? "",
+              "display_name": review['display_name'] ?? "Anonim",
+              "total_likes": review['total_likes'] ?? 0,
+              "images": (review['images'] as List<dynamic>? ?? []).cast<String>(),
+            };
+          }));
+          if (_reviewList.isNotEmpty) _applySorting(); // Apply sorting if data exists
+        });
+      } else {
+        print("Error Message: ${response['message']}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal mengambil data review: ${response['message']}")),
+        );
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      print("Error fetching reviews: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan saat mengambil data.")),
+      );
     }
   }
 
-  void _sortReviews(String sortBy) {
+
+  void _applySorting() {
     setState(() {
-      _currentSort = sortBy;
-      if (sortBy == 'like') {
-        _reviews.sort((a, b) => b.totalLikes.compareTo(a.totalLikes));
-      } else if (sortBy == 'date') {
-        _reviews.sort((a, b) => b.tanggal.compareTo(a.tanggal));
-      } else if (sortBy == 'rate') {
-        _reviews.sort((a, b) => b.penilaian.compareTo(a.penilaian));
+      if (_sortBy == 'like') {
+        _reviewList.sort((a, b) => b['total_likes'].compareTo(a['total_likes']));
+      } else if (_sortBy == 'date') {
+        _reviewList.sort((a, b) => b['tanggal'].compareTo(a['tanggal']));
+      } else if (_sortBy == 'rate') {
+        _reviewList.sort((a, b) => b['penilaian'].compareTo(a['penilaian']));
       }
     });
   }
 
-  Future<void> _deleteReview(String id, int index) async {
-    bool confirm = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Konfirmasi Hapus"),
-          content: const Text("Apakah Anda yakin ingin menghapus review ini?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false); // Tidak jadi hapus
-              },
-              child: const Text("Batal"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // Konfirmasi hapus
-              },
-              child: const Text(
-                "Hapus",
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirm) {
-      try {
-        await _reviewService.deleteReview(id);
-        setState(() {
-          _reviews.removeAt(index);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review berhasil dihapus')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus review: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _editReview(Review review, int index) async {
-    final updatedReview = await showDialog<Review>(
-      context: context,
-      builder: (BuildContext context) {
-        return EditReviewDialog(
-          initialReview: review,
-        );
-      },
-    );
-
-    if (updatedReview != null) {
-      try {
-        Review savedReview = await _reviewService.updateReview(updatedReview);
-        setState(() {
-          _reviews[index] = savedReview;
-          _sortReviews(_currentSort);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review berhasil diperbarui')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal memperbarui review: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _addReview() async {
-    final newReview = await Navigator.push<Review>(
-      context,
-      MaterialPageRoute(builder: (context) => const ReviewFormPage()),
-    );
-
-    if (newReview != null) {
-      try {
-        Review createdReview = await _reviewService.createReview(newReview);
-        setState(() {
-          _reviews.add(createdReview);
-          _sortReviews(_currentSort);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Review berhasil ditambahkan')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan review: $e')),
-        );
-      }
-    }
+  void _changeSort(String sortOption) {
+    setState(() {
+      _sortBy = sortOption;
+      _applySorting();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'Mangan Solo',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: "Lora",
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
-        ),
-        backgroundColor: Colors.brown[800],
+        title: const Text('Review'),
         centerTitle: true,
-        elevation: 0,
       ),
-      drawer: const LeftDrawer(), // Drawer
-      body: Column(
-        children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _errorMessage != null
-                    ? Center(
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(color: Colors.red, fontSize: 18),
-                        ),
-                      )
-                    : SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16),
-                              _reviews.isEmpty
-                                  ? const Text(
-                                      "Tidak ada ulasan.",
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 16,
-                                      ),
-                                    )
-                                  : ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: _reviews.length,
-                                      itemBuilder: (context, index) {
-                                        final review = _reviews[index];
-                                        return ReviewCard(
-                                          review: review,
-                                          onEdit: () => _editReview(review, index),
-                                          onDelete: () => _deleteReview(review.id, index),
-                                        );
-                                      },
-                                    ),
-                            ],
-                          ),
-                        ),
-                      ),
-          ),
-          const AppFooter(),
-        ],
+      drawer: const LeftDrawer(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateReviewFormPage(),
+                    ),
+                  ).then((_) => fetchReviews());
+                },
+                child: const Text("Tulis Review"),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildSortButton("Sort by Like", "like"),
+                const SizedBox(width: 8),
+                _buildSortButton("Sort by Date", "date"),
+                const SizedBox(width: 8),
+                _buildSortButton("Sort by Rate", "rate"),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _reviewList.isEmpty
+                ? const Center(child: Text("Tidak ada review."))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _reviewList.length,
+                    itemBuilder: (context, index) {
+                      return _buildReviewCard(_reviewList[index]);
+                    },
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortButton(String text, String value) {
+    final isSelected = _sortBy == value;
+    return ElevatedButton(
+      onPressed: () => _changeSort(value),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.blueGrey : Colors.grey[300],
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: isSelected ? Colors.white : Colors.black),
+      ),
+    );
+  }
+
+  Widget _buildReviewCard(Map<String, dynamic> review) {
+    final restoranName = review['restoran_name'];
+    final judulUlasan = review['judul_ulasan'];
+    final penulis = review['display_name'];
+    final penilaian = review['penilaian'];
+    final comment = review['teks_ulasan'];
+    final tanggal = review['tanggal'];
+    final images = (review['images'] as List<String>);
+    final likeCount = review['total_likes'];
+
+    return Card(
+      margin: const EdgeInsets.all(12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              restoranName,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text("Judul: $judulUlasan"),
+            Text("Penulis: $penulis"),
+            Text("Rating: $penilaian/5"),
+            Text("Tanggal: $tanggal"),
+            const SizedBox(height: 8),
+            if (images.isNotEmpty && images.first.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Image.network(
+                images.first,
+                height: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Text('Gambar tidak dapat dimuat');
+                },
+              ),
+            ],
+            const SizedBox(height: 8),
+            Text("Komentar: $comment"),
+            Text("Likes: $likeCount"),
+          ],
+        ),
       ),
     );
   }

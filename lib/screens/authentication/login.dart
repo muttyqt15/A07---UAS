@@ -136,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => ReviewPage()),
+                  MaterialPageRoute(builder: (context) => MainReviewPage()),
                 );
               },
               child: const Text('Landing Page'),
