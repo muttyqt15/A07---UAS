@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:uas/services/thread.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class ThreadScreen extends StatefulWidget {
   const ThreadScreen({Key? key}) : super(key: key);
@@ -19,25 +21,48 @@ class _ThreadScreenState extends State<ThreadScreen> {
   @override
   void initState() {
     super.initState();
+    print("Fetching...");
     fetchThreads();
   }
 
-  String? imagePath;
-  String _content = "";
+  final TextEditingController _contentController = TextEditingController();
+  File? _selectedImage;
 
-  Future<void> createThread(request) async {
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> createThread() async {
+    final request = context.read<CookieRequest>();
     try {
-      final data = {"content": _content};
+      String? base64Image;
+
+      if (_selectedImage != null) {
+        List<int> imageBytes = await _selectedImage!.readAsBytes();
+        base64Image =
+            "data:image/${_selectedImage!.path.split('.').last};base64,${base64Encode(imageBytes)}";
+      }
+      final data = {
+        "content": _contentController.text,
+        "image": base64Image
+      };
       final response = await request.postJson(
-          'http://localhost:8000/thread/fcreate/', jsonEncode(data));
+          'http://10.0.2.2:8000/thread/fcreate/', jsonEncode(data));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response['message'])),
       );
       fetchThreads(); // Refresh threads
 
       setState(() {
-        _content = "";
-        imagePath = null;
+        _contentController.clear();
+        _selectedImage = null;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -49,14 +74,11 @@ class _ThreadScreenState extends State<ThreadScreen> {
   Future<void> fetchThreads() async {
     final request = context.read<CookieRequest>();
     try {
-      final res =
-          await request.get("http://localhost:8000/thread/fget_thread/");
+      final res = await request.get("http://10.0.2.2:8000/thread/fget_thread/");
 
       print('Raw response: $res'); // Debug print
 
       setState(() {
-        // Adjust based on actual response structure
-        // For example:
         threads = res['threads'] ?? [];
         isLoading = false;
       });
@@ -75,7 +97,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request.postJson(
-        'http://localhost:8000/thread/$threadId/fedit/',
+        'http://10.0.2.2:8000/thread/$threadId/fedit/',
         jsonEncode({
           'content': newContent,
         }),
@@ -105,7 +127,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
     final request = context.read<CookieRequest>();
     try {
       final response = await request
-          .post('http://localhost:8000/thread/$threadId/fdelete/', {});
+          .post('http://10.0.2.2:8000/thread/$threadId/fdelete/', {});
 
       // Show success message
       if (context.mounted) {
@@ -131,7 +153,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
     final request = context.read<CookieRequest>();
     try {
       await request.post(
-          "http://localhost:8000/thread/$threadId/flike/", jsonEncode({}));
+          "http://10.0.2.2:8000/thread/$threadId/flike/", jsonEncode({}));
       fetchThreads(); // Refresh the threads after liking
     } catch (e) {
       if (context.mounted) {
@@ -197,6 +219,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                           const SizedBox(height: 12),
                           TextFormField(
                             maxLines: 3,
+                            controller: _contentController,
                             maxLength: 450,
                             decoration: InputDecoration(
                               hintText: "Bagikan Pendapat...",
@@ -206,11 +229,6 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               fillColor: Colors.white,
                               filled: true,
                             ),
-                            onChanged: (String? value) {
-                              setState(() {
-                                _content = value!;
-                              });
-                            },
                           ),
                           const SizedBox(height: 12),
                           Row(
@@ -219,6 +237,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               ElevatedButton(
                                 onPressed: () {
                                   // Handle upload image
+                                  _pickImage();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.brown,
@@ -230,7 +249,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  createThread(request);
+                                  createThread();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.brown,
@@ -430,14 +449,14 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                             ],
                                           ),
                                         ),
-                                        if (thread.containsKey('image'))
+                                        if (thread.containsKey('image') && thread['image'] != "")
                                           Expanded(
                                             flex: 1,
                                             child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                               child: Image.network(
-                                                thread['image'],
+                                                "http://10.0.2.2:8000/media/${thread['image']}",
                                                 height: 80,
                                                 width: 80,
                                                 fit: BoxFit.cover,
