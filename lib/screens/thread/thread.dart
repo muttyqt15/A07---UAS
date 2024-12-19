@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
+import "dart:io";
 import 'package:image_picker/image_picker.dart';
+import 'package:uas/services/thread.dart';
 
 class ThreadScreen extends StatefulWidget {
   const ThreadScreen({Key? key}) : super(key: key);
@@ -17,12 +17,15 @@ class ThreadScreen extends StatefulWidget {
 class _ThreadScreenState extends State<ThreadScreen> {
   List<dynamic> threads = [];
   bool isLoading = true;
+  bool isCreating = false;
+  late ThreadService ts;
 
   @override
   void initState() {
     super.initState();
     print("Fetching...");
-    fetchThreads();
+    ts = ThreadService(request: context.read<CookieRequest>());
+    _fetchThreads(ts);
   }
 
   final TextEditingController _contentController = TextEditingController();
@@ -39,135 +42,68 @@ class _ThreadScreenState extends State<ThreadScreen> {
     }
   }
 
-  Future<void> createThread() async {
-    final request = context.read<CookieRequest>();
-    try {
-      String? base64Image;
+  Future<void> _fetchThreads(ThreadService ts) async {
+    final result = await ts.fetchThreads();
+    print("fetcherr");
+    print(result);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'])),
+    );
 
-      if (_selectedImage != null) {
-        List<int> imageBytes = await _selectedImage!.readAsBytes();
-        base64Image =
-            "data:image/${_selectedImage!.path.split('.').last};base64,${base64Encode(imageBytes)}";
-      }
-      final data = {
-        "content": _contentController.text,
-        "image": base64Image
-      };
-      final response = await request.postJson(
-          'http://10.0.2.2:8000/thread/fcreate/', jsonEncode(data));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response['message'])),
-      );
-      fetchThreads(); // Refresh threads
-
+    if (result['success']) {
       setState(() {
-        _contentController.clear();
-        _selectedImage = null;
+        threads = result['data']['threads'];
+        print(threads);
       });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create thread: $e')),
-      );
+    }
+    isLoading = false;
+  }
+
+  Future<void> _createThread(ThreadService ts) async {
+    setState(() {
+      isCreating = true;
+    });
+    final result =
+        await ts.createThread(_contentController.text, _selectedImage);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'])),
+    );
+    if (result['success']) {
+      await _fetchThreads(ts);
+    }
+    setState(() {
+      isCreating = false;
+      _selectedImage = null;
+      _contentController.clear();
+    });
+  }
+
+  Future<void> _deleteThread(ThreadService ts, int threadId) async {
+    final result = await ts.deleteThread(threadId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'])),
+    );
+    if (result['success']) {
+      await _fetchThreads(ts);
     }
   }
 
-  Future<void> fetchThreads() async {
-    final request = context.read<CookieRequest>();
-    try {
-      final res = await request.get("http://10.0.2.2:8000/thread/fget_thread/");
-
-      print('Raw response: $res'); // Debug print
-
-      setState(() {
-        threads = res['threads'] ?? [];
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error details: $e'); // More detailed error logging
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch threads: $e')),
-      );
-    }
-  }
-
-  Future<void> editThread(int threadId, String newContent) async {
-    final request = context.read<CookieRequest>();
-    try {
-      final response = await request.postJson(
-        'http://10.0.2.2:8000/thread/$threadId/fedit/',
-        jsonEncode({
-          'content': newContent,
-        }),
-      );
-
-      // Show success message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(response['message'] ?? 'Thread updated successfully')),
-        );
-      }
-
-      // Refresh threads after editing
-      await fetchThreads();
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to edit thread: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> deleteThread(int threadId) async {
-    final request = context.read<CookieRequest>();
-    try {
-      final response = await request
-          .post('http://10.0.2.2:8000/thread/$threadId/fdelete/', {});
-
-      // Show success message
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(response['message'] ?? 'Thread deleted successfully')),
-        );
-      }
-
-      // Refresh threads after deletion
-      await fetchThreads();
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete thread: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> likeThread(int threadId) async {
-    final request = context.read<CookieRequest>();
-    try {
-      await request.post(
-          "http://10.0.2.2:8000/thread/$threadId/flike/", jsonEncode({}));
-      fetchThreads(); // Refresh the threads after liking
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to like thread: $e')),
-        );
-      }
+  Future<void> _editThread(
+      ThreadService ts, int threadId, String content) async {
+    final result = await ts.editThread(threadId, content);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result['message'])),
+    );
+    if (result['success']) {
+      await _fetchThreads(ts);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-    print(request.getJsonData());
+    // final request = context.watch<CookieRequest>();
+    // print(request.getJsonData());
+
     return Scaffold(
       body: Stack(
         children: [
@@ -248,8 +184,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                         color: Color(0xFFFFFFFF))),
                               ),
                               ElevatedButton(
-                                onPressed: () {
-                                  createThread();
+                                onPressed: () async {
+                                  // createThread();
+                                  _createThread(ts);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.brown,
@@ -315,7 +252,8 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                 ),
                                               ),
                                               const SizedBox(height: 8),
-                                              if (request.getJsonData()['data']
+                                              if (ts.request
+                                                          .getJsonData()['data']
                                                       ['id'] ==
                                                   thread['author_id'])
                                                 Row(
@@ -327,7 +265,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                           context: context,
                                                           builder: (context) {
                                                             final TextEditingController
-                                                                editController =
+                                                                _editController =
                                                                 TextEditingController(
                                                                     text: thread[
                                                                         'content']);
@@ -338,7 +276,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                               content:
                                                                   TextField(
                                                                 controller:
-                                                                    editController,
+                                                                    _editController,
                                                                 maxLines: 3,
                                                                 decoration:
                                                                     InputDecoration(
@@ -363,13 +301,19 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                                 ),
                                                                 ElevatedButton(
                                                                   onPressed:
-                                                                      () {
+                                                                      () async {
                                                                     // Call edit method
-                                                                    editThread(
+                                                                    await _editThread(
+                                                                        ts,
                                                                         thread[
                                                                             'id'],
-                                                                        editController
+                                                                        _editController
                                                                             .text);
+                                                                    // editThread(
+                                                                    //     thread[
+                                                                    //         'id'],
+                                                                    //     _editController
+                                                                    //         .text);
                                                                     Navigator.of(
                                                                             context)
                                                                         .pop();
@@ -413,9 +357,10 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                                                 ),
                                                                 ElevatedButton(
                                                                   onPressed:
-                                                                      () {
+                                                                      () async {
                                                                     // Call delete method
-                                                                    deleteThread(
+                                                                    await _deleteThread(
+                                                                        ts,
                                                                         thread[
                                                                             'id']);
                                                                     Navigator.of(
@@ -449,7 +394,8 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                             ],
                                           ),
                                         ),
-                                        if (thread.containsKey('image') && thread['image'] != "")
+                                        if (thread.containsKey('image') &&
+                                            thread['image'] != "")
                                           Expanded(
                                             flex: 1,
                                             child: ClipRRect(
