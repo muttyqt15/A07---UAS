@@ -3,7 +3,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import "dart:io";
 
 class ThreadService {
-  final String baseUrl = 'http://10.0.2.2:8000';
+  // final String baseUrl = 'http://10.0.2.2:8000';
+  final String baseUrl = 'http://localhost:8000';
   final CookieRequest request;
 
   ThreadService({required this.request});
@@ -97,6 +98,46 @@ class ThreadService {
     final response = await request.post(
       "$baseUrl/thread/$threadId/flike/",
       jsonEncode({}),
+    );
+    return _handleResponse(Future.value(response));
+  }
+
+  // For thread details page
+  Future<Map<String, dynamic>> fetchDetailThread(int threadId) async {
+    // Ensure the response is cast to the correct type
+    final response = await request.get(
+      "$baseUrl/thread/fget_thread/$threadId/",
+    );
+    return _handleResponse(Future.value(response));
+  }
+
+  // Add a comment to a thread (new endpoint)
+  Future<Map<String, dynamic>> addComment(int threadId, String content) async {
+    final data = {
+      'content': content,
+    };
+
+    final response = await request.postJson(
+      '$baseUrl/thread/$threadId/fcomment/',
+      jsonEncode(data),
+    );
+    return _handleResponse(Future.value(response));
+  }
+
+  // Like a comment (new endpoint)
+  Future<Map<String, dynamic>> likeComment(int commentId) async {
+    final response = await request.post(
+      "$baseUrl/comment/$commentId/comment/flike/",
+      jsonEncode({}),
+    );
+    return _handleResponse(Future.value(response));
+  }
+
+  // Delete a comment (new endpoint)
+  Future<Map<String, dynamic>> deleteComment(int commentId) async {
+    final response = await request.post(
+      "$baseUrl/thread/$commentId/comment/fdelete/",
+      {},
     );
     return _handleResponse(Future.value(response));
   }
