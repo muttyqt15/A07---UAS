@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uas/screens/landing.dart'; 
+import 'package:uas/screens/landing.dart';
+import 'package:uas/screens/profile.dart'; 
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -47,6 +48,18 @@ class LeftDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => LandingPage(),
+                  ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_circle_outlined),
+            title: const Text('Profil'),
+            // Bagian redirection ke ProfilePage
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(),
                   ));
             },
           ),

@@ -1,44 +1,11 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:uas/services/profile.dart';
-
-class Profile {
-  final String profilePic;
-  final String bio;
-  final String email;
-
-  Profile({required this.profilePic, required this.bio, required this.email});
-
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return Profile(
-      profilePic: json['fields']['profile_pic'] ?? 'https://via.placeholder.com/150',
-      bio: json['fields']['bio'] ?? 'No bio available',
-      email: json['fields']['email'] ?? 'No email available',
-    );
-  }
-}
-
-// Dummy JSON data
-const String dummyJson = '''
-[
-  {
-    "fields": {
-      "profile_pic": "https://via.placeholder.com/150",
-      "bio": "Food enthusiast and traveler. Exploring Solo one dish at a time.",
-      "email": "customer@example.com"
-    }
-  }
-]
-''';
-
-// Method to fetch dummy profile data
-Future<List<Profile>> fetchDummyProfile() async {
-  final List<dynamic> jsonData = jsonDecode(dummyJson);
-  return jsonData.map((item) => Profile.fromJson(item)).toList();
-}
+import 'package:uas/models/profile.dart';
+// import 'package:uas/services/profile.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/screens/authentication/login.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -46,30 +13,189 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late Future<Profile> futureProfile;
-  late Future<List<Profile>> dummyProfile;
+late Future<Profile> futureProfile;
+  //   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    dummyProfile = fetchDummyProfile();
+    fetchProfile();
   }
 
-  Future<Profile> fetchProfile(request) async {
-    final response = await request.get('http://127.0.0.1:8000/profile/json/');
+  Future<Profile> fetchProfile() async {
+    final request = context.read<CookieRequest>();
+    final res =
+          await request.get("http://localhost:8000/profile/fetch_profile/");
+      var data = res;
+      print('Raw PROFILE response: $res'); // Debug print
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return Profile.fromJson(data[0]); // Assuming the API returns a list of profiles
+      Profile profile = Profile.fromJson(data['profile']);
+      return profile;    
+  }
+
+  Future<void> editProfile(CookieRequest request, String newBio) async {
+    final response = await request.post(
+      "http://localhost:8000/profile/edit_profile_flutter/",
+      jsonEncode({'bio': newBio}),
+    );
+
+    if (response['success']) {
+      setState(() {
+        futureProfile = fetchProfile();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Profile updated successfully')),
+      );
     } else {
-      throw Exception('Failed to load profile');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile: ${response['message']}')),
+      );
     }
   }
 
-  @override 
+  Future<void> deleteAccount(CookieRequest request) async {
+    final response = await request.post(
+      "http://localhost:8000/profile/delete_account_flutter/",
+      jsonEncode({}),
+    );
+
+    if (response['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Account deleted successfully')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete account: ${response['message']}')),
+      );
+    }
+  }
+
+  Future<void> editProfilePicture(CookieRequest request, String profilePicUrl) async {
+    final response = await request.post(
+      "http://localhost:8000/profile/edit_profile_picture_flutter/",
+      jsonEncode({'profile_pic_url': profilePicUrl}),
+    );
+
+    if (response['success']) {
+      setState(() {
+        futureProfile = fetchProfile();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Profile picture updated successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile picture: ${response['error']}')),
+      );
+    }
+  }
+
+  void showEditDialog(Profile profile) {
+    final request = context.read<CookieRequest>();
+    TextEditingController bioController = TextEditingController(text: profile.bio);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Bio'),
+          content: TextField(
+            controller: bioController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Enter your new bio',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                editProfile(request, bioController.text);
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showDeleteDialog() {
+    final request = context.read<CookieRequest>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete Account'),
+          content: Text('Are you sure you want to delete your account? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                deleteAccount(request);
+                Navigator.of(context).pop();
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showEditProfilePicDialog() {
+    final request = context.read<CookieRequest>();
+    TextEditingController profilePicUrlController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Profile Picture'),
+          content: TextField(
+            controller: profilePicUrlController,
+            decoration: InputDecoration(
+              hintText: 'Enter the URL of your new profile picture',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                editProfilePicture(request, profilePicUrlController.text);
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-    futureProfile = fetchProfile(request);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -84,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: FutureBuilder<Profile>(
-        future: futureProfile,
+        future: fetchProfile(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -105,69 +231,98 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/background_batik.jpg'),
+          image: AssetImage('assets/images/batik.png'),
           fit: BoxFit.cover,
         ),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 30),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(profile.profilePic),
-              backgroundColor: Colors.grey.shade300,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              profile.email,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.brown.shade800,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              decoration: BoxDecoration(
-                color: Colors.brown.shade100,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildTextField(label: 'Email', value: profile.email),
-                  const SizedBox(height: 20),
-                  buildTextField(label: 'Bio', value: profile.bio, multiline: true),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown.shade600,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          side: const BorderSide(color: Colors.brown, width: 1.5),
+      child: Stack(
+        children: [
+          Container(
+            color: Colors.black.withOpacity(0.8), // Adjust the opacity as needed
+          ),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 30),
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: NetworkImage(profile.profilePic ?? 'https://via.placeholder.com/150'),
+                  backgroundColor: Colors.grey.shade300,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: GestureDetector(
+                          onTap: showEditProfilePicDialog,
+                          child: const CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Color.fromARGB(179, 62, 0, 0),
+                            child: Icon(Icons.camera_alt_outlined, color: Colors.blue),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                       ),
-                      onPressed: () {},
-                      child: const Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  profile.username,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.brown.shade100,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildTextField(label: 'Email', value: profile.email),
+                      const SizedBox(height: 20),
+                      buildTextField(label: 'Bio', value: profile.bio, multiline: true),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown.shade600,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: const BorderSide(color: Colors.brown, width: 1.5),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                          ),
+                          onPressed: () {
+                            showEditDialog(profile);
+                          },
+                          child: const Text(
+                            'Edit',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              if (profile.role == 'customer') ...[
+                buildActionButton('Review Saya', context),
+                buildActionButton('Bookmark Saya', context),
+                buildActionButton('Hapus Akun', context, ),
+              ] else if (profile.role == 'restaurant_owner') ...[
+                buildActionButton('Resto Saya', context),
+                buildActionButton('Hapus Akun', context, ),
+              ],
+              ],
             ),
-            const SizedBox(height: 30),
-            buildActionButton('Review Saya', context),
-            buildActionButton('Bookmark Saya', context),
-            buildActionButton('Lihat Lebih Lanjut', context),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -184,19 +339,22 @@ class _ProfilePageState extends State<ProfilePage> {
             color: Colors.brown.shade800,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Container(
+          width: MediaQuery.of(context).size.width * 0.95, // 90% of the screen width
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.brown.shade300),
           ),
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 16),
+          child: TextField(
+            controller: TextEditingController(text: value),
+            readOnly: true,
             maxLines: multiline ? null : 1,
-            overflow: TextOverflow.ellipsis,
+            minLines: multiline ? 1 : null,
+            decoration: null,
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ],
@@ -204,6 +362,35 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget buildActionButton(String text, BuildContext context) {
+
+    VoidCallback? onPressed;
+
+    switch (text) {
+      case 'Review Saya':
+        onPressed = () {
+          // Add your function for 'Review Saya' here
+          print('Review Saya button pressed');
+        };
+        break;
+      case 'Bookmark Saya':
+        onPressed = () {
+          // Add your function for 'Bookmark Saya' here
+          print('Bookmark Saya button pressed');
+        };
+        break;
+      case 'Hapus Akun':
+        onPressed = () {
+          // Add your function for 'Hapus Akun' here
+          showDeleteDialog();
+        };
+        break;
+      default:
+        onPressed = () {
+          print('$text button pressed');
+        };
+    }
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ElevatedButton(
@@ -212,9 +399,9 @@ class _ProfilePageState extends State<ProfilePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
         ),
-        onPressed: () {},
+        onPressed: onPressed,
         child: Text(
           text,
           style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -222,11 +409,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: ProfilePage(),
-  ));
 }
