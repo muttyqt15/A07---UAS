@@ -40,8 +40,10 @@ dependencies:
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
   file_picker: ^5.0.0
+  image_picker: ^1.0.4
   http_parser: ^4.0.0
   path: ^1.8.3
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,7 @@ flutter:
   assets:
     - assets/images/batik.png
 
+  
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

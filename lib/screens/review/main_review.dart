@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/models/review.dart';
+import 'package:intl/intl.dart';
 import 'package:uas/screens/review/create_form.dart';
-import 'package:uas/widgets/left_drawer.dart';
 
 class MainReviewPage extends StatefulWidget {
   const MainReviewPage({super.key});
@@ -12,8 +13,24 @@ class MainReviewPage extends StatefulWidget {
 }
 
 class _MainReviewPageState extends State<MainReviewPage> {
-  List<Map<String, dynamic>> _reviewList = [];
-  String _sortBy = ''; // '', 'like', 'date', 'rate'
+  List<Review> _reviewList = [];
+  String _sortBy = 'like';
+
+  Future<void> fetchReviews() async {
+    final request = context.read<CookieRequest>();
+    final url = "http://localhost:8000/review/flutter/user-reviews/";
+
+    final response = await request.get(url);
+    print("Response JSON: $response");
+
+    if (response['status'] == 'success' && response['data'] != null) {
+      setState(() {
+        _reviewList = List<Review>.from(
+          (response['data'] as List).map((x) => Review.fromJson(x)),
+        );
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -21,175 +38,337 @@ class _MainReviewPageState extends State<MainReviewPage> {
     fetchReviews();
   }
 
-  Future<void> fetchReviews() async {
-    final request = context.read<CookieRequest>();
-    final url = "http://127.0.0.1:8000/review/flutter/user-reviews/?sort_by=$_sortBy";
-
-    try {
-      final response = await request.get(url);
-      print("Response JSON: $response"); // Debug respons JSON
-
-      if (response['status'] == 'success' && response['data'] != null) {
-        setState(() {
-          _reviewList = List<Map<String, dynamic>>.from(response['data'].map((review) {
-            return {
-              "id": review['id'] ?? "",
-              "restoran_name": review['restoran_name'] ?? "Nama Restoran",
-              "judul_ulasan": review['judul_ulasan'] ?? "Judul Review",
-              "teks_ulasan": review['teks_ulasan'] ?? "",
-              "penilaian": review['penilaian'] ?? 0,
-              "tanggal": review['tanggal'] ?? "",
-              "display_name": review['display_name'] ?? "Anonim",
-              "total_likes": review['total_likes'] ?? 0,
-              "images": (review['images'] as List<dynamic>? ?? []).cast<String>(),
-            };
-          }));
-          if (_reviewList.isNotEmpty) _applySorting(); // Apply sorting if data exists
-        });
-      } else {
-        print("Error Message: ${response['message']}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal mengambil data review: ${response['message']}")),
-        );
-      }
-    } catch (e) {
-      print("Error fetching reviews: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Terjadi kesalahan saat mengambil data.")),
-      );
-    }
-  }
-
-
-  void _applySorting() {
+  void _sortReviews(String sortBy) {
     setState(() {
-      if (_sortBy == 'like') {
-        _reviewList.sort((a, b) => b['total_likes'].compareTo(a['total_likes']));
-      } else if (_sortBy == 'date') {
-        _reviewList.sort((a, b) => b['tanggal'].compareTo(a['tanggal']));
-      } else if (_sortBy == 'rate') {
-        _reviewList.sort((a, b) => b['penilaian'].compareTo(a['penilaian']));
+      _sortBy = sortBy;
+      if (sortBy == 'like') {
+        _reviewList.sort((a, b) => b.fields.totalLikes.compareTo(a.fields.totalLikes));
+      } else if (sortBy == 'date') {
+        _reviewList.sort((a, b) => b.fields.tanggal.compareTo(a.fields.tanggal));
+      } else if (sortBy == 'rate') {
+        _reviewList.sort((a, b) => b.fields.penilaian.compareTo(a.fields.penilaian));
+      } else if (sortBy == 'restaurant') {
+        _reviewList.sort((a, b) => a.fields.restoranName.compareTo(b.fields.restoranName));
       }
-    });
-  }
-
-  void _changeSort(String sortOption) {
-    setState(() {
-      _sortBy = sortOption;
-      _applySorting();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Review'),
-        centerTitle: true,
-      ),
-      drawer: const LeftDrawer(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CreateReviewFormPage(),
-                    ),
-                  ).then((_) => fetchReviews());
-                },
-                child: const Text("Tulis Review"),
+      appBar: AppBar(title: const Text('Review')),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/batik.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
+              child: Container(color: Colors.black.withOpacity(0.7)),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildSortButton("Sort by Like", "like"),
-                const SizedBox(width: 8),
-                _buildSortButton("Sort by Date", "date"),
-                const SizedBox(width: 8),
-                _buildSortButton("Sort by Rate", "rate"),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _reviewList.isEmpty
-                ? const Center(child: Text("Tidak ada review."))
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _reviewList.length,
-                    itemBuilder: (context, index) {
-                      return _buildReviewCard(_reviewList[index]);
-                    },
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
+          ),
+          ListView(
+            children: [
+              // Header Card
+              Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5F4D40),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Review",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Ulasan!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white, // Teks putih
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CreateReviewFormPage(), // Arahkan ke halaman CreateForm
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA18971), // Background cokelat
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        "Tulis Review",
+                        style: TextStyle(
+                          color: Colors.white, // Teks putih
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-  Widget _buildSortButton(String text, String value) {
-    final isSelected = _sortBy == value;
-    return ElevatedButton(
-      onPressed: () => _changeSort(value),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.blueGrey : Colors.grey[300],
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: isSelected ? Colors.white : Colors.black),
-      ),
-    );
-  }
+              // Title
+              const Text(
+                "Riwayat Review",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 20),
 
-  Widget _buildReviewCard(Map<String, dynamic> review) {
-    final restoranName = review['restoran_name'];
-    final judulUlasan = review['judul_ulasan'];
-    final penulis = review['display_name'];
-    final penilaian = review['penilaian'];
-    final comment = review['teks_ulasan'];
-    final tanggal = review['tanggal'];
-    final images = (review['images'] as List<String>);
-    final likeCount = review['total_likes'];
+              // Sorting Buttons
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF44392F),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildSortButton('like', 'Sort by Like'),
+                        ),
+                        const SizedBox(width: 10), // Space between buttons
+                        Expanded(
+                          child: _buildSortButton('date', 'Sort by Date'),
+                        ),
+                        const SizedBox(width: 10), // Space between buttons
+                        Expanded(
+                          child: _buildSortButton('rate', 'Sort by Rate'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10), // Space between rows
+                    GestureDetector(
+                      onTap: () => _sortReviews('restaurant'),
+                      child: Container(
+                        width: double.infinity, // Full width
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: _sortBy == 'restaurant'
+                              ? const Color(0xFFDECDBE)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(
+                            color: const Color(0xFFFFFBF2),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          "Sort by Restaurant",
+                          style: TextStyle(
+                            color: _sortBy == 'restaurant'
+                                ? const Color(0xFF5F4D40)
+                                : const Color(0xFFFFFBF2),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-    return Card(
-      margin: const EdgeInsets.all(12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              restoranName,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text("Judul: $judulUlasan"),
-            Text("Penulis: $penulis"),
-            Text("Rating: $penilaian/5"),
-            Text("Tanggal: $tanggal"),
-            const SizedBox(height: 8),
-            if (images.isNotEmpty && images.first.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Image.network(
-                images.first,
-                height: 200,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Text('Gambar tidak dapat dimuat');
+              const SizedBox(height: 20),
+
+              // Review Cards
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _reviewList.length,
+                itemBuilder: (context, index) {
+                  return _buildReviewCard(_reviewList[index]);
                 },
               ),
             ],
-            const SizedBox(height: 8),
-            Text("Komentar: $comment"),
-            Text("Likes: $likeCount"),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSortButton(String sortBy, String text) {
+    final isActive = _sortBy == sortBy;
+    return GestureDetector(
+      onTap: () => _sortReviews(sortBy),
+      child: Container(
+        alignment: Alignment.center, // Center text within the button
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFDECDBE) : Colors.transparent,
+          borderRadius: BorderRadius.circular(40),
+          border: Border.all(
+            color: const Color(0xFFFFFBF2),
+            width: 2,
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isActive ? const Color(0xFF5F4D40) : const Color(0xFFFFFBF2),
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
   }
+
+
+  Widget _buildReviewCard(Review review) {
+    final restoranName = review.fields.restoranName;
+    final judulUlasan = review.fields.judulUlasan;
+    final penulis = review.fields.displayName;
+    final penilaian = review.fields.penilaian;
+    final comment = review.fields.teksUlasan;
+    final tanggal = review.fields.tanggal;
+    final images = review.fields.images;
+    final likeCount = review.fields.totalLikes;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Stack(
+        children: [
+          // Linear Gradient Border
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF8D7762), Color(0xFFE3D6C9)], // Stroke gradient
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(100),
+            ),
+          ),
+          // Solid Card Content
+          Container(
+            margin: const EdgeInsets.all(4), // Space for stroke effect
+            decoration: BoxDecoration(
+              color: const Color(0xFF5F4D40), // Solid background for the card
+              borderRadius: BorderRadius.circular(16), // Slightly smaller radius
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    restoranName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    "Judul: $judulUlasan",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Penulis: $penulis",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Rating: $penilaian/5",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Tanggal: ${DateFormat('dd MMM yyyy').format(tanggal)}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  if (images.isNotEmpty)
+                    Image.network(
+                      images.first,
+                      height: 150,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Text(
+                        'Gambar tidak dapat dimuat',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Komentar: $comment",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    "Likes: $likeCount",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Edit Action
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFA18971), // Background cokelat
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          "Edit",
+                          style: TextStyle(
+                            color: Colors.white, // Teks putih
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      OutlinedButton(
+                        onPressed: () {
+                          // Delete Action
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          "Delete",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
