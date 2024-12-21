@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
@@ -39,15 +36,12 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
   }
 
   Future<void> _fetchComments() async {
-    print(widget.thread.id);
     final result = await ts.fetchDetailThread(widget.thread.id);
-    print(result);
     if (result['success']) {
       final List<dynamic> commentsJson =
           result['data']['data']['comments'] ?? [];
       setState(() {
         comments = commentsJson.map((json) => Comment.fromJson(json)).toList();
-        print(comments);
         isLoading = false;
       });
     } else {
@@ -231,10 +225,10 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
                   controller: _commentController,
                   maxLines: 3,
                   maxLength: 250,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       hintText: "Write your comment...",
                       border: InputBorder.none,
-                      fillColor: const Color(CONSTANTS.lion),
+                      fillColor: Color(CONSTANTS.lion),
                       filled: true,
                       focusColor: Colors.transparent),
                 ),
@@ -308,14 +302,14 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
                 const Spacer(),
                 if (comment.authorId == ts.request.getJsonData()['data']['id'])
                   PopupMenuButton(
-                    color: Color(CONSTANTS
+                    color: const Color(CONSTANTS
                         .licorice), // Background color for the PopupMenuButton
                     onSelected: (value) {},
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value:
                             'delete', // You can add a value if needed for selection
-                        child: Text(
+                        child: const Text(
                           'DELETE',
                           style: TextStyle(
                             color: Color(CONSTANTS
@@ -334,7 +328,7 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
                         },
                       ),
                     ],
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.more_vert,
                       color: Color(CONSTANTS.licorice), // Icon color: Licorice
                     ),
@@ -362,7 +356,7 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12), // Rounded corners
         ),
-        backgroundColor: Color(CONSTANTS.licorice), // Dialog background color
+        backgroundColor: const Color(CONSTANTS.licorice), // Dialog background color
         title: const Text(
           'DELETE COMMENT',
           style: TextStyle(
@@ -393,7 +387,7 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
           ElevatedButton(
             onPressed: () => _deleteComment(commentId),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(
+              backgroundColor: const Color(
                   CONSTANTS.dutch), // Delete button background color: Licorice
               padding: const EdgeInsets.symmetric(
                   vertical: 10, horizontal: 20), // Button padding

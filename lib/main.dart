@@ -24,16 +24,15 @@ class MyApp extends StatelessWidget {
           fontFamilyFallback: const ['Lora', 'CrimsonPro', 'CrimsonText'],
           useMaterial3: true,
           colorScheme: ColorScheme.fromSwatch(
-            primarySwatch:
-                _createMaterialColor(Color(0xFF240F0E)), // Licorice color
-          ).copyWith(secondary: Color(0xFF7D6E5F)), // Coyote color
+            primarySwatch: _createMaterialColor(const Color(CONSTANTS.coyote)),
+          ).copyWith(secondary: const Color(CONSTANTS.lion)),
           snackBarTheme: SnackBarThemeData(
-            backgroundColor: Color(0xFF7D6E5F), // Coyote color
+            backgroundColor: const Color(CONSTANTS.licorice),
             contentTextStyle: const TextStyle(
-              color: Colors.white,
+              color: Color(CONSTANTS.dutch),
               fontSize: 16,
             ),
-            actionTextColor: Color(0xFFC1A386), // Lion color
+            actionTextColor: const Color(CONSTANTS.dutch),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

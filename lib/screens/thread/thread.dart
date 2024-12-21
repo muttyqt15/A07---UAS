@@ -25,6 +25,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
     _fetchThreads(ts);
   }
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _contentController = TextEditingController();
   List<Thread> threads = [];
   bool isLoading = true;
@@ -57,7 +58,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
             .toList();
       });
     }
-    isLoading = false;
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _createThread(ThreadService ts) async {
@@ -298,7 +301,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               height: maxSize *
                                   0.5, // Set height based on the 50% of available width
                               child: Image.network(
-                                "${CONSTANTS.baseUrl}/${td.image}",
+                                "${CONSTANTS.baseUrl}${td.image}",
                                 fit: BoxFit
                                     .cover, // Ensure the image covers the box while maintaining aspect ratio
                                 errorBuilder: (context, error, stackTrace) {
@@ -401,73 +404,106 @@ class _ThreadScreenState extends State<ThreadScreen> {
         ));
   }
 
+  Widget _buildImagePreview(File? selectedImage) {
+    if (selectedImage == null) {
+      return Container(); // Return an empty container when no image is selected
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Image.file(
+        selectedImage, // Use Image.file for local files
+        height: 100,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
   Widget _buildThreadCreate(TextEditingController cctr,
       VoidCallback onImagePick, VoidCallback onPublish) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Thread",
-            style: TextStyle(
-                fontFamily: 'CrimsonPro',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFFFFFFF)),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Thread!",
-            style: TextStyle(
-                fontFamily: 'CrimsonPro',
-                fontSize: 16,
-                color: Color(0xFFFFFFFF)),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            maxLines: 3,
-            controller: cctr,
-            maxLength: 450,
-            decoration: InputDecoration(
-              hintText: "Bagikan Pendapat...",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              fillColor: Colors.white,
-              filled: true,
+      child: Form(
+        key: _formKey, // Attach the form key
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Thread",
+              style: TextStyle(
+                  fontFamily: 'CrimsonPro',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFFFFFF)),
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  // Handle upload image
-                  onImagePick();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.brown,
+            const SizedBox(height: 8),
+            const Text(
+              "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Thread!",
+              style: TextStyle(
+                  fontFamily: 'CrimsonPro',
+                  fontSize: 16,
+                  color: Color(0xFFFFFFFF)),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              maxLines: 3,
+              controller: cctr,
+              maxLength: 450,
+              decoration: InputDecoration(
+                hintText: "Bagikan Pendapat...",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text("Upload Image",
-                    style: TextStyle(
-                        fontFamily: 'CrimsonPro', color: Color(0xFFFFFFFF))),
+                fillColor: Colors.white,
+                filled: true,
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  onPublish();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.brown,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Thread content cannot be empty.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: onImagePick,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.brown,
+                  ),
+                  child: _selectedImage != null
+                      ? _buildImagePreview(_selectedImage)
+                      : const Text("Memilih Foto",
+                          style: TextStyle(
+                              fontFamily: 'CrimsonPro',
+                              color: Color(0xFFFFFFFF))),
                 ),
-                child: const Text("Publikasi",
-                    style: TextStyle(
-                        fontFamily: 'CrimsonPro', color: Color(0xFFFFFFFF))),
-              ),
-            ],
-          ),
-        ],
+                ElevatedButton(
+                  onPressed: () async {
+                    // Validate the form before publishing
+                    if (_formKey.currentState?.validate() ?? false) {
+                      onPublish();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                'Oh no! Pastikan Anda sudah mengisi content form dengan baik.')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.brown,
+                  ),
+                  child: Text(
+                      isCreating ? "Sedang dipublikasi..." : "Publikasi",
+                      style: const TextStyle(
+                          fontFamily: 'CrimsonPro', color: Color(0xFFFFFFFF))),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

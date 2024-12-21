@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import "dart:io";
 
+import 'package:uas/main.dart';
+
 class ThreadService {
   // final String baseUrl = 'http://10.0.2.2:8000';
-  final String baseUrl = 'http://localhost:8000';
+  final String baseUrl = CONSTANTS.baseUrl;
   final CookieRequest request;
 
   ThreadService({required this.request});
