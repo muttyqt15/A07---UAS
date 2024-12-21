@@ -26,17 +26,7 @@ class _LandingPageState extends State<LandingPage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       drawer: const LeftDrawer(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            LandingPageScreen(),
-            const SizedBox(height: 10),
-            const AppFooter(),
-          ],
-        ),
-      ),
+      body: const Center(child: LoginPage()),
     );
   }
 }

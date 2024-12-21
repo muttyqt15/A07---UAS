@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:uas/screens/landing.dart';
 import 'package:uas/screens/news/main_berita.dart';
 import 'package:uas/screens/thread/thread.dart';
+import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Drawer(
       child: ListView(
         children: [
@@ -18,7 +21,7 @@ class LeftDrawer extends StatelessWidget {
             child: const Column(
               children: [
                 Text(
-                  'Floryn Shop',
+                  'Mangan" Solo',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 24,
@@ -39,6 +42,26 @@ class LeftDrawer extends StatelessWidget {
               ],
             ),
           ),
+          if (request.loggedIn)
+            ListTile(
+              leading: const Icon(
+                Icons.person_3_rounded,
+                color: Colors.black87,
+              ),
+              title: const Text(
+                'Profile',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              onTap: () {
+                // Redirect to MainBeritaScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainBeritaScreen(),
+                  ),
+                );
+              },
+            ),
           ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text('Halaman Utama'),
@@ -52,18 +75,27 @@ class LeftDrawer extends StatelessWidget {
                   ));
             },
           ),
-          ListTile(
-            leading: const Icon(IconData(0xf0541, fontFamily: 'MaterialIcons')),
-            title: const Text('Berita'),
-            // Bagian redirection ke MyHomePage
-            onTap: () {
-              Navigator.push(
+          if (request.loggedIn &&
+              request.getJsonData()['data']['role'] != 'RESTO_OWNER')
+            ListTile(
+              leading: const Icon(
+                Icons.article,
+                color: Colors.black87,
+              ),
+              title: const Text(
+                'Berita',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              onTap: () {
+                // Redirect to MainBeritaScreen
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => MainBeritaScreen(),
-                  ));
-            },
-          ),
+                  ),
+                );
+              },
+            ),
           ListTile(
             leading: const Icon(IconData(0xf0541, fontFamily: 'MaterialIcons')),
             title: const Text('Thread'),
@@ -72,7 +104,7 @@ class LeftDrawer extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ThreadScreen(),
+                    builder: (context) => const ThreadScreen(),
                   ));
             },
           ),

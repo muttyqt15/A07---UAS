@@ -367,6 +367,31 @@ class _ThreadScreenState extends State<ThreadScreen> {
                             IconButton(
                               onPressed: () async {
                                 // Liking thread
+                                if (!ts.request.loggedIn) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                        'You need to log in to like!',
+                                        style: TextStyle(
+                                            color: Colors
+                                                .white), // Make text color white
+                                      ),
+                                      backgroundColor: Colors
+                                          .red, // Set background color to red
+                                      behavior: SnackBarBehavior
+                                          .floating, // Make it appear floating
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 10), // Add margins
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Add rounded corners
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+
                                 final result = await ts.likeThread(td.id);
 
                                 if (result['success']) {
@@ -663,6 +688,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Daftar Thread')),
       body: Stack(
         children: [
           // Background with batik image and black overlay
@@ -684,7 +710,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Thread Section
-                  _buildPostCard(),
+                  ts.request.loggedIn ? _buildPostCard() : const Spacer(),
                   const SizedBox(height: 20),
                   _buildThreads(),
                 ],

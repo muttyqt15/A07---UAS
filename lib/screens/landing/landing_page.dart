@@ -22,7 +22,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     // Fetch restaurants using the service
     _restaurants = RestaurantService().fetchRestaurants(11);
     final request = context.read<CookieRequest>();
-    print(request.getJsonData()['data']);
   }
 
   @override
@@ -41,7 +40,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
           TahukahAndaCard(),
           const SizedBox(height: 16),
 
-          if (request.getJsonData()['data']['role'] == 'RESTO_OWNER')
+          if (request.loggedIn && request.getJsonData()['data']['role'] == 'RESTO_OWNER')
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
