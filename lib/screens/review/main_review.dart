@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:uas/models/review.dart';
 import 'package:intl/intl.dart';
+import 'package:uas/models/review.dart';
 import 'package:uas/screens/review/create_form.dart';
+import 'package:uas/services/review_service.dart';
 import 'package:uas/widgets/review/modal_edit.dart';
 
 class MainReviewPage extends StatefulWidget {
@@ -14,22 +17,10 @@ class MainReviewPage extends StatefulWidget {
 }
 
 class _MainReviewPageState extends State<MainReviewPage> {
+  final ReviewService _reviewService = ReviewService(); // Instance ReviewService
   List<Review> _reviewList = [];
+  bool isLoading = true;
   String _sortBy = 'like';
-
-  Future<void> fetchReviews() async {
-    final request = context.read<CookieRequest>();
-    final url = "http://localhost:8000/review/flutter/user-reviews/";
-
-    final response = await request.get(url);
-    if (response['status'] == 'success' && response['data'] != null) {
-      setState(() {
-        _reviewList = List<Review>.from(
-          (response['data'] as List).map((x) => Review.fromJson(x)),
-        );
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -37,7 +28,46 @@ class _MainReviewPageState extends State<MainReviewPage> {
     fetchReviews();
   }
 
-  void _sortReviews(String sortBy) {
+  Future<void> fetchReviews() async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.get('http://localhost:8000/review/flutter/user-reviews/');
+      setState(() {
+        _reviewList = (response['data'] as List)
+            .map((data) => Review.fromJson(data))
+            .toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching reviews: $e')),
+      );
+    }
+  }
+
+  Future<void> deleteReview(String reviewId) async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.post(
+        'http://localhost:8000/review/flutter/delete/$reviewId/',
+        jsonEncode({}), // Send empty JSON object
+      );
+
+      if (response['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Review deleted successfully')),
+        );
+        fetchReviews(); // Refresh reviews after deletion
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete review: $e')),
+      );
+    }
+  }
+
+  void sortReviews(String sortBy) {
     setState(() {
       _sortBy = sortBy;
       if (sortBy == 'like') {
@@ -47,7 +77,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
       } else if (sortBy == 'rate') {
         _reviewList.sort((a, b) => b.fields.penilaian.compareTo(a.fields.penilaian));
       } else if (sortBy == 'restaurant') {
-        _reviewList.sort((a, b) => a.fields.restoranName.toString().compareTo(b.fields.restoranName.toString()));
+        _reviewList.sort((a, b) => a.fields.restoranName.compareTo(b.fields.restoranName));
       }
     });
   }
@@ -72,91 +102,87 @@ class _MainReviewPageState extends State<MainReviewPage> {
               child: Container(color: Colors.black.withOpacity(0.7)),
             ),
           ),
-          ListView(
-            children: [
-              // Header
-              Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5F4D40),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView(
                   children: [
-                    const Text(
-                      "Review",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Ulasan!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateReviewFormPage(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFA18971),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text(
-                        "Tulis Review",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
+                    _buildHeader(),
+                    _buildSortOptions(),
+                    _buildReviewList(),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
 
-              // Sort Options Card
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF5F4D40),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildSortButton('like', 'Sort by Like'),
-                    _buildSortButton('date', 'Sort by Date'),
-                    _buildSortButton('rate', 'Sort by Rate'),
-                    _buildSortButton('restaurant', 'Sort by Restaurant'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Review List
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _reviewList.length,
-                itemBuilder: (context, index) {
-                  return _buildReviewCard(_reviewList[index]);
-                },
-              ),
-            ],
+  Widget _buildHeader() {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF5F4D40),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            "Review",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
+          const SizedBox(height: 10),
+          const Text(
+            "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Ulasan!",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CreateReviewFormPage(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA18971),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text(
+              "Tulis Review",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSortOptions() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF5F4D40),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          _buildSortButton('like', 'Sort by Like'),
+          _buildSortButton('date', 'Sort by Date'),
+          _buildSortButton('rate', 'Sort by Rate'),
+          _buildSortButton('restaurant', 'Sort by Restaurant'),
         ],
       ),
     );
@@ -165,7 +191,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
   Widget _buildSortButton(String sortBy, String text) {
     final isActive = _sortBy == sortBy;
     return GestureDetector(
-      onTap: () => _sortReviews(sortBy),
+      onTap: () => sortReviews(sortBy),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -187,6 +213,17 @@ class _MainReviewPageState extends State<MainReviewPage> {
     );
   }
 
+  Widget _buildReviewList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _reviewList.length,
+      itemBuilder: (context, index) {
+        return _buildReviewCard(_reviewList[index]);
+      },
+    );
+  }
+
   Widget _buildReviewCard(Review review) {
     final fields = review.fields;
 
@@ -202,7 +239,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Restoran: ${fields.restoranName}", // Replace with restaurant name
+              "Restoran: ${fields.restoranName}",
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -247,18 +284,18 @@ class _MainReviewPageState extends State<MainReviewPage> {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    final updated = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ModalEditReview(
+                    final updated = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ModalEditReview(
                           reviewId: review.pk,
                           initialJudulUlasan: fields.judulUlasan,
                           initialTeksUlasan: fields.teksUlasan,
                           initialPenilaian: fields.penilaian,
                           initialDisplayName: fields.displayName,
                           initialImages: fields.images,
-                        ),
-                      ),
+                        );
+                      },
                     );
 
                     if (updated == true) {
@@ -278,9 +315,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
                 ),
                 const SizedBox(width: 10),
                 OutlinedButton(
-                  onPressed: () {
-                    // Logic untuk menghapus ulasan
-                  },
+                  onPressed: () => deleteReview(review.pk),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.white),
                     shape: RoundedRectangleBorder(
