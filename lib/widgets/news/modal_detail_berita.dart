@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas/main.dart';
 import 'package:uas/models/news.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -11,12 +12,16 @@ class ModalDetailBerita extends StatefulWidget {
   final String beritaId; // ID berita untuk fetch data
   final VoidCallback? onModalClosed;
 
-  const ModalDetailBerita({super.key, required this.beritaId, this.onModalClosed,
+  const ModalDetailBerita({
+    super.key,
+    required this.beritaId,
+    this.onModalClosed,
   });
 
   @override
   _ModalDetailBeritaState createState() => _ModalDetailBeritaState();
 }
+
 class _ModalDetailBeritaState extends State<ModalDetailBerita> {
   News? _news; // Tidak menggunakan late
   bool _isLoading = true;
@@ -55,7 +60,6 @@ class _ModalDetailBeritaState extends State<ModalDetailBerita> {
       });
     }
   }
-
 
   @override
   void initState() {
@@ -109,7 +113,7 @@ class _ModalDetailBeritaState extends State<ModalDetailBerita> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.network(
-                                'http://127.0.0.1:8000/${_news?.fields.gambar}',
+                                '${CONSTANTS.baseUrl}/${_news?.fields.gambar}',
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 height: 200,

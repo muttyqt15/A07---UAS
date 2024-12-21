@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas/main.dart';
 import 'package:uas/models/news.dart';
 import 'package:uas/widgets/news/like_button.dart';
 import 'modal_detail_berita.dart';
@@ -35,9 +36,9 @@ class BeritaOwnerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        child: CustomPaint(
+        child: Container(
+      margin: const EdgeInsets.all(20),
+      child: CustomPaint(
         painter: GradientBorderPainter(
           borderRadius: 40.0,
           gradient: const LinearGradient(
@@ -69,7 +70,7 @@ class BeritaOwnerCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Image.network(
-                    'http://127.0.0.1:8000/${news.fields.gambar}',
+                    '${CONSTANTS.baseUrl}/${news.fields.gambar}',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -143,8 +144,10 @@ class BeritaOwnerCard extends StatelessWidget {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) =>
-                              ModalDetailBerita(beritaId: news.pk, onModalClosed: onLikeToggled,),
+                          builder: (context) => ModalDetailBerita(
+                            beritaId: news.pk,
+                            onModalClosed: onLikeToggled,
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -219,8 +222,7 @@ class BeritaOwnerCard extends StatelessWidget {
           ),
         ),
       ),
-      )
-    );
+    ));
   }
 }
 

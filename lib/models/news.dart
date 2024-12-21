@@ -53,11 +53,11 @@ class Fields {
         judul: json["judul"],
         gambar: json["gambar"],
         konten: json["konten"],
-        like: json["like"],
+        like: json["like"] ?? 0,
         author: json["author"],
         tanggal: DateTime.parse(json["tanggal"]),
         tanggalPembaruan: DateTime.parse(json["tanggal_pembaruan"]),
-        liked: json["liked"],
+        liked: json["liked"] ?? false,
         dataRestaurant: DataRestaurant.fromJson(json["data_restaurant"]),
       );
 

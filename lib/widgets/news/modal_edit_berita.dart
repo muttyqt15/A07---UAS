@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:uas/main.dart';
 
 class ModalEditBerita extends StatefulWidget {
   final Function(Map<String, dynamic>, File?, Uint8List?) onEdit;
@@ -77,7 +78,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
           'konten': content,
         };
 
-         // Validasi gambar
+        // Validasi gambar
         // if (kIsWeb) {
         //   if (_selectedImageBytes == null) {
         //     ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +101,8 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
         //   }
         // }
 
-        widget.onEdit(data, _selectedImageFile, _selectedImageBytes); // Panggil callback dengan data
+        widget.onEdit(data, _selectedImageFile,
+            _selectedImageBytes); // Panggil callback dengan data
         Navigator.of(context).pop(); // Tutup modal setelah sukses
       } catch (e) {
         print('Error editing news in ModalEditBerita: $e');
@@ -109,7 +111,6 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
       print("Form validation failed");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +195,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(
-                      'http://127.0.0.1:8000/${widget.berita['gambar']}',
+                      '${CONSTANTS.baseUrl}/${widget.berita['gambar']}',
                       fit: BoxFit.cover,
                     ),
                   ),
