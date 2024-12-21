@@ -1,11 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
 import 'package:uas/screens/authentication/login.dart';
-import 'package:uas/screens/authentication/register.dart';
-import 'package:uas/screens/landing.dart';
-import 'package:uas/screens/thread/thread.dart';
 import 'package:uas/widgets/left_drawer.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -25,31 +24,31 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
+    final request = context.read<CookieRequest>();
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     void _handleSignup() async {
       if (_formKey.currentState!.validate()) {
         // Proceed with signup logic
-        final response =
-            await request.post("${CONSTANTS.baseUrl}/auth/signup/", {
+        final data = {
           'username': _usernameController.text.trim(),
           'password1': _password1Controller.text.trim(),
           'password2': _password2Controller.text.trim(),
           'role': _role, // Send the selected role
-        });
-
-        if (response['success']) {
-          String message = response['message'];
+        };
+        final response = await request.postJson(
+            "${CONSTANTS.baseUrl}/auth/fsignup/", jsonEncode(data));
+        if (response['status']) {
           if (context.mounted) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => LandingPage()),
+              MaterialPageRoute(builder: (context) => LoginPage()),
             );
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
-                SnackBar(content: Text("$message")),
+                SnackBar(
+                    content: Text("Berhasil membuat akun! Silahkan log in.")),
               );
           }
         } else {

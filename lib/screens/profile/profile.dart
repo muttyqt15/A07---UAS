@@ -29,7 +29,6 @@ class _ProfilePageState extends State<ProfilePage> {
     final res =
         await request.get("${CONSTANTS.baseUrl}/profile/fetch_profile/");
     var data = res;
-    print('Raw PROFILE response: $res'); // Debug print
 
     Profile profile = Profile.fromJson(data['profile']);
     return profile;

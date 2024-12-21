@@ -34,8 +34,6 @@ class _LoginPageState extends State<LoginPage> {
         });
         if (request.loggedIn) {
           String message = response['message'];
-          print('hellaii');
-          print(request.getJsonData());
           if (context.mounted) {
             Navigator.pushReplacement(
               context,
@@ -44,7 +42,9 @@ class _LoginPageState extends State<LoginPage> {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
-                SnackBar(content: Text("$message")),
+                SnackBar(
+                    content: Text(
+                        "Berhasil log in. Selamat menikmati Mangan Solo!")),
               );
           }
         } else {
