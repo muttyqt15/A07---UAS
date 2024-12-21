@@ -29,11 +29,15 @@ class _ThreadScreenState extends State<ThreadScreen> {
   final TextEditingController _contentController = TextEditingController();
   List<Thread> threads = [];
   bool isLoading = true;
+  bool isUploadingFile = false;
   bool isCreating = false;
   File? _selectedImage;
   late ThreadService ts;
 
   Future<void> _pickImage() async {
+    setState(() {
+      isUploadingFile = true;
+    });
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -42,6 +46,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
         _selectedImage = File(pickedFile.path);
       });
     }
+    setState(() {
+      isUploadingFile = false;
+    });
   }
 
   Future<void> _fetchThreads(ThreadService ts) async {
@@ -341,7 +348,8 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                           ThreadCommentsPage(thread: td)),
                                 );
                               },
-                              icon: const Icon(Icons.chat_bubble, size: 16),
+                              icon: Icon(Icons.chat_bubble,
+                                  size: 16, color: Colors.grey[800]),
                             ),
                             Text(
                               td.commentCount.toString(),
@@ -380,7 +388,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                 size: 16,
                                 color: td.liked == true
                                     ? Colors.blue
-                                    : Colors.grey,
+                                    : Colors.grey[800],
                               ),
                             ),
                             Text(
@@ -412,7 +420,8 @@ class _ThreadScreenState extends State<ThreadScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Image.file(
         selectedImage, // Use Image.file for local files
-        height: 100,
+        height: 75,
+        width: 100,
         fit: BoxFit.cover,
       ),
     );
@@ -467,18 +476,18 @@ class _ThreadScreenState extends State<ThreadScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(
-                  onPressed: onImagePick,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown,
-                  ),
-                  child: _selectedImage != null
-                      ? _buildImagePreview(_selectedImage)
-                      : const Text("Memilih Foto",
-                          style: TextStyle(
-                              fontFamily: 'CrimsonPro',
-                              color: Color(0xFFFFFFFF))),
-                ),
+                _selectedImage != null
+                    ? _buildImagePreview(_selectedImage)
+                    : ElevatedButton(
+                        onPressed: onImagePick,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.brown,
+                        ),
+                        child: const Text("Memilih Foto",
+                            style: TextStyle(
+                                fontFamily: 'CrimsonPro',
+                                color: Color(0xFFFFFFFF))),
+                      ),
                 ElevatedButton(
                   onPressed: () async {
                     // Validate the form before publishing

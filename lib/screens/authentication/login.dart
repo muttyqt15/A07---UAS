@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas/main.dart';
 import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/landing.dart';
 import 'package:uas/services/auth.dart';
@@ -78,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                 String password = _passwordController.text;
 
                 final response =
-                    await request.login("http://localhost:8000/auth/flogin/", {
+                    await request.login("${CONSTANTS.baseUrl}/auth/flogin/", {
                   'username': username,
                   'password': password,
                 });
