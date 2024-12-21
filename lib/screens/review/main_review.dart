@@ -22,8 +22,6 @@ class _MainReviewPageState extends State<MainReviewPage> {
     final url = "http://localhost:8000/review/flutter/user-reviews/";
 
     final response = await request.get(url);
-    print("Response JSON: $response");
-
     if (response['status'] == 'success' && response['data'] != null) {
       setState(() {
         _reviewList = List<Review>.from(
@@ -49,7 +47,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
       } else if (sortBy == 'rate') {
         _reviewList.sort((a, b) => b.fields.penilaian.compareTo(a.fields.penilaian));
       } else if (sortBy == 'restaurant') {
-        _reviewList.sort((a, b) => a.fields.restoran.toString().compareTo(b.fields.restoran.toString()));
+        _reviewList.sort((a, b) => a.fields.restoranName.toString().compareTo(b.fields.restoranName.toString()));
       }
     });
   }
@@ -126,10 +124,16 @@ class _MainReviewPageState extends State<MainReviewPage> {
               ),
               const SizedBox(height: 20),
 
-              // Sort Options
+              // Sort Options Card
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5F4D40),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Wrap(
+                  alignment: WrapAlignment.center,
                   spacing: 8,
                   runSpacing: 8,
                   children: [
@@ -198,7 +202,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Restoran ID: ${fields.restoran}",
+              "Restoran: ${fields.restoranName}", // Replace with restaurant name
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

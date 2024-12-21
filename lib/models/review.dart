@@ -20,10 +20,10 @@ class Review {
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
       model: 'review',
-      pk: json["id"] ?? '', // Gunakan "id" sebagai primary key
+      pk: json["id"] ?? '', // Menggunakan "id" dari JSON
       fields: Fields(
         customer: json["customer"] ?? 0,
-        restoran: json["restoran"] ?? 0,
+        restoranName: json["restoran_name"] ?? 'Unknown Restaurant', // Gunakan nama restoran
         judulUlasan: json["judul_ulasan"] ?? 'No Title',
         tanggal: json["tanggal"] != null
             ? DateTime.tryParse(json["tanggal"].toString()) ?? DateTime.now()
@@ -34,7 +34,7 @@ class Review {
             ? DateTime.tryParse(json["waktu_edit_terakhir"].toString()) ?? DateTime.now()
             : DateTime.now(),
         displayName: json["display_name"] ?? 'Anonymous',
-        likes: List<String>.from(json["likes"] ?? []), // Gunakan list kosong jika null
+        likes: List<String>.from(json["likes"] ?? []),
         images: List<String>.from(json["images"] ?? []),
       ),
     );
@@ -49,7 +49,7 @@ class Review {
 
 class Fields {
   final int customer;
-  final int restoran;
+  final String restoranName; // Mengganti restoran ID dengan nama restoran
   final String judulUlasan;
   final DateTime tanggal;
   final String teksUlasan;
@@ -61,7 +61,7 @@ class Fields {
 
   Fields({
     this.customer = 0,
-    this.restoran = 0,
+    this.restoranName = 'Unknown Restaurant',
     this.judulUlasan = 'No Title',
     DateTime? tanggal,
     this.teksUlasan = 'No review available',
@@ -76,7 +76,7 @@ class Fields {
   factory Fields.fromJson(Map<String, dynamic> json) {
     return Fields(
       customer: json["customer"] ?? 0,
-      restoran: json["restoran"] ?? 0,
+      restoranName: json["restoran_name"] ?? 'Unknown Restaurant',
       judulUlasan: json["judul_ulasan"] ?? 'No Title',
       tanggal: json["tanggal"] != null
           ? DateTime.tryParse(json["tanggal"].toString()) ?? DateTime.now()
@@ -94,7 +94,7 @@ class Fields {
 
   Map<String, dynamic> toJson() => {
         "customer": customer,
-        "restoran": restoran,
+        "restoran_name": restoranName, // Output nama restoran ke JSON
         "judul_ulasan": judulUlasan,
         "tanggal": tanggal.toIso8601String(),
         "teks_ulasan": teksUlasan,
