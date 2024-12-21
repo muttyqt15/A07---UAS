@@ -1,11 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart'; // Untuk kIsWeb
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/services/review_service.dart';
 import 'package:uas/screens/review/main_review.dart';
 import 'package:uas/widgets/left_drawer.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
+import 'package:uas/models/restaurant.dart';
 
 class CreateReviewFormPage extends StatefulWidget {
   const CreateReviewFormPage({super.key});
@@ -19,12 +21,13 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
 
   String? _displayName; // Optional
   String _judulUlasan = ""; // Required
-  String? _selectedRestaurantId; // Dropdown restaurant
+  int? _selectedRestaurantId; // Dropdown restaurant
   int? _rating; // Dropdown rating 1-5
   String _teksUlasan = ""; // Required
-  File? _selectedImageFile; // Image file
+  File? _selectedImageFile; // Image file (native)
+  Uint8List? _selectedImageBytes; // Image bytes (web)
   String _selectedFileName = "No File Selected"; // Default text
-  List<Map<String, dynamic>> _restaurants = [];
+  List<Restaurant> _restaurants = []; // List of restaurants
 
   @override
   void initState() {
@@ -33,71 +36,71 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
   }
 
   Future<void> _fetchRestaurants() async {
+    final request = context.read<CookieRequest>();
+    final reviewService = ReviewService(request: request);
+
     try {
-      final response = await http.get(Uri.parse("http://127.0.0.1:8000/restaurant/ "));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          _restaurants = List<Map<String, dynamic>>.from(data['data']);
-        });
-      } else {
-        _showSnackBar("Gagal mengambil data restoran.");
-      }
+      final restaurants = await reviewService.fetchAllRestaurants();
+      setState(() {
+        _restaurants = restaurants;
+      });
     } catch (e) {
-      _showSnackBar("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching restaurants: $e')),
+      );
     }
   }
 
   Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null && result.files.single.path != null) {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.single.bytes != null) {
       setState(() {
-        _selectedImageFile = File(result.files.single.path!);
-        _selectedFileName = result.files.single.name;
+        _selectedImageBytes = result.files.single.bytes;
       });
-    } else {
-      _showSnackBar("Gagal memilih file.");
     }
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        var uri = Uri.parse("http://127.0.0.1:8000/review/flutter/create/");
-        var request = http.MultipartRequest('POST', uri);
+  if (_formKey.currentState!.validate()) {
+    try {
+      // Ambil instance `CookieRequest` dengan `listen: false`
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      final reviewService = ReviewService(request: request);
 
-        request.fields['display_name'] = _displayName ?? '';
-        request.fields['restoran_id'] = _selectedRestaurantId!;
-        request.fields['judul_ulasan'] = _judulUlasan;
-        request.fields['teks_ulasan'] = _teksUlasan;
-        request.fields['penilaian'] = _rating.toString();
-
-        if (_selectedImageFile != null) {
-          request.files.add(await http.MultipartFile.fromPath(
-            'images',
-            _selectedImageFile!.path,
-            contentType: MediaType('image', 'jpeg'),
-          ));
-        }
-
-        var response = await request.send();
-        var responseBody = await http.Response.fromStream(response);
-
-        if (response.statusCode == 201) {
-          _showSnackBar("Review berhasil disimpan!");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const MainReviewPage()),
-          );
-        } else {
-          final data = jsonDecode(responseBody.body);
-          _showSnackBar(data['message'] ?? "Gagal menyimpan data.");
-        }
-      } catch (e) {
-        _showSnackBar("Error: $e");
+      // Encode image (opsional)
+      Uint8List? imageBytes;
+      if (_selectedImageFile != null) {
+        imageBytes = await _selectedImageFile!.readAsBytes();
+      } else if (_selectedImageBytes != null) {
+        imageBytes = _selectedImageBytes;
       }
+
+      // Panggil service
+      final response = await reviewService.createReview(
+        restaurantId: _selectedRestaurantId!,
+        title: _judulUlasan,
+        content: _teksUlasan,
+        rating: _rating!,
+        imageBytes: imageBytes,
+        displayName: _displayName,
+      );
+
+      // Tangani hasil
+      if (response['success'] == true) {
+        _showSnackBar("Review berhasil dibuat!");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainReviewPage()),
+        );
+      } else {
+        _showSnackBar("Gagal membuat review: ${response['message']}");
+      }
+    } catch (e) {
+      _showSnackBar("Error saat membuat review: $e");
     }
   }
+}
+
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -118,6 +121,7 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Card(
+          color: const Color(0xFFE5D2B0),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           elevation: 4,
           child: Padding(
@@ -137,19 +141,52 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
                     _judulUlasan = value;
                   }, required: true),
                   const SizedBox(height: 16),
-                  _buildDropdown("Pilih Restoran", _restaurants.map((e) {
-                    return DropdownMenuItem(value: e['id'].toString(), child: Text(e['name']));
-                  }).toList(), (value) => _selectedRestaurantId = value),
+                  _buildDropdown(
+                    "Pilih Restoran",
+                    _restaurants.map((e) {
+                      return DropdownMenuItem<int>(
+                        value: e.id,
+                        child: Text(e.name),
+                      );
+                    }).toList(),
+                    (value) {
+                      if (value != null) {
+                        setState(() => _selectedRestaurantId = value);
+                      }
+                    },
+                  ),
                   const SizedBox(height: 16),
-                  _buildDropdown("Penilaian (1-5)", List.generate(5, (index) {
-                    return DropdownMenuItem(value: "${index + 1}", child: Text("${index + 1}"));
-                  }), (value) => _rating = int.parse(value!)),
+                  _buildDropdown(
+                    "Penilaian (1-5)",
+                    List.generate(5, (index) {
+                      return DropdownMenuItem<int>(
+                        value: index + 1,
+                        child: Text("${index + 1}"),
+                      );
+                    }),
+                    (value) {
+                      if (value != null) {
+                        setState(() => _rating = value);
+                      }
+                    },
+                  ),
                   const SizedBox(height: 16),
                   _buildTextField("Teks Ulasan", "Masukkan teks ulasan", (value) {
                     _teksUlasan = value;
                   }, required: true, maxLines: 4),
                   const SizedBox(height: 16),
                   _buildFilePicker(),
+                  const SizedBox(height: 16),
+                  if (_selectedImageBytes != null || _selectedImageFile != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Gambar yang Dipilih:"),
+                        const SizedBox(height: 8),
+                        _buildImagePreview(),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
                   const SizedBox(height: 24),
                   _buildActionButtons(),
                 ],
@@ -195,13 +232,13 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
     );
   }
 
-  Widget _buildDropdown(String label, List<DropdownMenuItem<String>> items, Function(String?) onChanged) {
+  Widget _buildDropdown(String label, List<DropdownMenuItem<int>> items, Function(int?) onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
+        DropdownButtonFormField<int>(
           items: items,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
@@ -224,6 +261,26 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
         Expanded(child: Text(_selectedFileName, overflow: TextOverflow.ellipsis)),
       ],
     );
+  }
+
+  Widget _buildImagePreview() {
+    if (_selectedImageBytes != null) {
+      return Image.memory(
+        _selectedImageBytes!,
+        height: 150,
+        width: 150,
+        fit: BoxFit.cover,
+      );
+    } else if (_selectedImageFile != null) {
+      return Image.file(
+        _selectedImageFile!,
+        height: 150,
+        width: 150,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
   }
 
   Widget _buildActionButtons() {

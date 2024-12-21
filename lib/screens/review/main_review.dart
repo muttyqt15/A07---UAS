@@ -17,7 +17,7 @@ class MainReviewPage extends StatefulWidget {
 }
 
 class _MainReviewPageState extends State<MainReviewPage> {
-  final ReviewService _reviewService = ReviewService(); // Instance ReviewService
+  late final ReviewService _reviewService;
   List<Review> _reviewList = [];
   bool isLoading = true;
   String _sortBy = 'like';
@@ -25,33 +25,43 @@ class _MainReviewPageState extends State<MainReviewPage> {
   @override
   void initState() {
     super.initState();
-    fetchReviews();
+    // Menginisialisasi _reviewService di initState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final request = context.read<CookieRequest>();
+      _reviewService = ReviewService(request: request);
+      fetchReviews(); // Memanggil fetchReviews setelah _reviewService diinisialisasi
+    });
   }
 
   Future<void> fetchReviews() async {
-    final request = context.read<CookieRequest>();
+    setState(() {
+      isLoading = true;
+    });
+
     try {
+      final request = context.read<CookieRequest>();
       final response = await request.get('http://localhost:8000/review/flutter/user-reviews/');
       setState(() {
         _reviewList = (response['data'] as List)
             .map((data) => Review.fromJson(data))
             .toList();
-        isLoading = false;
       });
     } catch (e) {
-      setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching reviews: $e')),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   Future<void> deleteReview(String reviewId) async {
-    final request = context.read<CookieRequest>();
     try {
-      final response = await request.post(
+      final response = await _reviewService.request.post(
         'http://localhost:8000/review/flutter/delete/$reviewId/',
-        jsonEncode({}), // Send empty JSON object
+        jsonEncode({}),
       );
 
       if (response['status'] == 'success') {
@@ -59,6 +69,10 @@ class _MainReviewPageState extends State<MainReviewPage> {
           const SnackBar(content: Text('Review deleted successfully')),
         );
         fetchReviews(); // Refresh reviews after deletion
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response['message']}')),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

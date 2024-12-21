@@ -1,51 +1,81 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:uas/models/restaurant.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+
 
 
 class ReviewService {
-  final String baseUrl = 'http://localhost:8000/review/flutter';
+  final CookieRequest request;
+  final String baseUrl = 'http://127.0.0.1:8000/review/flutter';
 
-  // Create a new review with image support
-  Future<bool> createReview({
+  ReviewService({required this.request});
+
+  // Fetch all restaurants
+  Future<List<Restaurant>> fetchAllRestaurants() async {
+    final response = await request.get('$baseUrl/all-restaurants/');
+    if (response != null && response is List<dynamic>) {
+      return response.map((json) {
+        final fields = json['fields'];
+        return Restaurant(
+          id: json['pk'],
+          name: fields['name'] ?? 'Unknown',
+          district: fields['district'] ?? 'Unknown',
+          address: fields['address'] ?? 'Unknown',
+          operationalHours: fields['operational_hours'] ?? 'Unknown',
+          photoUrl: fields['photo_url'] ?? '',
+        );
+      }).toList();
+    } else {
+      throw Exception('Failed to fetch restaurants');
+    }
+  }
+
+  // Create Review
+  Future<Map<String, dynamic>> createReview({
     required int restaurantId,
     required String title,
     required String content,
     required int rating,
-    List<File>? images,
+    Uint8List? imageBytes,
+    String? displayName,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/create/');
-      final request = http.MultipartRequest('POST', url)
-        ..fields['restoran_id'] = restaurantId.toString()
-        ..fields['judul_ulasan'] = title
-        ..fields['teks_ulasan'] = content
-        ..fields['penilaian'] = rating.toString();
-
-      // Attach images if any
-      if (images != null) {
-        for (var image in images) {
-          final multipartFile = await http.MultipartFile.fromPath('images', image.path);
-          request.files.add(multipartFile);
-        }
+      // Encode image jika ada
+      String? base64Image;
+      if (imageBytes != null) {
+        base64Image = "data:image/jpeg;base64,${base64Encode(imageBytes)}";
       }
 
-      final response = await request.send();
-      if (response.statusCode == 201) {
-        final responseBody = await response.stream.bytesToString();
-        final decoded = json.decode(responseBody);
-        if (decoded['status'] == 'success') {
-          return true;
-        } else {
-          throw Exception('Failed to create review: ${decoded['message'] ?? "Unknown error"}');
-        }
+      // Data untuk request
+      final data = {
+        'restoran_id': restaurantId.toString(),
+        'judul_ulasan': title,
+        'teks_ulasan': content,
+        'penilaian': rating.toString(),
+        'display_name': displayName ?? "", // String kosong jika null
+        'image_base64': base64Image,
+      };
+
+      // Kirim POST request dengan `pbp_django_auth`
+      final response = await request.postJson(
+        '$baseUrl/create/',
+        jsonEncode(data),
+      );
+
+      // Tangani respons
+      if (response['status'] == 'success') {
+        return {'success': true, 'message': response['message']};
       } else {
-        throw Exception('Error creating review: ${response.statusCode}');
+        return {'success': false, 'message': response['message']};
       }
     } catch (e) {
-      throw Exception('Error creating review: $e');
+      return {'success': false, 'message': 'An error occurred: $e'};
     }
   }
+
 
   // Edit an existing review
   Future<bool> editReview({
@@ -86,7 +116,7 @@ class ReviewService {
   Future<bool> deleteReview(String reviewId, String csrfToken, String sessionId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/review/flutter/delete/$reviewId/'),
+        Uri.parse('$baseUrl/delete/$reviewId/'),
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken,
@@ -110,29 +140,6 @@ class ReviewService {
       }
     } catch (e) {
       throw Exception('Error deleting review: $e');
-    }
-  }
-  
-
-
-
-  // Like/Unlike a review
-  Future<Map<String, dynamic>> likeReview(String reviewId) async {
-    try {
-      final response = await http.post(Uri.parse('$baseUrl/like/$reviewId/'));
-
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        if (decoded['status'] == 'success') {
-          return decoded;
-        } else {
-          throw Exception('Failed to like/unlike review: ${decoded['message'] ?? "Unknown error"}');
-        }
-      } else {
-        throw Exception('Error liking/unliking review: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error liking/unliking review: $e');
     }
   }
 }
