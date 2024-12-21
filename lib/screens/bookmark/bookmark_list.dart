@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
+import 'package:uas/widgets/left_drawer.dart';
 import '/services/bookmark.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
@@ -48,6 +50,15 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
     final provider = Provider.of<BookmarkProvider>(context);
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background with batik image and black overlay
