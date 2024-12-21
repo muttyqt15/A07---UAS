@@ -33,35 +33,20 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     }
   }
 
-// access a django endpoint to check if the owner has a restaurant
   Future<void> checkOwnerRestaurant() async {
-    final url = Uri.parse('http://localhost:8000/restaurant/has_restaurant/');
-    final response = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-    });
+    final request = context.read<CookieRequest>();
+    int id = request.getJsonData()['data']['id'];
+    final response = await request
+        .get('http://localhost:8000/restaurant/has_restaurant/$id');
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['has_restaurant']) {
-        int restaurantId = data['restaurant_id'];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You already have a restaurant!')),
-        );
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    EditRestaurantPage(restaurantId: restaurantId)));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You do not have a restaurant.')),
+    if (response['statusCode'] == 200) {
+      if (response['has_restaurant']) {
+        int restoId = response['restaurant_id'];
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+              builder: (context) => EditRestaurantPage(restaurantId: restoId)),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to check restaurant ownership!')),
-      );
     }
   }
 
@@ -101,6 +86,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+
     role = request.getJsonData()['data']['role'];
     if (role != 'RESTO_OWNER') {
       return Scaffold(

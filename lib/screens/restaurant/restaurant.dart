@@ -379,17 +379,22 @@ class RestaurantDetailScreen extends StatelessWidget {
                                                 : Colors.grey,
                                       ),
                                       onPressed: () {
-                                        print(review.fields.likes);
                                         if (review.fields.likes
                                             .contains(userId)) {
-                                          // Unlike the review
-                                          RestaurantService()
-                                              .unlikeReview(review.pk);
+                                          review.fields.likes
+                                              .remove(userId.toString());
+                                          // Change button color on press
+                                          (context as Element).markNeedsBuild();
                                         } else {
-                                          // Like the review
-                                          RestaurantService()
-                                              .likeReview(review.pk);
+                                          review.fields.likes
+                                              .add(userId.toString());
+                                          // Change button color on press
+                                          (context as Element).markNeedsBuild();
                                         }
+                                        print(
+                                            'Like review ${review.pk}, user $userId');
+                                        RestaurantService()
+                                            .likeReview(review.pk);
                                       },
                                     ),
                                   ],

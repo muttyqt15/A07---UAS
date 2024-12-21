@@ -15,6 +15,7 @@ class EditRestaurantPage extends StatefulWidget {
 
 class _EditRestaurantPageState extends State<EditRestaurantPage> {
   final _formKey = GlobalKey<FormState>();
+  int restoId = 0;
   String name = '';
   String district = '';
   String address = '';
@@ -30,17 +31,18 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
 
   Future<void> fetchRestaurantDetails() async {
     final url = Uri.parse(
-        'http://localhost:8000/restaurant/serialized/${widget.restaurantId}/');
+        'http://localhost:8000/restaurant/serialized/${widget.restaurantId}');
     final response = await http.get(url);
-
+    print(response.body);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
-        name = data['name'];
-        district = data['district'];
-        address = data['address'];
-        operationalHours = data['operational_hours'];
-        photoUrl = data['photo_url'];
+        restoId = data['restaurant']['id'];
+        name = data['restaurant']['name'];
+        district = data['restaurant']['district'];
+        address = data['restaurant']['address'];
+        operationalHours = data['restaurant']['operational_hours'];
+        photoUrl = data['restaurant']['photo_url'];
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
