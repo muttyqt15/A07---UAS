@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/screens/landing.dart';
+import 'package:uas/services/bookmark.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,11 +13,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Provider(
-      create: (_) {
-        CookieRequest request = CookieRequest();
-        return request;
-      },
+    return MultiProvider(
+      providers: [
+        Provider<CookieRequest>(
+          create: (_) {
+            CookieRequest request = CookieRequest();
+            return request;
+          },
+        ),
+        Provider<BookmarkProvider>(
+          create: (_) => BookmarkProvider(),
+        ),
+      ],
       child: MaterialApp(
         title: 'Mental Health Tracker',
         theme: ThemeData(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
 import 'package:uas/screens/news/main_owner_berita.dart';
 import 'package:uas/widgets/footer.dart';
+import 'package:uas/widgets/left_drawer.dart';
 import 'package:uas/widgets/news/berita_card.dart';
 import 'package:uas/models/news.dart';
 import 'package:uas/services/news/news_services.dart';
@@ -78,7 +79,15 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Berita')),
+      appBar: AppBar(
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background Image

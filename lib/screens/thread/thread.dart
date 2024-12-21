@@ -8,6 +8,7 @@ import 'package:uas/main.dart';
 import 'package:uas/models/thread.dart';
 import 'package:uas/screens/thread/thread_comments.dart';
 import 'package:uas/services/thread.dart';
+import 'package:uas/widgets/left_drawer.dart';
 
 class ThreadScreen extends StatefulWidget {
   const ThreadScreen({super.key});
@@ -688,7 +689,15 @@ class _ThreadScreenState extends State<ThreadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Thread')),
+      appBar: AppBar(
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background with batik image and black overlay

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
 import 'package:uas/models/thread.dart';
 import 'package:uas/services/thread.dart';
+import 'package:uas/widgets/left_drawer.dart';
 
 class ThreadCommentsPage extends StatefulWidget {
   final Thread thread;
@@ -356,7 +357,8 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12), // Rounded corners
         ),
-        backgroundColor: const Color(CONSTANTS.licorice), // Dialog background color
+        backgroundColor:
+            const Color(CONSTANTS.licorice), // Dialog background color
         title: const Text(
           'DELETE COMMENT',
           style: TextStyle(
@@ -430,14 +432,13 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Thread Details',
-          style: TextStyle(
-            fontFamily: 'CrimsonPro',
-            color: Colors.white,
-          ),
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF5F4D40),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
       ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           Container(

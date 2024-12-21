@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
+import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/landing.dart';
-import 'package:uas/screens/thread/thread.dart';
+import 'package:uas/widgets/left_drawer.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -72,6 +73,15 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background Image
@@ -178,6 +188,25 @@ class _LoginPageState extends State<LoginPage> {
                               fontSize: 20,
                               color: Color(CONSTANTS.dutch),
                               fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterPage(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Belum memiliki akun?',
+                            style: TextStyle(
+                              color: Color(CONSTANTS.licorice),
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
                         ),
                       ),
                     ],
