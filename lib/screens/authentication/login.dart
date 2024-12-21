@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/landing.dart';
 import 'package:uas/screens/landing/landing_page.dart';
+import 'package:uas/screens/review/main_review.dart';
 import 'package:uas/services/auth.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -93,8 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                   if (context.mounted) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => LandingPageScreen()),
+                      MaterialPageRoute(builder: (context) => LandingPageScreen()),
                     );
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()

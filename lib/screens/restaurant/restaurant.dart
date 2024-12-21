@@ -4,6 +4,7 @@ import 'package:uas/models/menu.dart';
 import 'package:uas/models/food.dart';
 import 'package:uas/models/review.dart';
 import 'package:uas/services/restaurant_service.dart';
+import 'package:uas/screens/review/main_review.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
@@ -408,14 +409,18 @@ class RestaurantDetailScreen extends StatelessWidget {
                       ),
                     );
                   }),
-
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Add bookmark logic here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MainReviewPage(),
+                            ),
+                          );
                         },
                         icon: const Icon(Icons.add),
                         label: const Text('Buat Review'),
@@ -428,7 +433,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             );

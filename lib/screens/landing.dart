@@ -30,7 +30,6 @@ class _LandingPageState extends State<LandingPage> {
         title: const Text('Welcome to Mangan Solo'),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      drawer: const LeftDrawer(),
       body: Center(
         child: request.loggedIn ? const ThreadScreen() : RegisterPage(),
       ),
