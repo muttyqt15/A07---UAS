@@ -47,6 +47,30 @@ class RestaurantService {
       rethrow;
     }
   }
+
+  void likeReview(String reviewId) async {
+    final url =
+        Uri.parse('http://localhost:8000/restaurant/flutter_like_review/');
+    final response = await http.post(url, body: {
+      'review_id': reviewId.toString(),
+    });
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to like review');
+    }
+  }
+
+  void unlikeReview(String reviewId) async {
+    final url =
+        Uri.parse('http://localhost:8000/restaurant/flutter_unlike_review/');
+    final response = await http.post(url, body: {
+      'review_id': reviewId.toString(),
+    });
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to unlike review');
+    }
+  }
 }
 
 String getFullImageUrl(String imagePath) {

@@ -4,6 +4,8 @@ import 'package:uas/models/menu.dart';
 import 'package:uas/models/food.dart';
 import 'package:uas/models/review.dart';
 import 'package:uas/services/restaurant_service.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class RestaurantDetailScreen extends StatelessWidget {
   final Restaurant restaurant;
@@ -13,6 +15,9 @@ class RestaurantDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    final userId = request.getJsonData()['data']['id'];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown[800],
@@ -354,12 +359,39 @@ class RestaurantDetailScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  '${review.fields.penilaian}/5',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.orange,
-                                  ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      '${review.fields.penilaian}/5',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.orange,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.thumb_up,
+                                        color:
+                                            review.fields.likes.contains(userId)
+                                                ? Colors.blue
+                                                : Colors.grey,
+                                      ),
+                                      onPressed: () {
+                                        print(review.fields.likes);
+                                        if (review.fields.likes
+                                            .contains(userId)) {
+                                          // Unlike the review
+                                          RestaurantService()
+                                              .unlikeReview(review.pk);
+                                        } else {
+                                          // Like the review
+                                          RestaurantService()
+                                              .likeReview(review.pk);
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
