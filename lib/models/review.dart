@@ -1,73 +1,107 @@
 import 'dart:convert';
 
-// Function to parse the JSON response into a list of Review objects
 List<Review> reviewFromJson(String str) =>
     List<Review>.from(json.decode(str)["data"].map((x) => Review.fromJson(x)));
 
-// Function to convert the Review list back into JSON format
 String reviewToJson(List<Review> data) =>
-    json.encode({"data": List<dynamic>.from(data.map((x) => x.toJson()))});
+    json.encode({"status": "success", "data": data.map((x) => x.toJson()).toList()});
 
 class Review {
-  final String id;
+  final String model;
+  final String pk;
   final Fields fields;
 
   Review({
-    required this.id,
+    required this.model,
+    required this.pk,
     required this.fields,
   });
 
-  factory Review.fromJson(Map<String, dynamic> json) => Review(
-        id: json["id"] ?? '',
-        fields: Fields.fromJson(json),
-      );
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+      model: 'review',
+      pk: json["id"] ?? '', // Gunakan "id" sebagai primary key
+      fields: Fields(
+        customer: json["customer"] ?? 0,
+        restoran: json["restoran"] ?? 0,
+        judulUlasan: json["judul_ulasan"] ?? 'No Title',
+        tanggal: json["tanggal"] != null
+            ? DateTime.tryParse(json["tanggal"].toString()) ?? DateTime.now()
+            : DateTime.now(),
+        teksUlasan: json["teks_ulasan"] ?? 'No review available',
+        penilaian: json["penilaian"] ?? 0,
+        waktuEditTerakhir: json["waktu_edit_terakhir"] != null
+            ? DateTime.tryParse(json["waktu_edit_terakhir"].toString()) ?? DateTime.now()
+            : DateTime.now(),
+        displayName: json["display_name"] ?? 'Anonymous',
+        likes: List<String>.from(json["likes"] ?? []), // Gunakan list kosong jika null
+        images: List<String>.from(json["images"] ?? []),
+      ),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
+        "model": model,
+        "id": pk,
         "fields": fields.toJson(),
       };
 }
 
 class Fields {
-  final String restoranName;
+  final int customer;
+  final int restoran;
   final String judulUlasan;
+  final DateTime tanggal;
   final String teksUlasan;
   final int penilaian;
-  final DateTime tanggal;
+  final DateTime waktuEditTerakhir;
   final String displayName;
-  final int totalLikes;
+  final List<String> likes;
   final List<String> images;
 
   Fields({
-    required this.restoranName,
-    required this.judulUlasan,
-    required this.teksUlasan,
-    required this.penilaian,
-    required this.tanggal,
-    required this.displayName,
-    required this.totalLikes,
-    required this.images,
-  });
+    this.customer = 0,
+    this.restoran = 0,
+    this.judulUlasan = 'No Title',
+    DateTime? tanggal,
+    this.teksUlasan = 'No review available',
+    this.penilaian = 0,
+    DateTime? waktuEditTerakhir,
+    this.displayName = 'Anonymous',
+    this.likes = const [],
+    this.images = const [],
+  })  : tanggal = tanggal ?? DateTime.now(),
+        waktuEditTerakhir = waktuEditTerakhir ?? DateTime.now();
 
-  factory Fields.fromJson(Map<String, dynamic> json) => Fields(
-        restoranName: json["restoran_name"] ?? '',
-        judulUlasan: json["judul_ulasan"] ?? '',
-        teksUlasan: json["teks_ulasan"] ?? '',
-        penilaian: json["penilaian"] ?? 0,
-        tanggal: DateTime.parse(json["tanggal"] ?? DateTime.now().toString()),
-        displayName: json["display_name"] ?? 'Anonymous',
-        totalLikes: json["total_likes"] ?? 0,
-        images: List<String>.from(json["images"] ?? []),
-      );
+  factory Fields.fromJson(Map<String, dynamic> json) {
+    return Fields(
+      customer: json["customer"] ?? 0,
+      restoran: json["restoran"] ?? 0,
+      judulUlasan: json["judul_ulasan"] ?? 'No Title',
+      tanggal: json["tanggal"] != null
+          ? DateTime.tryParse(json["tanggal"].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      teksUlasan: json["teks_ulasan"] ?? 'No review available',
+      penilaian: json["penilaian"] ?? 0,
+      waktuEditTerakhir: json["waktu_edit_terakhir"] != null
+          ? DateTime.tryParse(json["waktu_edit_terakhir"].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      displayName: json["display_name"] ?? 'Anonymous',
+      likes: List<String>.from(json["likes"] ?? []),
+      images: List<String>.from(json["images"] ?? []),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        "restoran_name": restoranName,
+        "customer": customer,
+        "restoran": restoran,
         "judul_ulasan": judulUlasan,
+        "tanggal": tanggal.toIso8601String(),
         "teks_ulasan": teksUlasan,
         "penilaian": penilaian,
-        "tanggal": tanggal.toIso8601String(),
+        "waktu_edit_terakhir": waktuEditTerakhir.toIso8601String(),
         "display_name": displayName,
-        "total_likes": totalLikes,
-        "images": List<dynamic>.from(images.map((x) => x)),
+        "likes": likes,
+        "images": images,
       };
 }

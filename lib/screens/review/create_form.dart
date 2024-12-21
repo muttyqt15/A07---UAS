@@ -34,7 +34,7 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
 
   Future<void> _fetchRestaurants() async {
     try {
-      final response = await http.get(Uri.parse("http://127.0.0.1:8000/api/restaurants/"));
+      final response = await http.get(Uri.parse("http://127.0.0.1:8000/restaurant/ "));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
@@ -66,14 +66,12 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
         var uri = Uri.parse("http://127.0.0.1:8000/review/flutter/create/");
         var request = http.MultipartRequest('POST', uri);
 
-        // Add form fields
         request.fields['display_name'] = _displayName ?? '';
         request.fields['restoran_id'] = _selectedRestaurantId!;
         request.fields['judul_ulasan'] = _judulUlasan;
         request.fields['teks_ulasan'] = _teksUlasan;
         request.fields['penilaian'] = _rating.toString();
 
-        // Add image file
         if (_selectedImageFile != null) {
           request.files.add(await http.MultipartFile.fromPath(
             'images',
@@ -82,7 +80,6 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
           ));
         }
 
-        // Send request
         var response = await request.send();
         var responseBody = await http.Response.fromStream(response);
 
@@ -120,55 +117,42 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
       drawer: const LeftDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF8D7762), Color(0xFFE3D6C9)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Container(
-            margin: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE5D2B0),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTitle("Tambah Review"),
-                    const SizedBox(height: 16),
-                    _buildTextField("Display Name (Optional)", "Masukkan nama tampil", (value) {
-                      _displayName = value.isEmpty ? null : value;
-                    }),
-                    const SizedBox(height: 16),
-                    _buildTextField("Judul Ulasan", "Masukkan judul ulasan", (value) {
-                      _judulUlasan = value;
-                    }, required: true),
-                    const SizedBox(height: 16),
-                    _buildDropdown("Pilih Restoran", _restaurants.map((e) {
-                      return DropdownMenuItem(value: e['id'].toString(), child: Text(e['name']));
-                    }).toList(), (value) => _selectedRestaurantId = value),
-                    const SizedBox(height: 16),
-                    _buildDropdown("Penilaian (1-5)", List.generate(5, (index) {
-                      return DropdownMenuItem(value: "${index + 1}", child: Text("${index + 1}"));
-                    }), (value) => _rating = int.parse(value!)),
-                    const SizedBox(height: 16),
-                    _buildTextField("Teks Ulasan", "Masukkan teks ulasan", (value) {
-                      _teksUlasan = value;
-                    }, required: true, maxLines: 4),
-                    const SizedBox(height: 16),
-                    _buildFilePicker(),
-                    const SizedBox(height: 24),
-                    _buildActionButtons(),
-                  ],
-                ),
+        child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitle("Tambah Review"),
+                  const SizedBox(height: 16),
+                  _buildTextField("Nama Tampilan (Opsional)", "Masukkan nama tampilan", (value) {
+                    _displayName = value.isEmpty ? null : value;
+                  }),
+                  const SizedBox(height: 16),
+                  _buildTextField("Judul Ulasan", "Masukkan judul ulasan", (value) {
+                    _judulUlasan = value;
+                  }, required: true),
+                  const SizedBox(height: 16),
+                  _buildDropdown("Pilih Restoran", _restaurants.map((e) {
+                    return DropdownMenuItem(value: e['id'].toString(), child: Text(e['name']));
+                  }).toList(), (value) => _selectedRestaurantId = value),
+                  const SizedBox(height: 16),
+                  _buildDropdown("Penilaian (1-5)", List.generate(5, (index) {
+                    return DropdownMenuItem(value: "${index + 1}", child: Text("${index + 1}"));
+                  }), (value) => _rating = int.parse(value!)),
+                  const SizedBox(height: 16),
+                  _buildTextField("Teks Ulasan", "Masukkan teks ulasan", (value) {
+                    _teksUlasan = value;
+                  }, required: true, maxLines: 4),
+                  const SizedBox(height: 16),
+                  _buildFilePicker(),
+                  const SizedBox(height: 24),
+                  _buildActionButtons(),
+                ],
               ),
             ),
           ),
@@ -181,7 +165,7 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
     return Center(
       child: Text(
         text,
-        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF240F0E)),
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF5F4D40)),
       ),
     );
   }
@@ -234,7 +218,7 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
       children: [
         ElevatedButton(
           onPressed: _pickFile,
-          child: const Text("Choose File"),
+          child: const Text("Pilih File"),
         ),
         const SizedBox(width: 12),
         Expanded(child: Text(_selectedFileName, overflow: TextOverflow.ellipsis)),
@@ -248,11 +232,11 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
       children: [
         ElevatedButton(
           onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainReviewPage())),
-          child: const Text("Back"),
+          child: const Text("Kembali"),
         ),
         ElevatedButton(
           onPressed: _submitForm,
-          child: const Text("Submit"),
+          child: const Text("Kirim"),
         ),
       ],
     );

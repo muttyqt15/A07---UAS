@@ -4,6 +4,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:uas/models/review.dart';
 import 'package:intl/intl.dart';
 import 'package:uas/screens/review/create_form.dart';
+import 'package:uas/widgets/review/modal_edit.dart';
 
 class MainReviewPage extends StatefulWidget {
   const MainReviewPage({super.key});
@@ -42,13 +43,13 @@ class _MainReviewPageState extends State<MainReviewPage> {
     setState(() {
       _sortBy = sortBy;
       if (sortBy == 'like') {
-        _reviewList.sort((a, b) => b.fields.totalLikes.compareTo(a.fields.totalLikes));
+        _reviewList.sort((a, b) => b.fields.likes.length.compareTo(a.fields.likes.length));
       } else if (sortBy == 'date') {
         _reviewList.sort((a, b) => b.fields.tanggal.compareTo(a.fields.tanggal));
       } else if (sortBy == 'rate') {
         _reviewList.sort((a, b) => b.fields.penilaian.compareTo(a.fields.penilaian));
       } else if (sortBy == 'restaurant') {
-        _reviewList.sort((a, b) => a.fields.restoranName.compareTo(b.fields.restoranName));
+        _reviewList.sort((a, b) => a.fields.restoran.toString().compareTo(b.fields.restoran.toString()));
       }
     });
   }
@@ -56,7 +57,10 @@ class _MainReviewPageState extends State<MainReviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Review')),
+      appBar: AppBar(
+        title: const Text('Riwayat Review Anda'),
+        backgroundColor: const Color(0xFF5F4D40),
+      ),
       body: Stack(
         children: [
           Positioned.fill(
@@ -72,7 +76,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
           ),
           ListView(
             children: [
-              // Header Card
+              // Header
               Container(
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(16),
@@ -94,10 +98,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
                     const Text(
                       "Bagikan Pengalaman Anda dengan Restoran Kami Melalui Ulasan!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white, // Teks putih
-                        fontWeight: FontWeight.normal,
-                      ),
+                      style: TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -105,100 +106,43 @@ class _MainReviewPageState extends State<MainReviewPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CreateReviewFormPage(), // Arahkan ke halaman CreateForm
+                            builder: (context) => const CreateReviewFormPage(),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFA18971), // Background cokelat
+                        backgroundColor: const Color(0xFFA18971),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: const Text(
                         "Tulis Review",
-                        style: TextStyle(
-                          color: Colors.white, // Teks putih
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // Title
-              const Text(
-                "Riwayat Review",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
               const SizedBox(height: 20),
 
-              // Sorting Buttons
+              // Sort Options
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF44392F),
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: Column(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildSortButton('like', 'Sort by Like'),
-                        ),
-                        const SizedBox(width: 10), // Space between buttons
-                        Expanded(
-                          child: _buildSortButton('date', 'Sort by Date'),
-                        ),
-                        const SizedBox(width: 10), // Space between buttons
-                        Expanded(
-                          child: _buildSortButton('rate', 'Sort by Rate'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10), // Space between rows
-                    GestureDetector(
-                      onTap: () => _sortReviews('restaurant'),
-                      child: Container(
-                        width: double.infinity, // Full width
-                        height: 40,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: _sortBy == 'restaurant'
-                              ? const Color(0xFFDECDBE)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(
-                            color: const Color(0xFFFFFBF2),
-                            width: 2,
-                          ),
-                        ),
-                        child: Text(
-                          "Sort by Restaurant",
-                          style: TextStyle(
-                            color: _sortBy == 'restaurant'
-                                ? const Color(0xFF5F4D40)
-                                : const Color(0xFFFFFBF2),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildSortButton('like', 'Sort by Like'),
+                    _buildSortButton('date', 'Sort by Date'),
+                    _buildSortButton('rate', 'Sort by Rate'),
+                    _buildSortButton('restaurant', 'Sort by Restaurant'),
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
 
-              // Review Cards
+              // Review List
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -219,7 +163,6 @@ class _MainReviewPageState extends State<MainReviewPage> {
     return GestureDetector(
       onTap: () => _sortReviews(sortBy),
       child: Container(
-        alignment: Alignment.center, // Center text within the button
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? const Color(0xFFDECDBE) : Colors.transparent,
@@ -240,135 +183,116 @@ class _MainReviewPageState extends State<MainReviewPage> {
     );
   }
 
-
   Widget _buildReviewCard(Review review) {
-    final restoranName = review.fields.restoranName;
-    final judulUlasan = review.fields.judulUlasan;
-    final penulis = review.fields.displayName;
-    final penilaian = review.fields.penilaian;
-    final comment = review.fields.teksUlasan;
-    final tanggal = review.fields.tanggal;
-    final images = review.fields.images;
-    final likeCount = review.fields.totalLikes;
+    final fields = review.fields;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Stack(
-        children: [
-          // Linear Gradient Border
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF8D7762), Color(0xFFE3D6C9)], // Stroke gradient
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(100),
-            ),
-          ),
-          // Solid Card Content
-          Container(
-            margin: const EdgeInsets.all(4), // Space for stroke effect
-            decoration: BoxDecoration(
-              color: const Color(0xFF5F4D40), // Solid background for the card
-              borderRadius: BorderRadius.circular(16), // Slightly smaller radius
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    restoranName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    "Judul: $judulUlasan",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Penulis: $penulis",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Rating: $penilaian/5",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Tanggal: ${DateFormat('dd MMM yyyy').format(tanggal)}",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(height: 10),
-                  if (images.isNotEmpty)
-                    Image.network(
-                      images.first,
-                      height: 150,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Text(
-                        'Gambar tidak dapat dimuat',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Komentar: $comment",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    "Likes: $likeCount",
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Edit Action
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFA18971), // Background cokelat
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Text(
-                          "Edit",
-                          style: TextStyle(
-                            color: Colors.white, // Teks putih
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      OutlinedButton(
-                        onPressed: () {
-                          // Delete Action
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Text(
-                          "Delete",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+      decoration: BoxDecoration(
+        color: const Color(0xFF5F4D40),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Restoran ID: ${fields.restoran}",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
               ),
             ),
-          ),
-        ],
+            Text(
+              "Judul: ${fields.judulUlasan}",
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              "Rating: ${fields.penilaian}/5",
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              "Tanggal: ${DateFormat('dd MMM yyyy').format(fields.tanggal)}",
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+            if (fields.images.isNotEmpty)
+              Image.network(
+                fields.images.first,
+                height: 150,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Text(
+                  'Gambar tidak dapat dimuat',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            const SizedBox(height: 10),
+            Text(
+              "Komentar: ${fields.teksUlasan}",
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              "Likes: ${fields.likes.length}",
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    final updated = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ModalEditReview(
+                          reviewId: review.pk,
+                          initialJudulUlasan: fields.judulUlasan,
+                          initialTeksUlasan: fields.teksUlasan,
+                          initialPenilaian: fields.penilaian,
+                          initialDisplayName: fields.displayName,
+                          initialImages: fields.images,
+                        ),
+                      ),
+                    );
+
+                    if (updated == true) {
+                      fetchReviews();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFA18971),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text(
+                    "Edit",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton(
+                  onPressed: () {
+                    // Logic untuk menghapus ulasan
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-
 }

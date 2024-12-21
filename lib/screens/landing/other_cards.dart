@@ -243,7 +243,7 @@ class RestaurantReviewCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.thumb_up, size: 16),
                     const SizedBox(width: 4),
-                    Text('${review.fields.totalLikes} Likes'),
+                    Text('${review.fields.likes} Likes'),
                     const SizedBox(width: 16),
                     const Icon(Icons.star, size: 16, color: Colors.orange),
                     const SizedBox(width: 4),

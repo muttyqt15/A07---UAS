@@ -58,12 +58,14 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pop(context); // Tutup drawer
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const MainReviewPage()),
+                MaterialPageRoute(
+                  builder: (context) => MainReviewPage(),
+                ),
               );
             },
           ),
         ],
-      ),
+      )
     );
   }
 }

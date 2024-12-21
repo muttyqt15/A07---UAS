@@ -3,7 +3,6 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/screens/authentication/register.dart';
-import 'package:uas/screens/review/create_form.dart';
 import 'package:uas/screens/thread/thread.dart';
 import 'package:uas/services/auth.dart';
 import 'package:uas/widgets/left_drawer.dart';
@@ -31,7 +30,6 @@ class _LandingPageState extends State<LandingPage> {
         title: const Text('Welcome to Mangan Solo'),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
-      drawer: const LeftDrawer(),
       body: Center(
         child: request.loggedIn ? const ThreadScreen() : RegisterPage(),
       ),
@@ -115,7 +113,7 @@ class _LandingPageState extends State<LandingPage> {
             onPressed: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => CreateReviewFormPage()),
+                MaterialPageRoute(builder: (context) => RegisterPage()),
               );
             },
             child: const Text('Sign Up'),
