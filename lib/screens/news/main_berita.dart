@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
 import 'package:uas/screens/news/main_owner_berita.dart';
 import 'package:uas/widgets/footer.dart';
+import 'package:uas/widgets/left_drawer.dart';
 import 'package:uas/widgets/news/berita_card.dart';
 import 'package:uas/models/news.dart';
 import 'package:uas/services/news/news_services.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-
 
 class MainBeritaScreen extends StatefulWidget {
   @override
@@ -14,7 +15,6 @@ class MainBeritaScreen extends StatefulWidget {
 }
 
 class _MainBeritaScreenState extends State<MainBeritaScreen> {
-  static const String baseUrl = 'http://localhost:8000';
   final NewsServices _beritaService = NewsServices();
   List<News> _beritaList = [];
   String _sortBy = 'like';
@@ -52,7 +52,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
 
   Future<void> checkUserRole() async {
     final request = Provider.of<CookieRequest>(context, listen: false);
-    String url = '$baseUrl/news/get_user_role/';
+    String url = '${CONSTANTS.baseUrl}/news/get_user_role/';
     try {
       final response = await request.get(url); // Endpoint role
       setState(() {
@@ -79,7 +79,15 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Berita')),
+      appBar: AppBar(
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background Image

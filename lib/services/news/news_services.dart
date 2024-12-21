@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/main.dart';
 import '/models/news.dart';
 
 class NewsServices {
-  static const String baseUrl = 'http://127.0.0.1:8000';
-
   // Fetch list of berita
   Future<List<News>> fetchBerita(CookieRequest request) async {
-    const url = '$baseUrl/news/show_berita_json/';
+    const url = '${CONSTANTS.baseUrl}/news/show_berita_json/';
     try {
       final response = await request.get(url);
       // print('Raw response: $response'); 
@@ -20,7 +19,7 @@ class NewsServices {
 
   // Fetch single berita by ID
     Future<News> fetchBeritaById(CookieRequest request, String beritaId) async {
-      final url = '$baseUrl/news/fshow_berita_id/$beritaId/';
+      final url = '${CONSTANTS.baseUrl}/news/fshow_berita_id/$beritaId/';
       try {
         final response = await request.get(url);
         // print('Raw response for berita by ID: $response');
@@ -35,7 +34,7 @@ class NewsServices {
   // Toggle like for a berita
   Future<Map<String, dynamic>> toggleLike(
       CookieRequest request, String beritaId) async {
-    final url = '$baseUrl/news/like_berita/$beritaId/';
+    final url = '${CONSTANTS.baseUrl}/news/like_berita/$beritaId/';
     try {
       // Gunakan postJson untuk mengirimkan request kosong
       final response = await request.postJson(url, jsonEncode({}));

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
 import 'package:uas/screens/authentication/login.dart';
+import 'package:uas/screens/authentication/register.dart';
 import 'package:uas/screens/landing.dart';
-import 'package:uas/services/auth.dart';
+import 'package:uas/screens/thread/thread.dart';
+import 'package:uas/widgets/left_drawer.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -11,134 +16,265 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final AuthService _authService = AuthService();
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _password1Controller = TextEditingController();
+  final TextEditingController _password2Controller = TextEditingController();
+  String? _role = 'CUSTOMER'; // Default value set to 'Customer'
 
   String? _errorMessage;
-  bool _isLoggedIn = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _checkLoginStatus();
-  }
-
-  Future<void> _checkLoginStatus() async {
-    final loggedIn = await _authService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = loggedIn;
-    });
-  }
-
-  Future<void> _handleSignUp() async {
-    try {
-      await _authService.signUp(
-          username: _usernameController.text,
-          email: _emailController.text,
-          password1: _passwordController.text,
-          password2: _confirmPasswordController.text,
-          role: _selectedValue);
-      setState(() {
-        _errorMessage = 'Signup successful! Please log in.';
-      });
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
-    }
-  }
-
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    setState(() {
-      _isLoggedIn = false;
-    });
-  }
-
-  String _selectedValue = 'CUSTOMER';
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    void _handleSignup() async {
+      if (_formKey.currentState!.validate()) {
+        // Proceed with signup logic
+        final response =
+            await request.post("${CONSTANTS.baseUrl}/auth/signup/", {
+          'username': _usernameController.text.trim(),
+          'password1': _password1Controller.text.trim(),
+          'password2': _password2Controller.text.trim(),
+          'role': _role, // Send the selected role
+        });
+
+        if (response['success']) {
+          String message = response['message'];
+          if (context.mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LandingPage()),
+            );
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(content: Text("$message")),
+              );
+          }
+        } else {
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Signup Failed'),
+                content: Text(response['message']),
+                actions: [
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            );
+          }
+        }
+        print('Signup successful');
+      } else {
+        print('Validation failed');
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Page'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(labelText: 'Confirm Password'),
-              obscureText: true,
-            ),
-            DropdownButton<String>(
-              hint: const Text('Select an option'),
-              value: _selectedValue,
-              items: [
-                {'label': 'Pemilik Restoran', 'value': 'RESTO_OWNER'},
-                {'label': 'Pelanggan', 'value': 'CUSTOMER'}
-              ].map((option) {
-                return DropdownMenuItem<String>(
-                  value: option['value'],
-                  child: Text(option['label']!),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedValue = newValue!;
-                });
-              },
-            ),
-            if (_errorMessage != null)
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
-              ),
-            ElevatedButton(
-              onPressed: _handleSignUp,
-              child: const Text('Sign Up'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-              child: const Text('Login'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => LandingPage()),
-                );
-              },
-              child: const Text('Landing Page'),
-            ),
-          ],
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/batik.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.black.withOpacity(0.5), // Slight black mask
+          ),
+          Center(
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(20.0),
+                margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                decoration: BoxDecoration(
+                  color: Color(CONSTANTS.dutch),
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Form(
+                  key: _formKey, // Attach Form key
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon diisi dengan username...';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      TextFormField(
+                        controller: _password1Controller,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon diisi dengan password...';
+                          } else if (value.length < 6) {
+                            return 'Password diharapkan melebihi 6 karakter!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      TextFormField(
+                        controller: _password2Controller,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon diisi dengan konfirmasi password...';
+                          } else if (value != _password1Controller.text) {
+                            return 'Password tidak cocok!';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      DropdownButtonFormField<String>(
+                        value: _role,
+                        decoration: InputDecoration(
+                          labelText: 'Role',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'CUSTOMER',
+                            child: Text('Customer'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'RESTO_OWNER',
+                            child: Text('Pemilik Resto'),
+                          ),
+                        ],
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _role = newValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Pilih role...';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      if (_errorMessage != null)
+                        Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        onPressed: _handleSignup, // Call signup handler
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(CONSTANTS.licorice),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Color(CONSTANTS.dutch),
+                              fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Sudah memiliki akun?',
+                            style: TextStyle(
+                              color: Color(CONSTANTS.licorice),
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

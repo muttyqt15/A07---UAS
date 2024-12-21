@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
 import 'package:uas/widgets/footer.dart';
+import 'package:uas/widgets/left_drawer.dart';
 import '/widgets/news/berita_owner_card.dart';
 import '/widgets/news/modal_remove_berita.dart';
 import '/widgets/news/modal_edit_berita.dart';
@@ -114,7 +116,15 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Berita')),
+      appBar: AppBar(
+        title: const Text(
+          'MANGAN" SOLO',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color(CONSTANTS.dutch),
+        centerTitle: true,
+      ),
+      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background Image
