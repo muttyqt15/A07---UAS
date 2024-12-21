@@ -26,6 +26,7 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
   void initState() {
     super.initState();
     _loadNews();
+    
   }
 
   Future<void> _loadNews() async {
@@ -324,40 +325,73 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
               const SizedBox(height: 10),
 
               // List of News
-              ListView.builder(
+              ListView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _beritaList.length,
-                itemBuilder: (context, index) {
-                  final berita = _beritaList[index];
-                  return BeritaOwnerCard(
-                    key: ValueKey(berita.pk), // Key unik
-                    news: berita,
-                    onEdit: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => ModalEditBerita(
-                          berita: berita.fields.toMap(),
-                          onEdit: (data, imageFile, imageBytes) =>
-                              _editNews(berita.pk, data, imageFile, imageBytes),
+                children: [
+                  if (_beritaList.isEmpty)
+                    Container(
+                      margin: const EdgeInsets.all(20),
+                      child: CustomPaint(
+                        painter: GradientBorderPainter(
+                          borderRadius: 40.0,
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF8D7762), // Warna awal
+                              Color(0xFFE3D6C9), // Warna akhir
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          strokeWidth: 6.0,
                         ),
-                      );
-                    },
-                    onRemove: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => ModalRemoveBerita(
-                          onDelete: () => _deleteNews(berita.pk),
+                        child: Container(
+                          padding: const EdgeInsets.all(40),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(95, 77, 64, 0.80),
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "Belum ada berita yang terdaftar",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFFFFBF2),
+                              ),
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                    onLikeToggled: () {
-                      _loadNews(); // Refetch data
-                    },
-                  );
-                },
+                      ),
+                    ),
+                  ..._beritaList.map((berita) {
+                    return BeritaOwnerCard(
+                      key: ValueKey(berita.pk),
+                      news: berita,
+                      onEdit: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => ModalEditBerita(
+                            berita: berita.fields.toMap(),
+                            onEdit: (data, imageFile, imageBytes) =>
+                                _editNews(berita.pk, data, imageFile, imageBytes),
+                          ),
+                        );
+                      },
+                      onRemove: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => ModalRemoveBerita(
+                            onDelete: () => _deleteNews(berita.pk),
+                          ),
+                        );
+                      },
+                      onLikeToggled: _loadNews,
+                    );
+                  }).toList(),
+                ],
               ),
-
               const SizedBox(height: 10),
               const AppFooter(),
             ],

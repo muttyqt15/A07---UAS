@@ -158,7 +158,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
                             // Write News Button
                             ElevatedButton(
                               onPressed: () {
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => MainOwnerBerita(),
@@ -286,20 +286,57 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-
+              
               // List of News
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _beritaList.length,
-                itemBuilder: (context, index) {
-                  return BeritaCard(
-                    key: ValueKey(_beritaList[index].pk),
-                    news: _beritaList[index],
-                    onLikeToggled: fetchBerita, // Refetch berita
-                  );
-                },
-              ),
+              _beritaList.isEmpty
+                  ? Container(
+                      margin: const EdgeInsets.all(20),
+                      child: CustomPaint(
+                        painter: GradientBorderPainter(
+                          borderRadius: 40.0,
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF8D7762), // Warna awal
+                              Color(0xFFE3D6C9), // Warna akhir
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          strokeWidth: 6.0,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(40),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(95, 77, 64, 0.80),
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "Belum ada berita yang terdaftar",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFFFFBF2),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _beritaList.length,
+                      itemBuilder: (context, index) {
+                        return BeritaCard(
+                          key: ValueKey(_beritaList[index].pk),
+                          news: _beritaList[index],
+                          onLikeToggled: fetchBerita, // Refetch berita
+                        );
+                      },
+                    ),
+
 
               const SizedBox(height: 10),
               const AppFooter(),
