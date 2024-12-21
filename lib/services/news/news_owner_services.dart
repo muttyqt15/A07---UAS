@@ -2,14 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/main.dart';
 import '/models/news.dart';
 
 class NewsOwnerServices {
-  static const String baseUrl = 'http://localhost:8000';
-
   // Fetch list of news
   Future<List<News>> fetchNews(CookieRequest request) async {
-    const url = '$baseUrl/news/show_berita_by_owner/';
+    const url = '${CONSTANTS.baseUrl}/news/show_berita_by_owner/';
     try {
       final response = await request.get(url);
       // print('Raw response: $response');
@@ -28,7 +27,7 @@ class NewsOwnerServices {
     File? imageFile, // For mobile/desktop
     Uint8List? imageBytes, // For web
   }) async {
-    const String url = '$baseUrl/news/fadd_berita_ajax/';
+    const String url = '${CONSTANTS.baseUrl}/news/fadd_berita_ajax/';
 
     Map<String, String> fields = {'judul': title, 'konten': content};
 
@@ -65,7 +64,7 @@ class NewsOwnerServices {
     }
   }
 
-Future<void> editNews(
+  Future<void> editNews(
     CookieRequest request, {
     required String id,
     required String title,
@@ -73,7 +72,7 @@ Future<void> editNews(
     File? imageFile, // Untuk mobile/desktop
     Uint8List? imageBytes, // Untuk web
   }) async {
-    final String url = '$baseUrl/news/fedit_berita/$id/';
+    final String url = '${CONSTANTS.baseUrl}/news/fedit_berita/$id/';
     Map<String, String> fields = {'judul': title, 'konten': content};
 
     try {
@@ -116,7 +115,7 @@ Future<void> editNews(
 
   // Delete news
   Future<void> deleteNews(CookieRequest request, String id) async {
-    final url = '$baseUrl/news/fdelete_berita/$id/';
+    final url = '${CONSTANTS.baseUrl}/news/fdelete_berita/$id/';
     try {
       final response = await request.get(url);
       print('Response: $response');
@@ -138,7 +137,7 @@ Future<void> editNews(
   // Toggle like
   Future<Map<String, dynamic>> toggleLike(
       CookieRequest request, String beritaId) async {
-    final url = '$baseUrl/news/flike_berita/$beritaId/';
+    final url = '${CONSTANTS.baseUrl}/news/flike_berita/$beritaId/';
     try {
       // Gunakan postJson untuk mengirim body kosong dengan Content-Type JSON
       final response = await request.postJson(
