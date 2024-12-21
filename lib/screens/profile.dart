@@ -95,40 +95,83 @@ late Future<Profile> futureProfile;
   }
 
   void showEditDialog(Profile profile) {
-    final request = context.read<CookieRequest>();
-    TextEditingController bioController = TextEditingController(text: profile.bio);
+  final request = context.read<CookieRequest>();
+  TextEditingController bioController = TextEditingController(text: profile.bio);
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Edit Bio'),
-          content: TextField(
-            controller: bioController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText: 'Enter your new bio',
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        backgroundColor: Color(0xFFF5E6D3), // Soft beige
+        title: Text(
+          'Edit Bio',
+          style: TextStyle(
+            fontFamily: 'Poppins', 
+            fontSize: 20, 
+            fontWeight: FontWeight.bold, 
+            color: Color(0xFF4E342E), // Dark brown
+          ),
+        ),
+        content: TextField(
+          controller: bioController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Enter your new bio',
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                color: Color(0xFF4E342E),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                editProfile(request, bioController.text);
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF4E342E),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
             ),
-          ],
-        );
-      },
-    );
-  }
+            onPressed: () {
+              editProfile(request, bioController.text);
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Save',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   void showDeleteDialog() {
     final request = context.read<CookieRequest>();
@@ -137,21 +180,60 @@ late Future<Profile> futureProfile;
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete Account'),
-          content: Text('Are you sure you want to delete your account? This action cannot be undone.'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Color(0xFFF5E6D3), // Soft beige
+          title: Text(
+            'Delete Account',
+            style: TextStyle(
+              fontFamily: 'Poppins', 
+              fontSize: 20, 
+              fontWeight: FontWeight.bold, 
+              color: Color(0xFF4E342E), // Dark brown
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to delete your account? This action cannot be undone.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 14,
+              color: Color(0xFF4E342E),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: Color(0xFF4E342E),
+                ),
+              ),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4E342E),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
               onPressed: () {
                 deleteAccount(request);
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -167,11 +249,34 @@ late Future<Profile> futureProfile;
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit Profile Picture'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          backgroundColor: Color(0xFFF5E6D3), // Soft beige
+          title: Text(
+            'Edit Profile Picture',
+            style: TextStyle(
+              fontFamily: 'Poppins', 
+              fontSize: 20, 
+              fontWeight: FontWeight.bold, 
+              color: Color(0xFF4E342E), // Dark brown
+            ),
+          ),
           content: TextField(
             controller: profilePicUrlController,
             decoration: InputDecoration(
               hintText: 'Enter the URL of your new profile picture',
+              filled: true,
+              fillColor: Colors.white,
+              hintStyle: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
           actions: [
@@ -179,20 +284,141 @@ late Future<Profile> futureProfile;
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: Color(0xFF4E342E),
+                ),
+              ),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF4E342E),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
               onPressed: () {
                 editProfilePicture(request, profilePicUrlController.text);
                 Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
       },
     );
   }
+
+
+  // void showEditDialog(Profile profile) {
+  //   final request = context.read<CookieRequest>();
+  //   TextEditingController bioController = TextEditingController(text: profile.bio);
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text('Edit Bio'),
+  //         content: TextField(
+  //           controller: bioController,
+  //           maxLines: 3,
+  //           decoration: InputDecoration(
+  //             hintText: 'Enter your new bio',
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               editProfile(request, bioController.text);
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Save'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // void showDeleteDialog() {
+  //   final request = context.read<CookieRequest>();
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text('Delete Account'),
+  //         content: Text('Are you sure you want to delete your account? This action cannot be undone.'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               deleteAccount(request);
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Delete'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // void showEditProfilePicDialog() {
+  //   final request = context.read<CookieRequest>();
+  //   TextEditingController profilePicUrlController = TextEditingController();
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text('Edit Profile Picture'),
+  //         content: TextField(
+  //           controller: profilePicUrlController,
+  //           decoration: InputDecoration(
+  //             hintText: 'Enter the URL of your new profile picture',
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               editProfilePicture(request, profilePicUrlController.text);
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Save'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -370,12 +596,28 @@ late Future<Profile> futureProfile;
         onPressed = () {
           // Add your function for 'Review Saya' here
           print('Review Saya button pressed');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
         };
         break;
       case 'Bookmark Saya':
         onPressed = () {
           // Add your function for 'Bookmark Saya' here
           print('Bookmark Saya button pressed');
+          Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => page),
+        };
+        break;
+      case 'Resto Saya':
+        onPressed = () {
+          // Add your function for 'Resto Saya' here
+          print('Resto Saya button pressed');
+          Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => page),
         };
         break;
       case 'Hapus Akun':
@@ -401,7 +643,10 @@ late Future<Profile> futureProfile;
           ),
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
         ),
-        onPressed: onPressed,
+        onPressed : () {
+          // Add your function for 'Review Saya' here
+          Navigator.push();
+        },
         child: Text(
           text,
           style: const TextStyle(color: Colors.white, fontSize: 16),
