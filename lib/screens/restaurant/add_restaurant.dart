@@ -21,6 +21,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
   String photoUrl = '';
   String role = '';
   File? _image;
+  bool isUploadingFile = false;
 
   Future<void> pickImage() async {
     final pickedFile =
@@ -57,22 +58,27 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
   }
 
   Future<void> uploadRestaurant() async {
-    final url = Uri.parse('http://localhost:8000/api/add-restaurant/');
-    var request = http.MultipartRequest('POST', url);
-    request.fields['name'] = name;
-    request.fields['district'] = district;
-    request.fields['address'] = address;
-    request.fields['operational_hours'] = operationalHours;
+    final request = context.read<CookieRequest>();
+    String? base64Image;
 
     if (_image != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('photo', _image!.path),
-      );
+      List<int> imageBytes = await _image!.readAsBytes();
+      base64Image =
+          "data:image/${_image!.path.split('.').last};base64,${base64Encode(imageBytes)}";
     }
 
-    final response = await request.send();
+    final data = {
+      'name': name,
+      'district': district,
+      'address': address,
+      'operational_hours': operationalHours,
+      'image': base64Image,
+    };
 
-    if (response.statusCode == 201) {
+    final response = await request.postJson(
+        'http://localhost:8000/restaurant/add_api/', jsonEncode(data));
+
+    if (response['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Restaurant added successfully!')),
       );
@@ -81,6 +87,23 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
         SnackBar(content: Text('Failed to add restaurant!')),
       );
     }
+  }
+
+  Future<void> _pickImage() async {
+    setState(() {
+      isUploadingFile = true;
+    });
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+    setState(() {
+      isUploadingFile = false;
+    });
   }
 
   @override

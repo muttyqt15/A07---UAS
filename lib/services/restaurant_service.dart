@@ -67,3 +67,4 @@ String getFullImageUrl(String imagePath) {
     return 'http://localhost:8000$imagePath'; // Append base URL
   }
 }
+

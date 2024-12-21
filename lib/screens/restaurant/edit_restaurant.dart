@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:convert';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class EditRestaurantPage extends StatefulWidget {
   final int restaurantId;
@@ -63,30 +65,33 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
   }
 
   Future<void> editRestaurant() async {
-    final url = Uri.parse(
-        'http://localhost:8000/restaurant/edit_api/${widget.restaurantId}/');
-
-    var request = http.MultipartRequest('POST', url);
-    request.fields['name'] = name;
-    request.fields['district'] = district;
-    request.fields['address'] = address;
-    request.fields['operational_hours'] = operationalHours;
+    final request = context.read<CookieRequest>();
+    String? base64Image;
 
     if (_image != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('photo', _image!.path),
-      );
+      List<int> imageBytes = await _image!.readAsBytes();
+      base64Image =
+          "data:image/${_image!.path.split('.').last};base64,${base64Encode(imageBytes)}";
     }
 
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
+    final data = {
+      'name': name,
+      'district': district,
+      'address': address,
+      'operational_hours': operationalHours,
+      'image': base64Image,
+    };
+    print('YAHOOOOOOOOO');
+    final response = await request.postJson(
+        'http://localhost:8000/restaurant/edit_api/${widget.restaurantId}/',
+        jsonEncode(data));
+    print('GMAILLLLLLLLL');
+    if (response.status == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Restaurant updated successfully!')),
       );
     } else {
-      final responseData = await response.stream.bytesToString();
-      final error = jsonDecode(responseData)['error'] ?? 'Failed to update.';
+      final error = jsonDecode(response.body)['error'];
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $error')),
       );

@@ -22,7 +22,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   void initState() {
     super.initState();
     // Fetch restaurants using the service
-    _restaurants = RestaurantService().fetchRestaurants(11);
+    _restaurants = RestaurantService().fetchRestaurants(20);
     final request = context.read<CookieRequest>();
   }
 
