@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:uas/screens/landing.dart'; 
+import 'package:uas/screens/landing.dart';
+import 'package:uas/screens/news/main_berita.dart'; 
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -47,6 +48,18 @@ class LeftDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => LandingPage(),
+                  ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(IconData(0xf0541, fontFamily: 'MaterialIcons')),
+            title: const Text('Berita'),
+            // Bagian redirection ke MyHomePage
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainBeritaScreen(),
                   ));
             },
           ),
