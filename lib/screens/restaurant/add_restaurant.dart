@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:uas/main.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -39,8 +39,8 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
   Future<void> checkOwnerRestaurant() async {
     final request = context.read<CookieRequest>();
     int id = request.getJsonData()['data']['id'];
-    final response = await request
-        .get('http://localhost:8000/restaurant/has_restaurant/$id');
+    final response =
+        await request.get('${CONSTANTS.baseUrl}/restaurant/has_restaurant/$id');
 
     if (response['statusCode'] == 200) {
       if (response['has_restaurant']) {
@@ -78,7 +78,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     };
 
     final response = await request.postJson(
-        'http://localhost:8000/restaurant/add_api/', jsonEncode(data));
+        '${CONSTANTS.baseUrl}/restaurant/add_api/', jsonEncode(data));
 
     if (response['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(

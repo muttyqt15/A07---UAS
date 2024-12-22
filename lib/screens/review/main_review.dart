@@ -46,6 +46,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
             .map((data) => Review.fromJson(data))
             .toList();
       });
+      print(_reviewList);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching reviews: $e')),
@@ -104,7 +105,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Review Anda'),
-        backgroundColor: const Color(0xFF5F4D40),
+        backgroundColor: const Color(0xFFFFFFFF),
       ),
       body: Stack(
         children: [
@@ -281,10 +282,17 @@ class _MainReviewPageState extends State<MainReviewPage> {
                 fields.images.first,
                 height: 150,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Text(
-                  'Gambar tidak dapat dimuat',
-                  style: TextStyle(color: Colors.white),
-                ),
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 150,
+                    alignment: Alignment.center,
+                    color: Colors.grey,
+                    child: const Text(
+                      'Gambar tidak tersedia',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                },
               ),
             const SizedBox(height: 10),
             Text(

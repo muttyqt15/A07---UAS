@@ -7,6 +7,10 @@ import 'package:uas/models/profile.dart';
 // import 'package:uas/services/profile.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:uas/screens/authentication/login.dart';
+import 'package:uas/screens/bookmark/bookmark_list.dart';
+import 'package:uas/screens/review/main_review.dart';
+import 'package:uas/screens/restaurant/add_restaurant.dart';
+import 'package:uas/screens/restaurant/edit_restaurant.dart';
 import 'package:uas/widgets/left_drawer.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -552,18 +556,107 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
                 if (profile.role == 'customer') ...[
-                  buildActionButton('Review Saya', context),
-                  buildActionButton('Bookmark Saya', context),
-                  buildActionButton(
-                    'Hapus Akun',
-                    context,
+                  // buildActionButton('Review Saya', context),
+                  // buildActionButton('Bookmark Saya', context),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
+                    ),
+                    onPressed : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MainReviewPage()));
+                    },
+                    child: const Text(
+                      "Review Saya",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
+                    ),
+                    onPressed : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const BookmarkListScreen()));
+                    },
+                    child: const Text(
+                      "Bookmark Saya",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
+                    ),
+                    onPressed : () {
+                      showDeleteDialog();
+                    },
+                    child: const Text(
+                      "Hapus Akun",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+
                 ] else if (profile.role == 'restaurant_owner') ...[
-                  buildActionButton('Resto Saya', context),
-                  buildActionButton(
-                    'Hapus Akun',
-                    context,
+                  // buildActionButton('Add Resto Saya', context),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
+                    ),
+                    onPressed : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddRestaurantPage()));
+                    },
+                    child: const Text(
+                      "Resto Saya",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
+                    ),
+                    onPressed : () {
+                      showDeleteDialog();
+                    },
+                    child: const Text(
+                      "Hapus Akun",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
                   ),
                 ],
               ],
@@ -584,7 +677,7 @@ class _ProfilePageState extends State<ProfilePage> {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Color(CONSTANTS.coyote),
+            color: Color.fromARGB(255, 255, 255, 255),
           ),
         ),
         const SizedBox(height: 4),
@@ -615,6 +708,7 @@ class _ProfilePageState extends State<ProfilePage> {
     switch (text) {
       case 'Review Saya':
         onPressed = () {
+          print('Review Saya');
           // Add your function for 'Review Saya' here
           // Navigator.push(
           //   context,
@@ -624,14 +718,16 @@ class _ProfilePageState extends State<ProfilePage> {
         break;
       case 'Bookmark Saya':
         onPressed = () {
+          print('Bookmark Saya');
           // Add your function for 'Bookmark Saya' here
-          // Navigator.push(
-          // context,
-          // MaterialPageRoute(builder: (context) => page)),
+          Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => BookmarkListScreen()));
         };
         break;
       case 'Resto Saya':
         onPressed = () {
+          print('Resto Saya');
           // Add your function for 'Resto Saya' here
           // Navigator.push(
           // context,
