@@ -10,6 +10,8 @@ import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/widgets/left_drawer.dart';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -45,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
         futureProfile = fetchProfile();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully')),
+        const SnackBar(content: Text('Profile updated successfully')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     if (response['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Account deleted successfully')),
+        const SnackBar(content: Text('Account deleted successfully')),
       );
       Navigator.pushReplacement(
         context,
@@ -89,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
         futureProfile = fetchProfile();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile picture updated successfully')),
+        const SnackBar(content: Text('Profile picture updated successfully')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -112,8 +114,8 @@ class _ProfilePageState extends State<ProfilePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          backgroundColor: Color(0xFFF5E6D3), // Soft beige
-          title: Text(
+          backgroundColor: const Color(0xFFF5E6D3), // Soft beige
+          title: const Text(
             'Edit Bio',
             style: TextStyle(
               fontFamily: 'Poppins',
@@ -129,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
               hintText: 'Enter your new bio',
               filled: true,
               fillColor: Colors.white,
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 14,
                 color: Colors.grey,
@@ -145,7 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -156,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4E342E),
+                backgroundColor: const Color(0xFF4E342E),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -165,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 editProfile(request, bioController.text);
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Save',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -190,8 +192,8 @@ class _ProfilePageState extends State<ProfilePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          backgroundColor: Color(0xFFF5E6D3), // Soft beige
-          title: Text(
+          backgroundColor: const Color(0xFFF5E6D3), // Soft beige
+          title: const Text(
             'Delete Account',
             style: TextStyle(
               fontFamily: 'Poppins',
@@ -200,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Color(0xFF4E342E), // Dark brown
             ),
           ),
-          content: Text(
+          content: const Text(
             'Are you sure you want to delete your account? This action cannot be undone.',
             style: TextStyle(
               fontFamily: 'Poppins',
@@ -213,7 +215,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -224,7 +226,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4E342E),
+                backgroundColor: const Color(0xFF4E342E),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -233,7 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 deleteAccount(request);
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Delete',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -259,8 +261,8 @@ class _ProfilePageState extends State<ProfilePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          backgroundColor: Color(0xFFF5E6D3), // Soft beige
-          title: Text(
+          backgroundColor: const Color(0xFFF5E6D3), // Soft beige
+          title: const Text(
             'Edit Profile Picture',
             style: TextStyle(
               fontFamily: 'Poppins',
@@ -275,7 +277,7 @@ class _ProfilePageState extends State<ProfilePage> {
               hintText: 'Enter the URL of your new profile picture',
               filled: true,
               fillColor: Colors.white,
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 14,
                 color: Colors.grey,
@@ -291,7 +293,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -302,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4E342E),
+                backgroundColor: const Color(0xFF4E342E),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
@@ -311,7 +313,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 editProfilePicture(request, profilePicUrlController.text);
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Save',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -576,10 +578,10 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: const Color(CONSTANTS.coyote),
+            color: Color(CONSTANTS.coyote),
           ),
         ),
         const SizedBox(height: 4),

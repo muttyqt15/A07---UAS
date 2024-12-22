@@ -14,6 +14,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'dart:io';
 
 class MainOwnerBerita extends StatefulWidget {
+  const MainOwnerBerita({super.key});
+
   @override
   _MainOwnerBeritaState createState() => _MainOwnerBeritaState();
 }
@@ -21,7 +23,7 @@ class MainOwnerBerita extends StatefulWidget {
 class _MainOwnerBeritaState extends State<MainOwnerBerita> {
   List<dynamic> _beritaList = [];
   String _sortBy = "like";
-  bool _isLoading = false;
+  final bool _isLoading = false;
   final newsOwnerServices = NewsOwnerServices();
 
   @override
@@ -159,7 +161,7 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       width: 313,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,

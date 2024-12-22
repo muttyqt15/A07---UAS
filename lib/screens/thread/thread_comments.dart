@@ -246,7 +246,7 @@ class _ThreadCommentsPageState extends State<ThreadCommentsPage> {
                           ? const CircularProgressIndicator()
                           : const Text("Post Comment",
                               style: TextStyle(
-                                color: const Color(CONSTANTS.licorice),
+                                color: Color(CONSTANTS.licorice),
                               )),
                     ),
                   ],

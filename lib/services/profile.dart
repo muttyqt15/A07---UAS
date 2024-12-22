@@ -58,7 +58,6 @@
 // }
 
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:uas/models/profile.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 

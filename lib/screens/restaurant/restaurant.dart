@@ -8,8 +8,7 @@ import 'package:uas/services/restaurant_service.dart';
 class RestaurantDetailScreen extends StatelessWidget {
   final Restaurant restaurant;
 
-  const RestaurantDetailScreen({Key? key, required this.restaurant})
-      : super(key: key);
+  const RestaurantDetailScreen({super.key, required this.restaurant});
 
   @override
   Widget build(BuildContext context) {
@@ -267,8 +266,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                         children: [
                           const SizedBox(height: 8),
                           // Safely render images
-                          if (review.fields.images != null &&
-                              review.fields.images.isNotEmpty)
+                          if (review.fields.images.isNotEmpty)
                             SizedBox(
                               height: 200,
                               child: ListView.builder(
@@ -278,7 +276,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                                   final imageUrl = review.fields.images[index];
 
                                   // Check if imageUrl is null
-                                  if (imageUrl == null || imageUrl.isEmpty) {
+                                  if (imageUrl.isEmpty) {
                                     print('Invalid image URL at index $index');
                                     return Container(
                                       alignment: Alignment.center,

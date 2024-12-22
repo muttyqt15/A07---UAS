@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:uas/screens/restaurant/edit_restaurant.dart';
 
 class AddRestaurantPage extends StatefulWidget {
+  const AddRestaurantPage({super.key});
+
   @override
   _AddRestaurantPageState createState() => _AddRestaurantPageState();
 }
@@ -46,7 +48,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
       if (data['has_restaurant']) {
         int restaurantId = data['restaurant_id'];
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You already have a restaurant!')),
+          const SnackBar(content: Text('You already have a restaurant!')),
         );
         Navigator.pushReplacement(
             context,
@@ -55,12 +57,12 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
                     EditRestaurantPage(restaurantId: restaurantId)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You do not have a restaurant.')),
+          const SnackBar(content: Text('You do not have a restaurant.')),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to check restaurant ownership!')),
+        const SnackBar(content: Text('Failed to check restaurant ownership!')),
       );
     }
   }
@@ -89,11 +91,11 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
 
     if (response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restaurant added successfully!')),
+        const SnackBar(content: Text('Restaurant added successfully!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add restaurant!')),
+        const SnackBar(content: Text('Failed to add restaurant!')),
       );
     }
   }
@@ -103,7 +105,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     final request = context.watch<CookieRequest>();
     role = request.getJsonData()['data']['role'];
     if (role != 'RESTO_OWNER') {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Text('You are not authorized to access this page!'),
         ),
@@ -111,7 +113,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Add Restaurant')),
+      appBar: AppBar(title: const Text('Add Restaurant')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -119,31 +121,31 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
                 onChanged: (value) => name = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'District'),
+                decoration: const InputDecoration(labelText: 'District'),
                 onChanged: (value) => district = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Address'),
+                decoration: const InputDecoration(labelText: 'Address'),
                 onChanged: (value) => address = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Operational Hours'),
+                decoration: const InputDecoration(labelText: 'Operational Hours'),
                 onChanged: (value) => operationalHours = value,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: pickImage,
-                child: Text('Select Image'),
+                child: const Text('Select Image'),
               ),
               if (_image != null) Image.file(_image!, height: 100),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: uploadRestaurant,
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ],
           ),

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:uas/main.dart';
 
@@ -10,7 +9,7 @@ class BookmarkProvider {
   List<Bookmark> get bookmarks => _bookmarks;
 
   Future<void> fetchBookmarks(CookieRequest request) async {
-    final url = '${CONSTANTS.baseUrl}/bookmark/bookmarks/';
+    const url = '${CONSTANTS.baseUrl}/bookmark/bookmarks/';
     final response = await request.get(url);
 
     if (response.containsKey('bookmarks')) {

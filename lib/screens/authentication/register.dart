@@ -8,7 +8,7 @@ import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/widgets/left_drawer.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -25,10 +25,10 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.read<CookieRequest>();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-    void _handleSignup() async {
-      if (_formKey.currentState!.validate()) {
+    void handleSignup() async {
+      if (formKey.currentState!.validate()) {
         // Proceed with signup logic
         final data = {
           'username': _usernameController.text.trim(),
@@ -42,12 +42,12 @@ class _RegisterPageState extends State<RegisterPage> {
           if (context.mounted) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
+              MaterialPageRoute(builder: (context) => const LoginPage()),
             );
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
-                SnackBar(
+                const SnackBar(
                     content: Text("Berhasil membuat akun! Silahkan log in.")),
               );
           }
@@ -106,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 padding: const EdgeInsets.all(20.0),
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: Color(CONSTANTS.dutch),
+                  color: const Color(CONSTANTS.dutch),
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
@@ -117,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ],
                 ),
                 child: Form(
-                  key: _formKey, // Attach Form key
+                  key: formKey, // Attach Form key
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -229,7 +229,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       const SizedBox(height: 15),
                       ElevatedButton(
-                        onPressed: _handleSignup, // Call signup handler
+                        onPressed: handleSignup, // Call signup handler
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(CONSTANTS.licorice),
                           padding: const EdgeInsets.symmetric(

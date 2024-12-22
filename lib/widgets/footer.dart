@@ -73,7 +73,7 @@ class AppFooter extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MainOwnerBerita()),
+                              builder: (context) => const MainOwnerBerita()),
                         );
                       },
                       child: const Text('Restoran', style:
@@ -93,7 +93,7 @@ class AppFooter extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MainBeritaScreen()),
+                              builder: (context) => const MainBeritaScreen()),
                         );
                       },
                       child: const Text('Thread', style:
@@ -112,7 +112,7 @@ class AppFooter extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => MainBeritaScreen()),
+                          MaterialPageRoute(builder: (context) => const MainBeritaScreen()),
                         );
                       },
                       child: const Text('Berita', style: TextStyle(fontSize: 12, color: Color(0xFFDECDBE), fontWeight: FontWeight.w600),),
@@ -130,7 +130,7 @@ class AppFooter extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MainBeritaScreen()),
+                              builder: (context) => const MainBeritaScreen()),
                         );
                       },
                       child: const Text('Bookmark', style:

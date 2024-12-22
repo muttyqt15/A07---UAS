@@ -10,6 +10,8 @@ import 'package:uas/services/news/news_services.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class MainBeritaScreen extends StatefulWidget {
+  const MainBeritaScreen({super.key});
+
   @override
   _MainBeritaScreenState createState() => _MainBeritaScreenState();
 }
@@ -123,7 +125,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 313,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -169,7 +171,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MainOwnerBerita(),
+                                    builder: (context) => const MainOwnerBerita(),
                                   ),
                                 );
                               },

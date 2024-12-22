@@ -7,7 +7,7 @@ import 'dart:convert';
 class EditRestaurantPage extends StatefulWidget {
   final int restaurantId;
 
-  EditRestaurantPage({required this.restaurantId});
+  const EditRestaurantPage({super.key, required this.restaurantId});
 
   @override
   _EditRestaurantPageState createState() => _EditRestaurantPageState();
@@ -44,7 +44,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load restaurant details!')),
+        const SnackBar(content: Text('Failed to load restaurant details!')),
       );
     }
   }
@@ -80,7 +80,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restaurant updated successfully!')),
+        const SnackBar(content: Text('Restaurant updated successfully!')),
       );
     } else {
       final responseData = await response.stream.bytesToString();
@@ -94,7 +94,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Restaurant')),
+      appBar: AppBar(title: const Text('Edit Restaurant')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -104,37 +104,37 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
               children: [
                 TextFormField(
                   initialValue: name,
-                  decoration: InputDecoration(labelText: 'Name'),
+                  decoration: const InputDecoration(labelText: 'Name'),
                   onChanged: (value) => name = value,
                 ),
                 TextFormField(
                   initialValue: district,
-                  decoration: InputDecoration(labelText: 'District'),
+                  decoration: const InputDecoration(labelText: 'District'),
                   onChanged: (value) => district = value,
                 ),
                 TextFormField(
                   initialValue: address,
-                  decoration: InputDecoration(labelText: 'Address'),
+                  decoration: const InputDecoration(labelText: 'Address'),
                   onChanged: (value) => address = value,
                 ),
                 TextFormField(
                   initialValue: operationalHours,
-                  decoration: InputDecoration(labelText: 'Operational Hours'),
+                  decoration: const InputDecoration(labelText: 'Operational Hours'),
                   onChanged: (value) => operationalHours = value,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: pickImage,
-                  child: Text('Select New Image'),
+                  child: const Text('Select New Image'),
                 ),
                 if (_image != null)
                   Image.file(_image!, height: 100)
                 else if (photoUrl.isNotEmpty)
                   Image.network('http://localhost:8000$photoUrl', height: 100),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: editRestaurant,
-                  child: Text('Save Changes'),
+                  child: const Text('Save Changes'),
                 ),
               ],
             ),

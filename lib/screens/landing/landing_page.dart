@@ -11,6 +11,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class LandingPageScreen extends StatefulWidget {
+  const LandingPageScreen({super.key});
+
   @override
   _LandingPageScreenState createState() => _LandingPageScreenState();
 }
@@ -23,7 +25,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     super.initState();
     // Fetch restaurants using the service
     _restaurants = RestaurantService().fetchRestaurants(11);
-    final request = context.read<CookieRequest>();
+    // final request = context.read<CookieRequest>();
   }
 
   @override
@@ -57,11 +59,11 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // Welcome Card
-                WelcomeCard(),
+                const WelcomeCard(),
                 const SizedBox(height: 16),
 
                 // 'Tahukah Anda?' Section
-                TahukahAndaCard(),
+                const TahukahAndaCard(),
                 const SizedBox(height: 16),
 
                 if (request.loggedIn &&
@@ -71,7 +73,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AddRestaurantPage()),
+                            builder: (context) => const AddRestaurantPage()),
                       );
                     },
                     child: const Text('Buat Restoran Baru'),
