@@ -224,8 +224,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
                             ),
                           ],
                         ),
-                        if (ts.request.loggedIn && td.authorId ==
-                            ts.request.getJsonData()['data']['id'])
+                        if (ts.request.loggedIn &&
+                            td.authorId ==
+                                ts.request.getJsonData()['data']['id'])
                           PopupMenuButton(
                             color: const Color(CONSTANTS
                                 .licorice), // Background color for the PopupMenuButton
@@ -389,7 +390,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                 }
 
                                 final result = await ts.likeThread(td.id);
-
+                                print(result);
                                 if (result['success']) {
                                   // Handle the successful update, e.g., show a success message
                                   ScaffoldMessenger.of(context).showSnackBar(

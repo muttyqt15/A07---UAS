@@ -28,8 +28,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<Profile> fetchProfile() async {
     final request = context.read<CookieRequest>();
+    print("logged in");
+    print(request.loggedIn);
     final res =
         await request.get("${CONSTANTS.baseUrl}/profile/fetch_profile/");
+    print(res);
     var data = res;
 
     Profile profile = Profile.fromJson(data['profile']);
@@ -642,8 +645,7 @@ class _ProfilePageState extends State<ProfilePage> {
         };
         break;
       default:
-        onPressed = () {
-        };
+        onPressed = () {};
     }
 
     return Padding(
