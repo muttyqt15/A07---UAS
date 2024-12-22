@@ -1,17 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:uas/main.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:uas/models/menu.dart';
 import 'package:uas/models/food.dart';
 import 'package:uas/models/review.dart';
 
 class RestaurantService {
-  static const String baseUrl =
-      'http://localhost:8000'; // Update to your server URL
-
   Future<Map<String, dynamic>> fetchRestaurantDetails(int restaurantId) async {
     try {
-      final url = Uri.parse('$baseUrl/restaurant/serialized/$restaurantId');
+      final url =
+          Uri.parse('${CONSTANTS.baseUrl}/restaurant/serialized/$restaurantId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -49,7 +48,7 @@ class RestaurantService {
   }
 
   void likeReview(String reviewId) async {
-    final url = Uri.parse('http://localhost:8000/restaurant/like_review/');
+    final url = Uri.parse('${CONSTANTS.baseUrl}/restaurant/like_review/');
     final response = await http.post(url, body: {
       'review_id': reviewId.toString(),
     });
@@ -64,6 +63,7 @@ String getFullImageUrl(String imagePath) {
   if (imagePath.startsWith('http')) {
     return imagePath; // Use as-is if it's already a full URL
   } else {
-    return 'http://localhost:8000$imagePath'; // Append base URL
+    print('${CONSTANTS.baseUrl}$imagePath');
+    return '${CONSTANTS.baseUrl}$imagePath';
   }
 }

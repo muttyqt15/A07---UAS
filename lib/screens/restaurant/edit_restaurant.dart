@@ -5,6 +5,8 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
+import 'package:uas/services/restaurant_service.dart';
 
 class EditRestaurantPage extends StatefulWidget {
   final int restaurantId;
@@ -32,8 +34,8 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
   }
 
   Future<void> fetchRestaurantDetails() async {
-    final url = Uri.parse(
-        'http://localhost:8000/restaurant/serialized/${widget.restaurantId}');
+    final url =
+        Uri.parse('${CONSTANTS.baseUrl}/serialized/${widget.restaurantId}');
     final response = await http.get(url);
     print(response.body);
     if (response.statusCode == 200) {
@@ -83,7 +85,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
     };
     print('YAHOOOOOOOOO');
     final response = await request.postJson(
-        'http://localhost:8000/restaurant/edit_api/${widget.restaurantId}/',
+        '${CONSTANTS.baseUrl}/restaurant/edit_api/${widget.restaurantId}/',
         jsonEncode(data));
     print('GMAILLLLLLLLL');
     if (response.status == 200) {
@@ -169,7 +171,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
                 if (_image != null)
                   Image.file(_image!, height: 100)
                 else if (photoUrl.isNotEmpty)
-                  Image.network('http://localhost:8000$photoUrl', height: 100),
+                  Image.network(getFullImageUrl(photoUrl), height: 100),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: editRestaurant,
