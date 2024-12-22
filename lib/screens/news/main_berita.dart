@@ -44,10 +44,8 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
         _beritaList = berita;
         _sortBerita(_sortBy);
       });
+      print('Berita: ${_beritaList[0]}');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching berita: $e')),
-      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -113,210 +111,247 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
               ],
             ),
           ),
-          ListView(
+          Column(
             children: [
-              // Jika user adalah restoran owner, tambahkan tombol
-              if (_isOwner)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  padding: const EdgeInsets.fromLTRB(40, 18, 40, 18),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF5F4D40),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 313,
+              Expanded(
+                child: ListView(
+                  children: [
+                    // Jika user adalah restoran owner, tambahkan tombol
+                    if (_isOwner)
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        padding: const EdgeInsets.fromLTRB(40, 18, 40, 18),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF5F4D40),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            // Title
-                            Text(
-                              "Pemilik Restoran?",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: "Crimson Pro",
-                                fontSize: 36,
-                                fontWeight: FontWeight.w700,
-                                height: 1.2,
-                                foreground: Paint()
-                                  ..shader = const LinearGradient(
-                                    colors: [
-                                      Color(0xFFD7C3B0),
-                                      Color(0xFFFFFBF2)
-                                    ],
-                                  ).createShader(
-                                      const Rect.fromLTWH(0, 0, 300, 0)),
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-
-                            // Subtitle
-                            const Text(
-                              "Bagikan Informasi Terkini Terkait Restoran Anda Melalui Berita!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: "Crimson Pro",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFFFFFBF2),
-                                height: 1.4,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-
-                            // Write News Button
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const MainOwnerBerita(),
+                            SizedBox(
+                              width: 313,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Pemilik Restoran?",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily: "Crimson Pro",
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.w700,
+                                      height: 1.2,
+                                      foreground: Paint()
+                                        ..shader = const LinearGradient(
+                                          colors: [
+                                            Color(0xFFD7C3B0),
+                                            Color(0xFFFFFBF2)
+                                          ],
+                                        ).createShader(
+                                            const Rect.fromLTWH(0, 0, 300, 0)),
+                                    ),
                                   ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFA18971),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 32),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(40),
-                                ),
-                              ),
-                              child: const Text(
-                                "Kelola Berita Restoran",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
+                                  const SizedBox(height: 14),
+                                  const Text(
+                                    "Bagikan Informasi Terkini Terkait Restoran Anda Melalui Berita!",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontFamily: "Crimson Pro",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFFFFFBF2),
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MainOwnerBerita(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFA18971),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 32),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(40),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Kelola Berita Restoran",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              // Daftar Berita Header
-              Text(
-                "Daftar Berita",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2,
-                  foreground: Paint()
-                    ..shader = const LinearGradient(
-                      colors: [Color(0xFFD7C3B0), Color(0xFFFFFBF2)],
-                    ).createShader(const Rect.fromLTWH(0, 0, 300, 0)),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Sorting Buttons
-              Container(
-                margin: const EdgeInsets.all(20),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF44392F),
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Sort by Like Button
-                    GestureDetector(
-                      onTap: () => _sortBerita('like'),
-                      child: Container(
-                        width: 120,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: _sortBy == 'like'
-                              ? const Color(0xFFDECDBE)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(
-                            color: const Color(0xFFFFFBF2),
-                            width: 2,
-                          ),
-                        ),
-                        child: Text(
-                          "Sort by Like",
-                          style: TextStyle(
-                            fontFamily: "Lora",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            height: 1.2,
-                            color: _sortBy == 'like'
-                                ? const Color(0xFF5F4D40)
-                                : const Color(0xFFFFFBF2),
-                          ),
-                        ),
+                    // Daftar Berita Header
+                    Text(
+                      "Daftar Berita",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                        foreground: Paint()
+                          ..shader = const LinearGradient(
+                            colors: [Color(0xFFD7C3B0), Color(0xFFFFFBF2)],
+                          ).createShader(const Rect.fromLTWH(0, 0, 300, 0)),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(height: 20),
 
-                    // Sort by Date Button
-                    GestureDetector(
-                      onTap: () => _sortBerita('tanggal'),
-                      child: Container(
-                        width: 120,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: _sortBy == 'tanggal'
-                              ? const Color(0xFFDECDBE)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(
-                            color: const Color(0xFFFFFBF2),
-                            width: 2,
+                    // Sorting Buttons
+                    Container(
+                      margin: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF44392F),
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Sort by Like Button
+                          GestureDetector(
+                            onTap: () => _sortBerita('like'),
+                            child: Container(
+                              width: 120,
+                              height: 28,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: _sortBy == 'like'
+                                    ? const Color(0xFFDECDBE)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(40),
+                                border: Border.all(
+                                  color: const Color(0xFFFFFBF2),
+                                  width: 2,
+                                ),
+                              ),
+                              child: Text(
+                                "Sort by Like",
+                                style: TextStyle(
+                                  fontFamily: "Lora",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.2,
+                                  color: _sortBy == 'like'
+                                      ? const Color(0xFF5F4D40)
+                                      : const Color(0xFFFFFBF2),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          "Sort by Date",
-                          style: TextStyle(
-                            fontFamily: "Lora",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            height: 1.2,
-                            color: _sortBy == 'tanggal'
-                                ? const Color(0xFF5F4D40)
-                                : const Color(0xFFFFFBF2),
+                          const SizedBox(width: 10),
+
+                          // Sort by Date Button
+                          GestureDetector(
+                            onTap: () => _sortBerita('tanggal'),
+                            child: Container(
+                              width: 120,
+                              height: 28,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: _sortBy == 'tanggal'
+                                    ? const Color(0xFFDECDBE)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(40),
+                                border: Border.all(
+                                  color: const Color(0xFFFFFBF2),
+                                  width: 2,
+                                ),
+                              ),
+                              child: Text(
+                                "Sort by Date",
+                                style: TextStyle(
+                                  fontFamily: "Lora",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.2,
+                                  color: _sortBy == 'tanggal'
+                                      ? const Color(0xFF5F4D40)
+                                      : const Color(0xFFFFFBF2),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
+                    const SizedBox(height: 10),
+
+                    if (_beritaList.isEmpty)
+                      Container(
+                        margin: const EdgeInsets.all(20),
+                        child: CustomPaint(
+                          painter: GradientBorderPainter(
+                            borderRadius: 40.0,
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFF8D7762), // Warna awal
+                                Color(0xFFE3D6C9), // Warna akhir
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            strokeWidth: 6.0,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(40),
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(95, 77, 64, 0.80),
+                              borderRadius: BorderRadius.circular(40),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "Belum ada berita yang terdaftar",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFFFFFBF2),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _beritaList.length,
+                        itemBuilder: (context, index) {
+                          return BeritaCard(
+                            key: ValueKey(_beritaList[index].pk),
+                            news: _beritaList[index],
+                            onLikeToggled: fetchBerita,
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 10),
+                    if (_beritaList.isNotEmpty) const AppFooter(),
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
-
-              // List of News
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _beritaList.length,
-                itemBuilder: (context, index) {
-                  return BeritaCard(
-                    key: ValueKey(_beritaList[index].pk),
-                    news: _beritaList[index],
-                    onLikeToggled: fetchBerita, // Refetch berita
-                  );
-                },
-              ),
-
-              const SizedBox(height: 10),
-              const AppFooter(),
+              if (_beritaList.isEmpty) const AppFooter(),
             ],
           ),
         ],
