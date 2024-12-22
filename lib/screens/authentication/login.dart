@@ -18,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   String? _errorMessage;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +26,9 @@ class _LoginPageState extends State<LoginPage> {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     void handleLogin() async {
+      setState(() {
+        isLoading = true;
+      });
       if (formKey.currentState!.validate()) {
         // Proceed with login logic
         final response =
@@ -83,6 +87,9 @@ class _LoginPageState extends State<LoginPage> {
           }
         }
       } else {}
+      setState(() {
+        isLoading = false;
+      });
     }
 
     return Scaffold(
@@ -195,9 +202,9 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
+                        child: Text(
+                          !isLoading ? 'Login' : 'Sedang log in...',
+                          style: const TextStyle(
                               fontSize: 20,
                               color: Color(CONSTANTS.dutch),
                               fontWeight: FontWeight.w800),

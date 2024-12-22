@@ -178,10 +178,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment:
-                          td.authorId == ts.request.getJsonData()['data']['id']
-                              ? MainAxisAlignment.spaceBetween
-                              : MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -227,8 +224,9 @@ class _ThreadScreenState extends State<ThreadScreen> {
                             ),
                           ],
                         ),
-                        if (td.authorId ==
-                            ts.request.getJsonData()['data']['id'])
+                        if (ts.request.loggedIn &&
+                            td.authorId ==
+                                ts.request.getJsonData()['data']['id'])
                           PopupMenuButton(
                             color: const Color(CONSTANTS
                                 .licorice), // Background color for the PopupMenuButton
@@ -392,7 +390,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                 }
 
                                 final result = await ts.likeThread(td.id);
-
+                                print(result);
                                 if (result['success']) {
                                   // Handle the successful update, e.g., show a success message
                                   ScaffoldMessenger.of(context).showSnackBar(
