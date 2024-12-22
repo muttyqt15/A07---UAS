@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:uas/models/review.dart';
+import 'package:uas/services/restaurant_service.dart';
 
 class ReviewCard extends StatelessWidget {
+  const ReviewCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -33,6 +36,8 @@ class ReviewCard extends StatelessWidget {
 }
 
 class WelcomeCard extends StatelessWidget {
+  const WelcomeCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -41,8 +46,20 @@ class WelcomeCard extends StatelessWidget {
       ),
       elevation: 4,
       color: Colors.brown[700],
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white70, width: 2.5),
+          borderRadius: BorderRadius.circular(16),
+          image: DecorationImage(
+            image: AssetImage('assets/images/logo.png'),
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.2),
+              BlendMode.dstATop,
+            ),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -92,6 +109,8 @@ class WelcomeCard extends StatelessWidget {
 }
 
 class TahukahAndaCard extends StatelessWidget {
+  const TahukahAndaCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -100,11 +119,15 @@ class TahukahAndaCard extends StatelessWidget {
       ),
       elevation: 4,
       color: Colors.brown[700],
-      child: const Padding(
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.white70, width: 2.5),
+            borderRadius: BorderRadius.circular(16)),
         padding: EdgeInsets.all(16),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Image(image: AssetImage('assets/images/logo.png'), height: 100),
             Text(
               'Tahukah Anda?',
               style: TextStyle(
@@ -136,10 +159,10 @@ class RestaurantReviewCard extends StatelessWidget {
   final Review review;
 
   const RestaurantReviewCard({
-    Key? key,
+    super.key,
     required this.restaurant,
     required this.review,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +183,7 @@ class RestaurantReviewCard extends StatelessWidget {
             ),
             child: Image.network(
               restaurant.photoUrl.isNotEmpty
-                  ? 'http://localhost:8000${restaurant.photoUrl}'
+                  ? getFullImageUrl(restaurant.photoUrl)
                   : 'https://via.placeholder.com/150',
               height: 180,
               width: double.infinity,
@@ -211,7 +234,7 @@ class RestaurantReviewCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Icon(Icons.person, color: Colors.orange),
+                    const Icon(Icons.person, color: Colors.orange),
                     const SizedBox(width: 8),
                     Text(
                       review.fields.displayName,
@@ -247,7 +270,6 @@ class RestaurantReviewCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     const Icon(Icons.star, size: 16, color: Colors.orange),
                     const SizedBox(width: 4),
-                
                   ],
                 ),
                 const SizedBox(height: 8),

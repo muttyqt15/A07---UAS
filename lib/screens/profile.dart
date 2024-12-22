@@ -184,7 +184,7 @@ late Future<Profile> futureProfile;
             borderRadius: BorderRadius.circular(20),
           ),
           backgroundColor: Color(0xFFF5E6D3), // Soft beige
-          title: Text(
+          title: const Text(
             'Delete Account',
             style: TextStyle(
               fontFamily: 'Poppins', 
@@ -193,7 +193,7 @@ late Future<Profile> futureProfile;
               color: Color(0xFF4E342E), // Dark brown
             ),
           ),
-          content: Text(
+          content: const Text(
             'Are you sure you want to delete your account? This action cannot be undone.',
             style: TextStyle(
               fontFamily: 'Poppins',
@@ -440,10 +440,30 @@ late Future<Profile> futureProfile;
               if (profile.role == 'customer') ...[
                 buildActionButton('Review Saya', context),
                 buildActionButton('Bookmark Saya', context),
-                buildActionButton('Hapus Akun', context, ),
+                // buildActionButton('Hapus Akun', context),
+
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.brown.shade600,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
+                    ),
+                    onPressed : () {
+                      showDeleteDialog();
+                    },
+                    child: const Text(
+                      "Hapus Akun",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+ 
+                
+
               ] else if (profile.role == 'restaurant_owner') ...[
                 buildActionButton('Resto Saya', context),
-                buildActionButton('Hapus Akun', context, ),
+                buildActionButton('Hapus Akun', context),
               ],
               ],
             ),
@@ -508,7 +528,7 @@ late Future<Profile> futureProfile;
           print('Bookmark Saya button pressed');
         //   Navigator.push(
         //   context,
-        //   MaterialPageRoute(builder: (context) => page),
+        //   MaterialPageRoute(builder: (context) => ),
         // );
         };
         break;
