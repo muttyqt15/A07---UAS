@@ -1,36 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:uas/main.dart';
-import 'package:uas/widgets/left_drawer.dart';
-import '/services/bookmark.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/models/bookmark.dart';
+import 'package:uas/services/bookmark.dart';
 
 class BookmarkListScreen extends StatefulWidget {
+  const BookmarkListScreen({super.key});
+
   @override
   _BookmarkListScreenState createState() => _BookmarkListScreenState();
 }
 
 class _BookmarkListScreenState extends State<BookmarkListScreen> {
   bool _isLoading = false;
+  List<Bookmark> _bookmarks = [];
+  String? _errorMessage;
 
-  Future<void> _removeBookmark(BuildContext context, BookmarkProvider provider,
-      CookieRequest request, int bookmarkId) async {
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookmarks();
+  }
+
+  Future<void> _fetchBookmarks() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final request = context.read<CookieRequest>();
+      final bookmarks = await BookmarkService().fetchBookmarks(request);
+      setState(() {
+        _bookmarks = bookmarks;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _removeBookmark(int bookmarkId) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      await provider.removeBookmark(request, bookmarkId);
+      final request = context.read<CookieRequest>();
+      final success = await BookmarkService.deleteBookmark(request, bookmarkId);
 
-      // Show success snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bookmark removed successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (success) {
+        setState(() {
+          _bookmarks.removeWhere((bookmark) => bookmark.id == bookmarkId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bookmark removed successfully.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     } catch (e) {
-      // Show error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to remove bookmark: $e'),
@@ -46,19 +82,15 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final request = Provider.of<CookieRequest>(context);
-    final provider = Provider.of<BookmarkProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'MANGAN" SOLO',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(CONSTANTS.dutch),
+        backgroundColor: const Color(0xFF5F4D40),
         centerTitle: true,
       ),
-      drawer: const LeftDrawer(),
       body: Stack(
         children: [
           // Background with batik image and black overlay
@@ -73,80 +105,66 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
           Container(
             color: Colors.black.withOpacity(0.5), // Slight black mask
           ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Bookmarked Restaurants Section
-                  Card(
-                    color: const Color(0xFF5F4D40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Bookmarked Restaurants",
-                            style: TextStyle(
-                              fontFamily: 'CrimsonPro',
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFFFFFFF),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            "Daftar Restoran yang Telah Anda Bookmark",
-                            style: TextStyle(
-                              fontFamily: 'CrimsonPro',
-                              fontSize: 14,
-                              color: Color(0xFFFFFFFF),
-                            ),
-                          ),
-                        ],
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+                  ? Center(
+                      child: Text(
+                        'Error: $_errorMessage',
+                        style: const TextStyle(color: Colors.red),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Bookmarks List
-                  const Text(
-                    "Daftar Bookmark",
-                    style: TextStyle(
-                      fontFamily: 'CrimsonPro',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  FutureBuilder(
-                    future: provider.fetchBookmarks(request),
-                    builder: (ctx, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(
+                    )
+                  : _bookmarks.isEmpty
+                      ? const Center(
                           child: Text(
-                            'Error loading bookmarks: ${snapshot.error}',
-                            style: const TextStyle(color: Colors.white),
+                            'No bookmarks yet.',
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
-                        );
-                      }
-
-                      return _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : provider.bookmarks.isEmpty
-                              ? const Text(
-                                  "No bookmarked restaurants.",
-                                  style: TextStyle(color: Colors.white),
-                                )
-                              : Column(
-                                  children: provider.bookmarks.map((bookmark) {
+                        )
+                      : SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Section Header
+                                Card(
+                                  color: const Color(0xFF5F4D40),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Bookmarked Restaurants",
+                                          style: TextStyle(
+                                            fontFamily: 'CrimsonPro',
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFFFFFFFF),
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          "Daftar Restoran yang Telah Anda Bookmark",
+                                          style: TextStyle(
+                                            fontFamily: 'CrimsonPro',
+                                            fontSize: 14,
+                                            color: Color(0xFFFFFFFF),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                // Bookmarks List
+                                Column(
+                                  children: _bookmarks.map((bookmark) {
                                     return Card(
                                       color: const Color(0xFF5F4D40),
                                       shape: RoundedRectangleBorder(
@@ -185,7 +203,6 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
                                                 ],
                                               ),
                                             ),
-                                            // Optional: Add an icon or additional action
                                             IconButton(
                                               icon: const Icon(
                                                 Icons.bookmark_remove,
@@ -195,43 +212,38 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
                                                 // Show confirmation dialog
                                                 showDialog(
                                                   context: context,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      title: const Text(
-                                                          'Remove Bookmark'),
-                                                      content: const Text(
-                                                          'Are you sure you want to remove this bookmark?'),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () =>
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(),
-                                                          child: const Text(
-                                                              'Cancel'),
-                                                        ),
-                                                        ElevatedButton(
-                                                          onPressed: () {
+                                                  builder: (context) =>
+                                                      AlertDialog(
+                                                    title: const Text(
+                                                        'Remove Bookmark'),
+                                                    content: const Text(
+                                                        'Are you sure you want to remove this bookmark?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
                                                             Navigator.of(
                                                                     context)
-                                                                .pop();
-                                                            _removeBookmark(
-                                                                context,
-                                                                provider,
-                                                                request,
-                                                                bookmark.id);
-                                                          },
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                            backgroundColor:
-                                                                Colors.red,
-                                                          ),
-                                                          child: const Text(
-                                                              'Remove'),
+                                                                .pop(),
+                                                        child: const Text(
+                                                            'Cancel'),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              Colors.red,
                                                         ),
-                                                      ],
-                                                    );
-                                                  },
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                          _removeBookmark(
+                                                              bookmark.id);
+                                                        },
+                                                        child: const Text(
+                                                            'Remove'),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 );
                                               },
                                             ),
@@ -240,13 +252,11 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
                                       ),
                                     );
                                   }).toList(),
-                                );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
         ],
       ),
     );
