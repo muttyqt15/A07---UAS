@@ -47,6 +47,17 @@ class RestaurantService {
       rethrow;
     }
   }
+
+  void likeReview(String reviewId) async {
+    final url = Uri.parse('http://localhost:8000/restaurant/like_review/');
+    final response = await http.post(url, body: {
+      'review_id': reviewId.toString(),
+    });
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to like review');
+    }
+  }
 }
 
 String getFullImageUrl(String imagePath) {

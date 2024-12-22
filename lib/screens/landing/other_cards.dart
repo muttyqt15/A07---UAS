@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uas/main.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:uas/models/review.dart';
+import 'package:uas/services/restaurant_service.dart';
 
 class ReviewCard extends StatelessWidget {
   const ReviewCard({super.key});
@@ -46,8 +47,20 @@ class WelcomeCard extends StatelessWidget {
       ),
       elevation: 4,
       color: Colors.brown[700],
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white70, width: 2.5),
+          borderRadius: BorderRadius.circular(16),
+          image: DecorationImage(
+            image: AssetImage('assets/images/logo.png'),
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.2),
+              BlendMode.dstATop,
+            ),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -107,11 +120,15 @@ class TahukahAndaCard extends StatelessWidget {
       ),
       elevation: 4,
       color: Colors.brown[700],
-      child: const Padding(
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.white70, width: 2.5),
+            borderRadius: BorderRadius.circular(16)),
         padding: EdgeInsets.all(16),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Image(image: AssetImage('assets/images/logo.png'), height: 100),
             Text(
               'Tahukah Anda?',
               style: TextStyle(
@@ -167,7 +184,7 @@ class RestaurantReviewCard extends StatelessWidget {
             ),
             child: Image.network(
               restaurant.photoUrl.isNotEmpty
-                  ? '${CONSTANTS.baseUrl}${restaurant.photoUrl}'
+                  ? getFullImageUrl(restaurant.photoUrl)
                   : 'https://via.placeholder.com/150',
               height: 180,
               width: double.infinity,

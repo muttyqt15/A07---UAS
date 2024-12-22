@@ -3,6 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:convert';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class EditRestaurantPage extends StatefulWidget {
   final int restaurantId;
@@ -15,6 +17,7 @@ class EditRestaurantPage extends StatefulWidget {
 
 class _EditRestaurantPageState extends State<EditRestaurantPage> {
   final _formKey = GlobalKey<FormState>();
+  int restoId = 0;
   String name = '';
   String district = '';
   String address = '';
@@ -30,17 +33,18 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
 
   Future<void> fetchRestaurantDetails() async {
     final url = Uri.parse(
-        'http://localhost:8000/restaurant/serialized/${widget.restaurantId}/');
+        'http://localhost:8000/restaurant/serialized/${widget.restaurantId}');
     final response = await http.get(url);
-
+    print(response.body);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
-        name = data['name'];
-        district = data['district'];
-        address = data['address'];
-        operationalHours = data['operational_hours'];
-        photoUrl = data['photo_url'];
+        restoId = data['restaurant']['id'];
+        name = data['restaurant']['name'];
+        district = data['restaurant']['district'];
+        address = data['restaurant']['address'];
+        operationalHours = data['restaurant']['operational_hours'];
+        photoUrl = data['restaurant']['photo_url'];
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -61,30 +65,33 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
   }
 
   Future<void> editRestaurant() async {
-    final url = Uri.parse(
-        'http://localhost:8000/restaurant/edit_api/${widget.restaurantId}/');
-
-    var request = http.MultipartRequest('POST', url);
-    request.fields['name'] = name;
-    request.fields['district'] = district;
-    request.fields['address'] = address;
-    request.fields['operational_hours'] = operationalHours;
+    final request = context.read<CookieRequest>();
+    String? base64Image;
 
     if (_image != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('photo', _image!.path),
-      );
+      List<int> imageBytes = await _image!.readAsBytes();
+      base64Image =
+          "data:image/${_image!.path.split('.').last};base64,${base64Encode(imageBytes)}";
     }
 
-    final response = await request.send();
-
-    if (response.statusCode == 200) {
+    final data = {
+      'name': name,
+      'district': district,
+      'address': address,
+      'operational_hours': operationalHours,
+      'image': base64Image,
+    };
+    print('YAHOOOOOOOOO');
+    final response = await request.postJson(
+        'http://localhost:8000/restaurant/edit_api/${widget.restaurantId}/',
+        jsonEncode(data));
+    print('GMAILLLLLLLLL');
+    if (response.status == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Restaurant updated successfully!')),
       );
     } else {
-      final responseData = await response.stream.bytesToString();
-      final error = jsonDecode(responseData)['error'] ?? 'Failed to update.';
+      final error = jsonDecode(response.body)['error'];
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $error')),
       );
@@ -94,38 +101,70 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Restaurant')),
-      body: Padding(
+      appBar: AppBar(
+        title: Text('Edit Restaurant'),
+        backgroundColor: Colors.brown,
+      ),
+      body: Container(
+        color: Colors.brown[50],
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   initialValue: name,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => name = value,
                 ),
                 TextFormField(
                   initialValue: district,
-                  decoration: const InputDecoration(labelText: 'District'),
+                  decoration: InputDecoration(
+                    labelText: 'District',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => district = value,
                 ),
                 TextFormField(
                   initialValue: address,
-                  decoration: const InputDecoration(labelText: 'Address'),
+                  decoration: InputDecoration(
+                    labelText: 'Address',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => address = value,
                 ),
                 TextFormField(
                   initialValue: operationalHours,
-                  decoration: const InputDecoration(labelText: 'Operational Hours'),
+                  decoration: InputDecoration(
+                    labelText: 'Operational Hours',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => operationalHours = value,
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: pickImage,
-                  child: const Text('Select New Image'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.brown,
+                  ),
+                  child: Text('Select New Image'),
                 ),
                 if (_image != null)
                   Image.file(_image!, height: 100)
@@ -134,7 +173,10 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: editRestaurant,
-                  child: const Text('Save Changes'),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.brown,
+                  ),
+                  child: Text('Save Changes'),
                 ),
               ],
             ),
