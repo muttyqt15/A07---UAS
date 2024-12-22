@@ -50,13 +50,13 @@ class Fields {
   });
 
   factory Fields.fromJson(Map<String, dynamic> json) => Fields(
-        judul: json["judul"],
-        gambar: json["gambar"],
-        konten: json["konten"],
+        judul: json["judul"] ?? '',
+        gambar: json["gambar"] ?? '',
+        konten: json["konten"] ?? '',
         like: json["like"] ?? 0,
-        author: json["author"],
-        tanggal: DateTime.parse(json["tanggal"]),
-        tanggalPembaruan: DateTime.parse(json["tanggal_pembaruan"]),
+        author: json["author"] ?? '',
+        tanggal: DateTime.parse(json["tanggal"]) ?? DateTime.now(),
+        tanggalPembaruan: DateTime.parse(json["tanggal_pembaruan"]) ?? DateTime.now(),
         liked: json["liked"] ?? false,
         dataRestaurant: DataRestaurant.fromJson(json["data_restaurant"]),
       );
@@ -106,12 +106,12 @@ class DataRestaurant {
   });
 
   factory DataRestaurant.fromJson(Map<String, dynamic> json) => DataRestaurant(
-        id: json["id"],
-        name: json["name"],
-        district: json["district"],
-        address: json["address"],
-        operationalHours: json["operational_hours"],
-        photoUrl: json["photo_url"],
+        id: json["id"] ?? 0,
+        name: json["name"] ?? '',
+        district: json["district"] ?? '',
+        address: json["address"] ?? '',
+        operationalHours: json["operational_hours"] ?? '',
+        photoUrl: json["photo_url"] ?? '',
       );
 
   Map<String, dynamic> toJson() => {

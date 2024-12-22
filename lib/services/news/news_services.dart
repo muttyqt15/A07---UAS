@@ -9,27 +9,29 @@ class NewsServices {
     const url = '${CONSTANTS.baseUrl}/news/show_berita_json/';
     try {
       final response = await request.get(url);
-      // print('Raw response: $response'); 
+      print('Raw response: $response');
       final List<dynamic> data = response;
-      return data.map((json) => News.fromJson(json)).toList();
+      final List<News> finalData =
+          data.map((json) => News.fromJson(json)).toList();
+      print('json response: $response');
+      return finalData;
     } catch (e) {
       throw Exception('Error fetching berita: $e');
     }
   }
 
   // Fetch single berita by ID
-    Future<News> fetchBeritaById(CookieRequest request, String beritaId) async {
-      final url = '${CONSTANTS.baseUrl}/news/fshow_berita_id/$beritaId/';
-      try {
-        final response = await request.get(url);
-        // print('Raw response for berita by ID: $response');
-        return News.fromJson(
-            response); // Assume the response is a single berita object
-      } catch (e) {
-        throw Exception('Error fetching berita by ID: $e');
-      }
+  Future<News> fetchBeritaById(CookieRequest request, String beritaId) async {
+    final url = '${CONSTANTS.baseUrl}/news/fshow_berita_id/$beritaId/';
+    try {
+      final response = await request.get(url);
+      // print('Raw response for berita by ID: $response');
+      return News.fromJson(
+          response); // Assume the response is a single berita object
+    } catch (e) {
+      throw Exception('Error fetching berita by ID: $e');
     }
-
+  }
 
   // Toggle like for a berita
   Future<Map<String, dynamic>> toggleLike(
@@ -47,5 +49,4 @@ class NewsServices {
       throw Exception('Error toggling like: $e');
     }
   }
-  
 }
