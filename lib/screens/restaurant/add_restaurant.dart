@@ -120,38 +120,72 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Add Restaurant')),
-      body: Padding(
+      appBar: AppBar(
+        title: Text('Add Restaurant'),
+        backgroundColor: Colors.brown,
+      ),
+      body: Container(
+        color: Colors.brown[50],
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => name = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'District'),
+                decoration: InputDecoration(
+                  labelText: 'District',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => district = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Address'),
+                decoration: InputDecoration(
+                  labelText: 'Address',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => address = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Operational Hours'),
+                decoration: InputDecoration(
+                  labelText: 'Operational Hours',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => operationalHours = value,
               ),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: pickImage,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.brown,
+                ),
                 child: Text('Select Image'),
               ),
               if (_image != null) Image.file(_image!, height: 100),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: uploadRestaurant,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.brown,
+                ),
                 child: Text('Submit'),
               ),
             ],

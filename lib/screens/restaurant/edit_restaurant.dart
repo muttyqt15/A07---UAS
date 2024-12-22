@@ -101,37 +101,69 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Restaurant')),
-      body: Padding(
+      appBar: AppBar(
+        title: Text('Edit Restaurant'),
+        backgroundColor: Colors.brown,
+      ),
+      body: Container(
+        color: Colors.brown[50],
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   initialValue: name,
-                  decoration: InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => name = value,
                 ),
                 TextFormField(
                   initialValue: district,
-                  decoration: InputDecoration(labelText: 'District'),
+                  decoration: InputDecoration(
+                    labelText: 'District',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => district = value,
                 ),
                 TextFormField(
                   initialValue: address,
-                  decoration: InputDecoration(labelText: 'Address'),
+                  decoration: InputDecoration(
+                    labelText: 'Address',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => address = value,
                 ),
                 TextFormField(
                   initialValue: operationalHours,
-                  decoration: InputDecoration(labelText: 'Operational Hours'),
+                  decoration: InputDecoration(
+                    labelText: 'Operational Hours',
+                    labelStyle: TextStyle(color: Colors.brown),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.brown),
+                    ),
+                  ),
                   onChanged: (value) => operationalHours = value,
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: pickImage,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.brown,
+                  ),
                   child: Text('Select New Image'),
                 ),
                 if (_image != null)
@@ -141,6 +173,9 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: editRestaurant,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.brown,
+                  ),
                   child: Text('Save Changes'),
                 ),
               ],

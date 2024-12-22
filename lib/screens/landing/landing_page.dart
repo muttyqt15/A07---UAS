@@ -67,6 +67,14 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                 if (request.loggedIn &&
                     request.getJsonData()['data']['role'] == 'RESTO_OWNER')
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          const Color(0xFFD6C2A3), // Button background color
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -74,7 +82,8 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                             builder: (context) => AddRestaurantPage()),
                       );
                     },
-                    child: const Text('Buat Restoran Baru'),
+                    child: const Text('Buat Restoran Baru',
+                        style: TextStyle(fontSize: 16, color: Colors.black)),
                   ),
 
                 // 'Restoran Populer' Section
@@ -129,8 +138,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // FutureBuilder for Top Restaurants with Reviews
-                // TODO: Fix the FutureBuilder to fetch reviews for the top restaurant
                 FutureBuilder<List<Restaurant>>(
                   future: RestaurantService()
                       .fetchRestaurants(1), // Fetch one top restaurant
