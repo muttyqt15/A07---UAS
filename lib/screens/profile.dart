@@ -320,106 +320,6 @@ late Future<Profile> futureProfile;
   }
 
 
-  // void showEditDialog(Profile profile) {
-  //   final request = context.read<CookieRequest>();
-  //   TextEditingController bioController = TextEditingController(text: profile.bio);
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: Text('Edit Bio'),
-  //         content: TextField(
-  //           controller: bioController,
-  //           maxLines: 3,
-  //           decoration: InputDecoration(
-  //             hintText: 'Enter your new bio',
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               editProfile(request, bioController.text);
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Save'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // void showDeleteDialog() {
-  //   final request = context.read<CookieRequest>();
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: Text('Delete Account'),
-  //         content: Text('Are you sure you want to delete your account? This action cannot be undone.'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               deleteAccount(request);
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Delete'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // void showEditProfilePicDialog() {
-  //   final request = context.read<CookieRequest>();
-  //   TextEditingController profilePicUrlController = TextEditingController();
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: Text('Edit Profile Picture'),
-  //         content: TextField(
-  //           controller: profilePicUrlController,
-  //           decoration: InputDecoration(
-  //             hintText: 'Enter the URL of your new profile picture',
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               editProfilePicture(request, profilePicUrlController.text);
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Save'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -596,28 +496,30 @@ late Future<Profile> futureProfile;
         onPressed = () {
           // Add your function for 'Review Saya' here
           print('Review Saya button pressed');
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => page),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => page),
+          // );
         };
         break;
       case 'Bookmark Saya':
         onPressed = () {
           // Add your function for 'Bookmark Saya' here
           print('Bookmark Saya button pressed');
-          Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => page),
+        //   Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => page),
+        // );
         };
         break;
       case 'Resto Saya':
         onPressed = () {
           // Add your function for 'Resto Saya' here
           print('Resto Saya button pressed');
-          Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => page),
+        //   Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => page),
+        // );
         };
         break;
       case 'Hapus Akun':
@@ -643,10 +545,7 @@ late Future<Profile> futureProfile;
           ),
           padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32), // Increase vertical and horizontal padding  
         ),
-        onPressed : () {
-          // Add your function for 'Review Saya' here
-          Navigator.push();
-        },
+        onPressed : onPressed,
         child: Text(
           text,
           style: const TextStyle(color: Colors.white, fontSize: 16),
