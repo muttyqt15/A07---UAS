@@ -61,47 +61,64 @@ class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
   }
 
   Future<void> _submitForm() async {
-  if (_formKey.currentState!.validate()) {
-    try {
-      // Ambil instance `CookieRequest` dengan `listen: false`
-      final request = Provider.of<CookieRequest>(context, listen: false);
-      final reviewService = ReviewService(request: request);
+    if (_formKey.currentState!.validate()) {
+      try {
+        // Ambil instance CookieRequest
+        final request = Provider.of<CookieRequest>(context, listen: false);
 
-      // Encode image (opsional)
-      Uint8List? imageBytes;
-      if (_selectedImageFile != null) {
-        imageBytes = await _selectedImageFile!.readAsBytes();
-      } else if (_selectedImageBytes != null) {
-        imageBytes = _selectedImageBytes;
-      }
+        // Buat instance service
+        final reviewService = ReviewService(request: request);
 
-      // Panggil service
-      final response = await reviewService.createReview(
-        restaurantId: _selectedRestaurantId!,
-        title: _judulUlasan,
-        content: _teksUlasan,
-        rating: _rating!,
-        imageBytes: imageBytes,
-        displayName: _displayName,
-      );
+        // (Opsional) Cek dulu apakah logged in
+        if (!request.loggedIn) {
+          // Jika belum login, coba login 
+          // (Anda bisa skip ini kalau memang user harus login lebih dulu di tempat lain)
+          final loginResp = await request.login(
+            'http://localhost:8000/auth/flogin/',
+            {
+              'username': 'testuser',
+              'password': 'testpass',
+            },
+          );
+          if (loginResp['status'] != 'success') {
+            _showSnackBar("Login gagal: ${loginResp['message']}");
+            return;
+          }
+        }
 
-      // Tangani hasil
-      if (response['success'] == true) {
-        _showSnackBar("Review berhasil dibuat!");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainReviewPage()),
+        // Siapkan imageBytes (opsional)
+        Uint8List? imageBytes;
+        if (_selectedImageFile != null) {
+          imageBytes = await _selectedImageFile!.readAsBytes();
+        } else if (_selectedImageBytes != null) {
+          imageBytes = _selectedImageBytes;
+        }
+
+        // Panggil service createReview
+        final response = await reviewService.createReview(
+          restaurantId: _selectedRestaurantId!,
+          title: _judulUlasan,
+          content: _teksUlasan,
+          rating: _rating!,
+          imageBytes: imageBytes,
+          displayName: _displayName,
         );
-      } else {
-        _showSnackBar("Gagal membuat review: ${response['message']}");
+
+        if (response['success'] == true) {
+          _showSnackBar("Review berhasil dibuat!");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainReviewPage()),
+          );
+        } else {
+          _showSnackBar("Gagal membuat review: ${response['message']}");
+        }
+      } catch (e) {
+        _showSnackBar("Error saat membuat review: $e");
       }
-    } catch (e) {
-      _showSnackBar("Error saat membuat review: $e");
     }
   }
-}
-
-
+  
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),

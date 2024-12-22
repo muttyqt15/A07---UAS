@@ -9,7 +9,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class ReviewService {
   final CookieRequest request;
-  final String baseUrl = 'http://127.0.0.1:8000/review/flutter';
+  final String baseUrl = 'http://localhost:8000/review/flutter';
 
   ReviewService({required this.request});
 
@@ -42,75 +42,87 @@ class ReviewService {
     Uint8List? imageBytes,
     String? displayName,
   }) async {
-    try {
-      // Encode image jika ada
-      String? base64Image;
-      if (imageBytes != null) {
-        base64Image = "data:image/jpeg;base64,${base64Encode(imageBytes)}";
-      }
-
-      // Data untuk request
-      final data = {
-        'restoran_id': restaurantId.toString(),
-        'judul_ulasan': title,
-        'teks_ulasan': content,
-        'penilaian': rating.toString(),
-        'display_name': displayName ?? "", // String kosong jika null
-        'image_base64': base64Image,
-      };
-
-      // Kirim POST request dengan `pbp_django_auth`
-      final response = await request.postJson(
-        '$baseUrl/create/',
-        jsonEncode(data),
+    // Jika belum login, login dulu (opsional - atau tangani di luar)
+    if (!request.loggedIn) {
+      final loginResp = await request.login(
+        'http://localhost:8000/auth/flogin/',
+        {
+          'username': 'testuser',
+          'password': 'testpass',
+        },
       );
-
-      // Tangani respons
-      if (response['status'] == 'success') {
-        return {'success': true, 'message': response['message']};
-      } else {
-        return {'success': false, 'message': response['message']};
+      // Cek apakah login berhasil
+      if (loginResp['status'] != 'success' && !request.loggedIn) {
+        throw Exception('Gagal login sebelum membuat review: $loginResp');
       }
-    } catch (e) {
-      return {'success': false, 'message': 'An error occurred: $e'};
+    }
+
+    // Encode gambar jika ada
+    String? base64Image;
+    if (imageBytes != null) {
+      base64Image = "data:image/jpeg;base64,${base64Encode(imageBytes)}";
+    }
+
+    // Data untuk request
+    final data = {
+      'restoran_id': restaurantId.toString(),
+      'judul_ulasan': title,
+      'teks_ulasan': content,
+      'penilaian': rating.toString(),
+      'display_name': displayName ?? "",
+      'image_base64': base64Image,
+    };
+
+    // Kirim POST request (JSON)
+    final response = await request.postJson(
+      '$baseUrl/create/',
+      jsonEncode(data), 
+    );
+
+    // Cek hasil response
+    if (response == null) {
+      throw Exception('Response null dari server.');
+    }
+
+    // Misal server balas {"status": "success", "message": "..."}
+    if (response['status'] == 'success') {
+      return {'success': true, 'message': response['message']};
+    } else {
+      return {'success': false, 'message': response['message']};
     }
   }
 
-
   // Edit an existing review
   Future<bool> editReview({
-    required String reviewId,
+    required String reviewId, // UUID
     String? title,
     String? content,
     int? rating,
+    String? newImageBase64, // Base64 string untuk gambar baru
   }) async {
     try {
       final requestBody = {
         "judul_ulasan": title,
         "teks_ulasan": content,
         "penilaian": rating?.toString(),
+        "new_image_base64": newImageBase64, // Tambahkan gambar baru jika ada
       }..removeWhere((key, value) => value == null);
 
-      final response = await http.post(
-        Uri.parse('$baseUrl/edit/$reviewId/'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(requestBody),
+      final response = await request.postJson(
+        "$baseUrl/edit/$reviewId/", // Gunakan UUID
+        requestBody,
       );
 
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        if (decoded['status'] == 'success') {
-          return true;
-        } else {
-          throw Exception('Failed to edit review: ${decoded['message'] ?? "Unknown error"}');
-        }
+      if (response["status"] == "success") {
+        return true;
       } else {
-        throw Exception('Error editing review: ${response.statusCode}');
+        throw Exception('Failed to edit review: ${response["message"]}');
       }
     } catch (e) {
       throw Exception('Error editing review: $e');
     }
   }
+
 
   // Delete a review with CSRF token and session cookie
   Future<bool> deleteReview(String reviewId, String csrfToken, String sessionId) async {
