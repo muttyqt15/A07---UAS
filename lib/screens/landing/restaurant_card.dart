@@ -7,9 +7,9 @@ class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
 
   const RestaurantCard({super.key, required this.restaurant});
-
   @override
   Widget build(BuildContext context) {
+    print(restaurant.photoUrl);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16), // Rounded corners
@@ -29,6 +29,7 @@ class RestaurantCard extends StatelessWidget {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ), // Rounded corners for the image
+
             child: Image.network(
               restaurant.photoUrl.isNotEmpty
                   ? getFullImageUrl(restaurant.photoUrl)

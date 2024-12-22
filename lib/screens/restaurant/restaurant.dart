@@ -8,6 +8,7 @@ import 'package:uas/screens/review/main_review.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'dart:ui';
+import 'package:uas/main.dart';
 
 class RestaurantDetailScreen extends StatelessWidget {
   final Restaurant restaurant;
@@ -17,8 +18,11 @@ class RestaurantDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    final userId = request.getJsonData()['data']['id'];
 
+    int userId = -1;
+    if (request.getJsonData()['data']['id'] != null) {
+      userId = request.getJsonData()['data']['id'];
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown[800],
@@ -359,7 +363,7 @@ class RestaurantDetailScreen extends StatelessWidget {
                                     final validImageUrl =
                                         imageUrl.startsWith('http')
                                             ? imageUrl
-                                            : 'http://localhost:8000$imageUrl';
+                                            : '${CONSTANTS.baseUrl}/$imageUrl';
 
                                     return Padding(
                                       padding:
@@ -434,27 +438,21 @@ class RestaurantDetailScreen extends StatelessWidget {
                                         icon: Icon(
                                           Icons.thumb_up,
                                           color: review.fields.likes
-                                                  .contains(userId)
+                                                  .contains(userId.toString())
                                               ? Colors.blue
                                               : Colors.grey,
                                         ),
                                         onPressed: () {
                                           if (review.fields.likes
-                                              .contains(userId)) {
+                                              .contains(userId.toString())) {
                                             review.fields.likes
                                                 .remove(userId.toString());
-                                            // Change button color on press
-                                            (context as Element)
-                                                .markNeedsBuild();
                                           } else {
                                             review.fields.likes
                                                 .add(userId.toString());
-                                            // Change button color on press
-                                            (context as Element)
-                                                .markNeedsBuild();
                                           }
                                           print(
-                                              'Like review ${review.pk}, user $userId');
+                                              'Like review ${review.pk}, user $userId like status: ${review.fields.likes}');
                                           RestaurantService()
                                               .likeReview(review.pk);
                                         },
