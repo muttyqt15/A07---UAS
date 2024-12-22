@@ -108,23 +108,6 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     });
   }
 
-  Future<void> _pickImage() async {
-    setState(() {
-      isUploadingFile = true;
-    });
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-    setState(() {
-      isUploadingFile = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
