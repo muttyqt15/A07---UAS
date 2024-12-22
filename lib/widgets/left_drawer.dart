@@ -1,25 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
 import 'package:uas/screens/authentication/login.dart';
 import 'package:uas/screens/bookmark/bookmark_list.dart';
 import 'package:uas/screens/landing.dart';
 import 'package:uas/screens/news/main_berita.dart';
 import 'package:uas/screens/profile/profile.dart';
 import 'package:uas/screens/thread/thread.dart';
-import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Watch state from CookieRequest
     final request = context.watch<CookieRequest>();
-    final isLoggedIn = request.loggedIn;
-    final role = isLoggedIn ? request.getJsonData()['data']['role'] : null;
+    final isLoggedIn = request.loggedIn ?? false;
+    final role = isLoggedIn ? (request.getJsonData()?['data']?['role'] ?? '') : '';
+
+    Future<void> _handleLogout() async {
+      try {
+        // Perform logout request
+        final response = await request.post("${CONSTANTS.baseUrl}/auth/flogout/", {});
+        if (response['success'] == true) {
+          // Update state in CookieRequest to reflect logout
+          request.loggedIn = false; // Trigger rebuild for dependent widgets
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logged out successfully!')),
+          );
+          // Redirect to landing page and clear navigation stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => LandingPage()),
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Logout failed: ${response['message']}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error during logout: $e')),
+        );
+      }
+    }
 
     return Drawer(
       child: ListView(
         children: [
+          // Drawer Header
           DrawerHeader(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
@@ -48,12 +79,10 @@ class LeftDrawer extends StatelessWidget {
               ],
             ),
           ),
-          // Simplified Login/Profile logic
+
+          // Menu: Profile/Login
           ListTile(
-            leading: const Icon(
-              Icons.person_3_rounded,
-              color: Colors.black87,
-            ),
+            leading: const Icon(Icons.person_3_rounded, color: Colors.black87),
             title: Text(
               isLoggedIn ? 'Profile' : 'Login',
               style: const TextStyle(fontWeight: FontWeight.w600),
@@ -68,72 +97,65 @@ class LeftDrawer extends StatelessWidget {
               );
             },
           ),
-          // Halaman Utama link
+
+          // Menu: Halaman Utama
           ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text('Halaman Utama'),
             onTap: () {
-              Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => LandingPage(),
-                ),
+                MaterialPageRoute(builder: (context) => LandingPage()),
               );
             },
           ),
-          // Thread link
+
+          // Menu: News
           ListTile(
-            leading: const Icon(IconData(0xf0541, fontFamily: 'MaterialIcons')),
-            title: const Text('Thread'),
+            leading: const Icon(Icons.article_outlined),
+            title: const Text('News'),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const ThreadScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => MainBeritaScreen()),
               );
             },
           ),
-          // Berita/Ulasan based on role
-          if (isLoggedIn)
+
+          // Additional Menus for Logged In Users
+          if (isLoggedIn) ...[
+            // Menu: Thread
             ListTile(
-              leading: const Icon(
-                Icons.article_outlined,
-              ),
-              title: Text(
-                role == 'RESTO_OWNER' ? 'Berita' : 'Ulasan',
-              ),
-              onTap: () {
-                if (role == 'RESTO_OWNER') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainBeritaScreen(),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Not yet implemented!')),
-                  );
-                }
-              },
-            ),
-          // Bookmark link for Customer role
-          if (isLoggedIn)
-            ListTile(
-              leading:
-                  const Icon(Icons.bookmark_add_outlined),
-              title: const Text('Bookmark'),
+              leading: const Icon(Icons.forum),
+              title: const Text('Thread'),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => BookmarkListScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const ThreadScreen()),
                 );
               },
             ),
+
+            // Menu: Bookmark (only for role 'CUSTOMER')
+            if (role == 'CUSTOMER')
+              ListTile(
+                leading: const Icon(Icons.bookmark_add_outlined),
+                title: const Text('Bookmark'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BookmarkListScreen()),
+                  );
+                },
+              ),
+
+            // Menu: Logout
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: _handleLogout,
+            ),
+          ],
         ],
       ),
     );
