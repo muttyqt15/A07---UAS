@@ -79,7 +79,8 @@ class MyApp extends StatelessWidget {
 
 class CONSTANTS {
   // static const String baseUrl = "http://localhost:8000";
-  static const String baseUrl = "https://muttaqin-muzakkir-utspbp.pbp.cs.ui.ac.id";
+  // static const String baseUrl = "https://muttaqin-muzakkir-utspbp.pbp.cs.ui.ac.id";
+  static const String baseUrl = "http://34.101.100.85:8000";
 
   // Colors
   static const int licorice = 0xFF240F0E;

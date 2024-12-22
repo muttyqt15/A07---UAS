@@ -16,6 +16,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _password1Controller = TextEditingController();
   final TextEditingController _password2Controller = TextEditingController();
   String? _role = 'CUSTOMER'; // Default value set to 'Customer'
@@ -32,6 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // Proceed with signup logic
         final data = {
           'username': _usernameController.text.trim(),
+          'email': _emailController.text.trim(),
           'password1': _password1Controller.text.trim(),
           'password2': _password2Controller.text.trim(),
           'role': _role, // Send the selected role
@@ -140,6 +142,24 @@ class _RegisterPageState extends State<RegisterPage> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Mohon diisi dengan username...';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Mohon diisi dengan email...';
                           }
                           return null;
                         },
