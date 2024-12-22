@@ -21,6 +21,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
   String photoUrl = '';
   String role = '';
   File? _image;
+  bool isUploadingFile = false;
 
   Future<void> pickImage() async {
     final pickedFile =
@@ -33,35 +34,20 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     }
   }
 
-// access a django endpoint to check if the owner has a restaurant
   Future<void> checkOwnerRestaurant() async {
-    final url = Uri.parse('http://localhost:8000/restaurant/has_restaurant/');
-    final response = await http.get(url, headers: {
-      'Content-Type': 'application/json',
-    });
+    final request = context.read<CookieRequest>();
+    int id = request.getJsonData()['data']['id'];
+    final response = await request
+        .get('http://localhost:8000/restaurant/has_restaurant/$id');
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['has_restaurant']) {
-        int restaurantId = data['restaurant_id'];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You already have a restaurant!')),
-        );
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    EditRestaurantPage(restaurantId: restaurantId)));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('You do not have a restaurant.')),
+    if (response['statusCode'] == 200) {
+      if (response['has_restaurant']) {
+        int restoId = response['restaurant_id'];
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+              builder: (context) => EditRestaurantPage(restaurantId: restoId)),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to check restaurant ownership!')),
-      );
     }
   }
 
@@ -72,22 +58,27 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
   }
 
   Future<void> uploadRestaurant() async {
-    final url = Uri.parse('http://localhost:8000/api/add-restaurant/');
-    var request = http.MultipartRequest('POST', url);
-    request.fields['name'] = name;
-    request.fields['district'] = district;
-    request.fields['address'] = address;
-    request.fields['operational_hours'] = operationalHours;
+    final request = context.read<CookieRequest>();
+    String? base64Image;
 
     if (_image != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('photo', _image!.path),
-      );
+      List<int> imageBytes = await _image!.readAsBytes();
+      base64Image =
+          "data:image/${_image!.path.split('.').last};base64,${base64Encode(imageBytes)}";
     }
 
-    final response = await request.send();
+    final data = {
+      'name': name,
+      'district': district,
+      'address': address,
+      'operational_hours': operationalHours,
+      'image': base64Image,
+    };
 
-    if (response.statusCode == 201) {
+    final response = await request.postJson(
+        'http://localhost:8000/restaurant/add_api/', jsonEncode(data));
+
+    if (response['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Restaurant added successfully!')),
       );
@@ -98,9 +89,27 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     }
   }
 
+  Future<void> _pickImage() async {
+    setState(() {
+      isUploadingFile = true;
+    });
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+    setState(() {
+      isUploadingFile = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
+
     role = request.getJsonData()['data']['role'];
     if (role != 'RESTO_OWNER') {
       return Scaffold(
@@ -111,38 +120,72 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Add Restaurant')),
-      body: Padding(
+      appBar: AppBar(
+        title: Text('Add Restaurant'),
+        backgroundColor: Colors.brown,
+      ),
+      body: Container(
+        color: Colors.brown[50],
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => name = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'District'),
+                decoration: InputDecoration(
+                  labelText: 'District',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => district = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Address'),
+                decoration: InputDecoration(
+                  labelText: 'Address',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => address = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Operational Hours'),
+                decoration: InputDecoration(
+                  labelText: 'Operational Hours',
+                  labelStyle: TextStyle(color: Colors.brown),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.brown),
+                  ),
+                ),
                 onChanged: (value) => operationalHours = value,
               ),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: pickImage,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.brown,
+                ),
                 child: Text('Select Image'),
               ),
               if (_image != null) Image.file(_image!, height: 100),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: uploadRestaurant,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.brown,
+                ),
                 child: Text('Submit'),
               ),
             ],

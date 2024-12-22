@@ -85,11 +85,14 @@ class _MainReviewPageState extends State<MainReviewPage> {
     setState(() {
       _sortBy = sortBy;
       if (sortBy == 'like') {
-        _reviewList.sort((a, b) => b.fields.likes.length.compareTo(a.fields.likes.length));
+        _reviewList.sort(
+            (a, b) => b.fields.likes.length.compareTo(a.fields.likes.length));
       } else if (sortBy == 'date') {
-        _reviewList.sort((a, b) => b.fields.tanggal.compareTo(a.fields.tanggal));
+        _reviewList
+            .sort((a, b) => b.fields.tanggal.compareTo(a.fields.tanggal));
       } else if (sortBy == 'rate') {
-        _reviewList.sort((a, b) => b.fields.penilaian.compareTo(a.fields.penilaian));
+        _reviewList
+            .sort((a, b) => b.fields.penilaian.compareTo(a.fields.penilaian));
       } else if (sortBy == 'restaurant') {
         _reviewList.sort((a, b) => a.fields.restoranName.compareTo(b.fields.restoranName));
       }
