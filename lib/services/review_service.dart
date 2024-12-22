@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
-import 'package:uas/models/restaurant.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/models/restaurant.dart';
 
 
 

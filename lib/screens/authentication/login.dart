@@ -22,10 +22,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-    void _handleLogin() async {
-      if (_formKey.currentState!.validate()) {
+    void handleLogin() async {
+      if (formKey.currentState!.validate()) {
         // Proceed with login logic
         final response =
             await request.login("${CONSTANTS.baseUrl}/auth/flogin/", {
@@ -33,16 +33,15 @@ class _LoginPageState extends State<LoginPage> {
           'password': _passwordController.text.trim(),
         });
         if (request.loggedIn) {
-          String message = response['message'];
           if (context.mounted) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => LandingPage()),
+              MaterialPageRoute(builder: (context) => const LandingPage()),
             );
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
-                SnackBar(
+                const SnackBar(
                     content: Text(
                         "Berhasil log in. Selamat menikmati Mangan Solo!")),
               );
@@ -52,11 +51,28 @@ class _LoginPageState extends State<LoginPage> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Login Gagal'),
-                content: Text(response['message']),
+                backgroundColor: const Color(CONSTANTS.licorice),
+                title: const Text('LOGIN GAGAL'),
+                titleTextStyle: const TextStyle(
+                    color: Color(CONSTANTS.dutch),
+                    fontSize: 20,
+                    fontFamily: 'CrimsonPro'),
+                content: Text(
+                  response['message'],
+                  style: const TextStyle(
+                      color: Color(CONSTANTS.dutch),
+                      fontSize: 16,
+                      fontFamily: 'CrimsonPro'),
+                ),
                 actions: [
                   TextButton(
-                    child: const Text('OK'),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                          color: Color(CONSTANTS.dutch),
+                          fontSize: 16,
+                          fontFamily: 'CrimsonPro'),
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -66,10 +82,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         }
-        print('Login successful');
-      } else {
-        print('Validation failed');
-      }
+      } else {}
     }
 
     return Scaffold(
@@ -102,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.all(20.0),
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: Color(CONSTANTS.dutch),
+                  color: const Color(CONSTANTS.dutch),
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
@@ -113,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 child: Form(
-                  key: _formKey, // Attach Form key
+                  key: formKey, // Attach Form key
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -171,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       const SizedBox(height: 15),
                       ElevatedButton(
-                        onPressed: _handleLogin, // Call login handler
+                        onPressed: handleLogin, // Call login handler
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(CONSTANTS.licorice),
                           padding: const EdgeInsets.symmetric(

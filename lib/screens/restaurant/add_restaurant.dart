@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:uas/screens/restaurant/edit_restaurant.dart';
 
 class AddRestaurantPage extends StatefulWidget {
+  const AddRestaurantPage({super.key});
+
   @override
   _AddRestaurantPageState createState() => _AddRestaurantPageState();
 }
@@ -80,13 +82,30 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
 
     if (response['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restaurant added successfully!')),
+        const SnackBar(content: Text('Restaurant added successfully!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add restaurant!')),
+        const SnackBar(content: Text('Failed to add restaurant!')),
       );
     }
+  }
+
+  Future<void> _pickImage() async {
+    setState(() {
+      isUploadingFile = true;
+    });
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+    setState(() {
+      isUploadingFile = false;
+    });
   }
 
   Future<void> _pickImage() async {
@@ -112,7 +131,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
 
     role = request.getJsonData()['data']['role'];
     if (role != 'RESTO_OWNER') {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Text('You are not authorized to access this page!'),
         ),
@@ -171,7 +190,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
                 ),
                 onChanged: (value) => operationalHours = value,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: pickImage,
                 style: ElevatedButton.styleFrom(
@@ -180,7 +199,7 @@ class _AddRestaurantPageState extends State<AddRestaurantPage> {
                 child: Text('Select Image'),
               ),
               if (_image != null) Image.file(_image!, height: 100),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: uploadRestaurant,
                 style: ElevatedButton.styleFrom(

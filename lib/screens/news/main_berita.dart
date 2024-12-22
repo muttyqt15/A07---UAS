@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
@@ -10,6 +12,8 @@ import 'package:uas/services/news/news_services.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class MainBeritaScreen extends StatefulWidget {
+  const MainBeritaScreen({super.key});
+
   @override
   _MainBeritaScreenState createState() => _MainBeritaScreenState();
 }
@@ -18,6 +22,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
   final NewsServices _beritaService = NewsServices();
   List<News> _beritaList = [];
   String _sortBy = 'like';
+  // ignore: unused_field
   bool _isLoading = false;
   bool _isOwner = false; // Untuk menentukan apakah user adalah restoran owner
 
@@ -60,7 +65,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
             false; // Asumsikan response memiliki `is_owner`
       });
     } catch (e) {
-      print('Error checking user role: $e');
+      throw Exception(e);
     }
   }
 
@@ -123,7 +128,7 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 313,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -169,7 +174,8 @@ class _MainBeritaScreenState extends State<MainBeritaScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MainOwnerBerita(),
+                                    builder: (context) =>
+                                        const MainOwnerBerita(),
                                   ),
                                 );
                               },

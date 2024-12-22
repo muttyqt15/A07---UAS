@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 class EditRestaurantPage extends StatefulWidget {
   final int restaurantId;
 
-  EditRestaurantPage({required this.restaurantId});
+  const EditRestaurantPage({super.key, required this.restaurantId});
 
   @override
   _EditRestaurantPageState createState() => _EditRestaurantPageState();
@@ -48,7 +48,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load restaurant details!')),
+        const SnackBar(content: Text('Failed to load restaurant details!')),
       );
     }
   }
@@ -88,7 +88,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
     print('GMAILLLLLLLLL');
     if (response.status == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Restaurant updated successfully!')),
+        const SnackBar(content: Text('Restaurant updated successfully!')),
       );
     } else {
       final error = jsonDecode(response.body)['error'];
@@ -158,7 +158,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
                   ),
                   onChanged: (value) => operationalHours = value,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: pickImage,
                   style: ElevatedButton.styleFrom(
@@ -170,7 +170,7 @@ class _EditRestaurantPageState extends State<EditRestaurantPage> {
                   Image.file(_image!, height: 100)
                 else if (photoUrl.isNotEmpty)
                   Image.network('http://localhost:8000$photoUrl', height: 100),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: editRestaurant,
                   style: ElevatedButton.styleFrom(

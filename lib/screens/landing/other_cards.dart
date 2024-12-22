@@ -5,11 +5,13 @@ import 'package:uas/models/review.dart';
 import 'package:uas/services/restaurant_service.dart';
 
 class ReviewCard extends StatelessWidget {
+  const ReviewCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -35,6 +37,8 @@ class ReviewCard extends StatelessWidget {
 }
 
 class WelcomeCard extends StatelessWidget {
+  const WelcomeCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -106,6 +110,8 @@ class WelcomeCard extends StatelessWidget {
 }
 
 class TahukahAndaCard extends StatelessWidget {
+  const TahukahAndaCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -154,10 +160,10 @@ class RestaurantReviewCard extends StatelessWidget {
   final Review review;
 
   const RestaurantReviewCard({
-    Key? key,
+    super.key,
     required this.restaurant,
     required this.review,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +235,7 @@ class RestaurantReviewCard extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Icon(Icons.person, color: Colors.orange),
+                    const Icon(Icons.person, color: Colors.orange),
                     const SizedBox(width: 8),
                     Text(
                       review.fields.displayName,

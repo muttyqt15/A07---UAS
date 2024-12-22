@@ -4,6 +4,13 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
+subprojects {
+    afterEvaluate {
+        if (it.name == "flutter_inappwebview_android") {
+            it.android.buildTypes.release.minifyEnabled = false
+        }
+    }
+}
 
 android {
     namespace = "com.example.uas"

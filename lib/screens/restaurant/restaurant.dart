@@ -12,8 +12,7 @@ import 'package:uas/screens/review/main_review.dart';
 class RestaurantDetailScreen extends StatefulWidget {
   final Restaurant restaurant;
 
-  const RestaurantDetailScreen({Key? key, required this.restaurant})
-      : super(key: key);
+  const RestaurantDetailScreen({super.key, required this.restaurant});
 
   @override
   _RestaurantDetailScreenState createState() => _RestaurantDetailScreenState();

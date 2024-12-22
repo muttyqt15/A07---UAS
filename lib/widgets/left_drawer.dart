@@ -92,7 +92,7 @@ class LeftDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      isLoggedIn ? ProfilePage() : const LoginPage(),
+                      isLoggedIn ? const ProfilePage() : const LoginPage(),
                 ),
               );
             },
