@@ -70,7 +70,7 @@ class BeritaOwnerCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Image.network(
-                    '${CONSTANTS.baseUrl}/${news.fields.gambar}',
+                    '${CONSTANTS.baseUrl}/news${news.fields.gambar}',
                     fit: BoxFit.cover,
                   ),
                 ),

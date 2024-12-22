@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:uas/screens/restaurant/restaurant.dart';
+import 'package:uas/services/restaurant_service.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
 
-  const RestaurantCard({Key? key, required this.restaurant}) : super(key: key);
+  const RestaurantCard({super.key, required this.restaurant});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16), // Rounded corners
-        side: const BorderSide(color: Colors.brown, width: 7.5), // Extra border
+        side:
+            const BorderSide(color: Colors.white70, width: 2.5), // Extra border
       ),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 4, // Shadow effect
+      color: Colors.brown.withOpacity(0.8), // Card background color
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,7 +31,7 @@ class RestaurantCard extends StatelessWidget {
             ), // Rounded corners for the image
             child: Image.network(
               restaurant.photoUrl.isNotEmpty
-                  ? restaurant.photoUrl
+                  ? getFullImageUrl(restaurant.photoUrl)
                   : 'https://via.placeholder.com/150', // Fallback image
               height: 150,
               width: double.infinity,
@@ -44,6 +48,7 @@ class RestaurantCard extends StatelessWidget {
                   restaurant.name,
                   style: const TextStyle(
                     fontSize: 18,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -51,13 +56,13 @@ class RestaurantCard extends StatelessWidget {
                 // Operational hours
                 Text(
                   "Jam Operasional: ${restaurant.operationalHours}",
-                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 14, color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 // Address
                 Text(
                   "Alamat: ${restaurant.address}",
-                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                  style: TextStyle(fontSize: 14, color: Colors.white),
                 ),
                 const SizedBox(height: 16),
                 // Button

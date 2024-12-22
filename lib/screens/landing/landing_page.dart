@@ -11,6 +11,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class LandingPageScreen extends StatefulWidget {
+  const LandingPageScreen({super.key});
+
   @override
   _LandingPageScreenState createState() => _LandingPageScreenState();
 }
@@ -22,7 +24,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
   void initState() {
     super.initState();
     // Fetch restaurants using the service
-    _restaurants = RestaurantService().fetchRestaurants(11);
+    _restaurants = RestaurantService().fetchRestaurants(20);
     final request = context.read<CookieRequest>();
   }
 
@@ -57,24 +59,33 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 // Welcome Card
-                WelcomeCard(),
+                const WelcomeCard(),
                 const SizedBox(height: 16),
 
                 // 'Tahukah Anda?' Section
-                TahukahAndaCard(),
+                const TahukahAndaCard(),
                 const SizedBox(height: 16),
 
                 if (request.loggedIn &&
                     request.getJsonData()['data']['role'] == 'RESTO_OWNER')
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          const Color(0xFFD6C2A3), // Button background color
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AddRestaurantPage()),
+                            builder: (context) => const AddRestaurantPage()),
                       );
                     },
-                    child: const Text('Buat Restoran Baru'),
+                    child: const Text('Buat Restoran Baru',
+                        style: TextStyle(fontSize: 16, color: Colors.black)),
                   ),
 
                 // 'Restoran Populer' Section
@@ -129,8 +140,6 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // FutureBuilder for Top Restaurants with Reviews
-                // TODO: Fix the FutureBuilder to fetch reviews for the top restaurant
                 FutureBuilder<List<Restaurant>>(
                   future: RestaurantService()
                       .fetchRestaurants(1), // Fetch one top restaurant

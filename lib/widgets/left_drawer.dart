@@ -63,7 +63,7 @@ class LeftDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      isLoggedIn ? ProfilePage() : const LoginPage(),
+                      isLoggedIn ? const ProfilePage() : const LoginPage(),
                 ),
               );
             },
@@ -76,8 +76,20 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
+                MaterialPageRoute(builder: (context) => LandingPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.reviews_outlined),
+            title: const Text('Review Saya'),
+            // Redirection ke MainReviewPage
+            onTap: () {
+              Navigator.pop(context); // Tutup drawer
+              Navigator.pushReplacement(
+                context,
                 MaterialPageRoute(
-                  builder: (context) => LandingPage(),
+                  builder: (context) => const LandingPage(),
                 ),
               );
             },
@@ -109,7 +121,7 @@ class LeftDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MainBeritaScreen(),
+                      builder: (context) => const MainBeritaScreen(),
                     ),
                   );
                 } else {
@@ -129,13 +141,13 @@ class LeftDrawer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BookmarkListScreen(),
+                    builder: (context) => const BookmarkListScreen(),
                   ),
                 );
               },
             ),
         ],
-      ),
+      )
     );
   }
 }
