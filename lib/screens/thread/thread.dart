@@ -22,7 +22,6 @@ class _ThreadScreenState extends State<ThreadScreen> {
   void initState() {
     super.initState();
     ts = ThreadService(request: context.read<CookieRequest>());
-    print("Fetching...");
     _fetchThreads(ts);
   }
 
@@ -54,9 +53,6 @@ class _ThreadScreenState extends State<ThreadScreen> {
 
   Future<void> _fetchThreads(ThreadService ts) async {
     final result = await ts.fetchThreads();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result['message'])),
-    );
     final List<dynamic> stringifiedJsonThreads =
         result['data']['threads'] ?? [];
     if (result['success']) {

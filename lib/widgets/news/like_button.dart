@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '/services/news/news_owner_services.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+
+import '/services/news/news_owner_services.dart';
 
 class LikeButton extends StatefulWidget {
   final String beritaId;
@@ -77,7 +78,6 @@ class _LikeButtonState extends State<LikeButton> {
         }
       }
     } catch (e) {
-      print('Error toggling like: $e');
     } finally {
       setState(() {
         _isLoading = false;

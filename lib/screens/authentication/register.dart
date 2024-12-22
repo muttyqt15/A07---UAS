@@ -70,9 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           }
         }
-        print('Signup successful');
       } else {
-        print('Validation failed');
       }
     }
 

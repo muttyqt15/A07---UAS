@@ -613,7 +613,6 @@ class _ProfilePageState extends State<ProfilePage> {
       case 'Review Saya':
         onPressed = () {
           // Add your function for 'Review Saya' here
-          print('Review Saya button pressed');
           // Navigator.push(
           //   context,
           //   MaterialPageRoute(builder: (context) => page),
@@ -623,7 +622,6 @@ class _ProfilePageState extends State<ProfilePage> {
       case 'Bookmark Saya':
         onPressed = () {
           // Add your function for 'Bookmark Saya' here
-          print('Bookmark Saya button pressed');
           // Navigator.push(
           // context,
           // MaterialPageRoute(builder: (context) => page)),
@@ -632,7 +630,6 @@ class _ProfilePageState extends State<ProfilePage> {
       case 'Resto Saya':
         onPressed = () {
           // Add your function for 'Resto Saya' here
-          print('Resto Saya button pressed');
           // Navigator.push(
           // context,
           // MaterialPageRoute(builder: (context) => page));
@@ -646,7 +643,6 @@ class _ProfilePageState extends State<ProfilePage> {
         break;
       default:
         onPressed = () {
-          print('$text button pressed');
         };
     }
 

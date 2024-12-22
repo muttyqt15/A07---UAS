@@ -49,7 +49,6 @@ class BookmarkProvider {
         throw Exception('Failed to remove bookmark');
       }
     } catch (e) {
-      print('Error removing bookmark: $e');
       rethrow;
     }
   }

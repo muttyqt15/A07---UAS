@@ -67,7 +67,6 @@ class ThreadService {
   Future<Map<String, dynamic>> fetchThreads() async {
     // Ensure the response is cast to the correct type
     final response = await request.get("$baseUrl/thread/fget_thread/");
-    print(response);
     return _handleResponse(Future.value(response));
   }
 

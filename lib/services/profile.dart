@@ -66,7 +66,6 @@ class ApiService {
     try{
       final response = await request.get('http://localhost:8000/profile/fetch_profile/');
     // print('Response status: ${response.statusCode}');
-      print('Response body: $response');
       final data = jsonDecode(response.body);
       if (data['success']) {
         return Profile.fromJson(data['profile']);
@@ -74,7 +73,6 @@ class ApiService {
         throw Exception('Failed to load profile: ${data['message']}');
       }
     }catch(e){
-      print('Error: $e');
       throw Exception('Failed to load profile');
     }
 

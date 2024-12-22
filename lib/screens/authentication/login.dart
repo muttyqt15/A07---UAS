@@ -51,11 +51,28 @@ class _LoginPageState extends State<LoginPage> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Login Gagal'),
-                content: Text(response['message']),
+                backgroundColor: const Color(CONSTANTS.licorice),
+                title: const Text('LOGIN GAGAL'),
+                titleTextStyle: const TextStyle(
+                    color: Color(CONSTANTS.dutch),
+                    fontSize: 20,
+                    fontFamily: 'CrimsonPro'),
+                content: Text(
+                  response['message'],
+                  style: const TextStyle(
+                      color: Color(CONSTANTS.dutch),
+                      fontSize: 16,
+                      fontFamily: 'CrimsonPro'),
+                ),
                 actions: [
                   TextButton(
-                    child: const Text('OK'),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                          color: Color(CONSTANTS.dutch),
+                          fontSize: 16,
+                          fontFamily: 'CrimsonPro'),
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -65,8 +82,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         }
-      } else {
-      }
+      } else {}
     }
 
     return Scaffold(

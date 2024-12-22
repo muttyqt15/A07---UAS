@@ -76,6 +76,18 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
+                MaterialPageRoute(builder: (context) => LandingPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.reviews_outlined),
+            title: const Text('Review Saya'),
+            // Redirection ke MainReviewPage
+            onTap: () {
+              Navigator.pop(context); // Tutup drawer
+              Navigator.pushReplacement(
+                context,
                 MaterialPageRoute(
                   builder: (context) => const LandingPage(),
                 ),
@@ -135,7 +147,7 @@ class LeftDrawer extends StatelessWidget {
               },
             ),
         ],
-      ),
+      )
     );
   }
 }

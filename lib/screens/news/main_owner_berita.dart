@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -41,7 +43,6 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
       });
       _sortBerita(_sortBy);
     } catch (e) {
-      print('Error loading news: $e');
     }
   }
 
@@ -58,13 +59,10 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
         imageBytes: imageBytes,
       )
           .then((_) {
-        print("DEBUG: addNews executed successfully.");
         _loadNews(); // Refresh daftar berita
       }).catchError((error) {
-        print("ERROR: Error in addNews: $error");
       });
     } catch (e) {
-      print('Error adding news in MainOwnerBerita: $e');
     }
   }
 
@@ -82,13 +80,10 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
         imageBytes: imageBytes,
       )
           .then((_) {
-        print("DEBUG: editNews executed successfully.");
         _loadNews(); // Refresh daftar berita
       }).catchError((error) {
-        print("ERROR: Error in editNews: $error");
       }); // Refresh daftar berita setelah edit
     } catch (e) {
-      print('Error editing news: $e');
     }
   }
 
@@ -98,7 +93,6 @@ class _MainOwnerBeritaState extends State<MainOwnerBerita> {
       await newsOwnerServices.deleteNews(request, id);
       _loadNews();
     } catch (e) {
-      print('Error deleting news: $e');
     }
   }
 

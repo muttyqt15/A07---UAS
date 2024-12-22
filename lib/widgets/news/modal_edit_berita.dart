@@ -1,7 +1,8 @@
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:uas/main.dart';
 
@@ -25,7 +26,7 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
   late TextEditingController contentController;
   File? _selectedImageFile;
   Uint8List? _selectedImageBytes; // For Web
-  String? _selectedImageUrl;
+  // String? _selectedImageUrl;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -104,10 +105,10 @@ class _ModalEditBeritaState extends State<ModalEditBerita> {
             _selectedImageBytes); // Panggil callback dengan data
         Navigator.of(context).pop(); // Tutup modal setelah sukses
       } catch (e) {
-        print('Error editing news in ModalEditBerita: $e');
+        // print('Error editing news in ModalEditBerita: $e');
       }
     } else {
-      print("Form validation failed");
+      // print("Form validation failed");
     }
   }
 

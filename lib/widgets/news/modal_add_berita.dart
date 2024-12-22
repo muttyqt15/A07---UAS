@@ -87,10 +87,10 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
         );
         Navigator.of(context).pop();
       } catch (e) {
-        print('Error adding news in ModalAddBerita: $e');
+        // print('Error adding news in ModalAddBerita: $e');
       }
     } else {
-      print("Form validation failed");
+      // print("Form validation failed");
     }
   }
 

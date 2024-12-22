@@ -1,277 +1,318 @@
-// import 'dart:convert';
-// import 'package:flutter/material.dart';
-// import 'package:uas/screens/review/main_review.dart';
-// import 'package:uas/widgets/left_drawer.dart';
-// import 'package:pbp_django_auth/pbp_django_auth.dart';
-// import 'package:provider/provider.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart'; // Untuk kIsWeb
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:uas/services/review_service.dart';
+import 'package:uas/screens/review/main_review.dart';
+import 'package:uas/widgets/left_drawer.dart';
+import 'package:uas/models/restaurant.dart';
 
-// class ReviewFormPage extends StatefulWidget {
-//   const ReviewFormPage({super.key});
+class CreateReviewFormPage extends StatefulWidget {
+  const CreateReviewFormPage({super.key});
 
-//   @override
-//   State<ReviewFormPage> createState() => _ReviewFormPageState();
-// }
+  @override
+  State<CreateReviewFormPage> createState() => _CreateReviewFormPageState();
+}
 
-// class _ReviewFormPageState extends State<ReviewFormPage> {
-//   final _formKey = GlobalKey<FormState>();
-//   String _displayName = "";
-//   String _judulUlasan = "";
-//   int _rating = 1;
-//   String _teksUlasan = "";
-//   String? _image; 
+class _CreateReviewFormPageState extends State<CreateReviewFormPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  String? _displayName; // Optional
+  String _judulUlasan = ""; // Required
+  int? _selectedRestaurantId; // Dropdown restaurant
+  int? _rating; // Dropdown rating 1-5
+  String _teksUlasan = ""; // Required
+  File? _selectedImageFile; // Image file (native)
+  Uint8List? _selectedImageBytes; // Image bytes (web)
+  String _selectedFileName = "No File Selected"; // Default text
+  List<Restaurant> _restaurants = []; // List of restaurants
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRestaurants();
+  }
+
+  Future<void> _fetchRestaurants() async {
+    final request = context.read<CookieRequest>();
+    final reviewService = ReviewService(request: request);
+
+    try {
+      final restaurants = await reviewService.fetchAllRestaurants();
+      setState(() {
+        _restaurants = restaurants;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching restaurants: $e')),
+      );
+    }
+  }
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.single.bytes != null) {
+      setState(() {
+        _selectedImageBytes = result.files.single.bytes;
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        // Ambil instance CookieRequest
+        final request = Provider.of<CookieRequest>(context, listen: false);
+
+        // Buat instance service
+        final reviewService = ReviewService(request: request);
+
+        // (Opsional) Cek dulu apakah logged in
+        if (!request.loggedIn) {
+          // Jika belum login, coba login 
+          // (Anda bisa skip ini kalau memang user harus login lebih dulu di tempat lain)
+          final loginResp = await request.login(
+            'http://localhost:8000/auth/flogin/',
+            {
+              'username': 'testuser',
+              'password': 'testpass',
+            },
+          );
+          if (loginResp['status'] != 'success') {
+            _showSnackBar("Login gagal: ${loginResp['message']}");
+            return;
+          }
+        }
+
+        // Siapkan imageBytes (opsional)
+        Uint8List? imageBytes;
+        if (_selectedImageFile != null) {
+          imageBytes = await _selectedImageFile!.readAsBytes();
+        } else if (_selectedImageBytes != null) {
+          imageBytes = _selectedImageBytes;
+        }
+
+        // Panggil service createReview
+        final response = await reviewService.createReview(
+          restaurantId: _selectedRestaurantId!,
+          title: _judulUlasan,
+          content: _teksUlasan,
+          rating: _rating!,
+          imageBytes: imageBytes,
+          displayName: _displayName,
+        );
+
+        if (response['success'] == true) {
+          _showSnackBar("Review berhasil dibuat!");
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainReviewPage()),
+          );
+        } else {
+          _showSnackBar("Gagal membuat review: ${response['message']}");
+        }
+      } catch (e) {
+        _showSnackBar("Error saat membuat review: $e");
+      }
+    }
+  }
   
-//   final List<String> restoranChoices = [];
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tambah Review'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF5F4D40),
+        foregroundColor: Colors.white,
+      ),
+      drawer: const LeftDrawer(),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Card(
+          color: const Color(0xFFE5D2B0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitle("Tambah Review"),
+                  const SizedBox(height: 16),
+                  _buildTextField("Nama Tampilan (Opsional)", "Masukkan nama tampilan", (value) {
+                    _displayName = value.isEmpty ? null : value;
+                  }),
+                  const SizedBox(height: 16),
+                  _buildTextField("Judul Ulasan", "Masukkan judul ulasan", (value) {
+                    _judulUlasan = value;
+                  }, required: true),
+                  const SizedBox(height: 16),
+                  _buildDropdown(
+                    "Pilih Restoran",
+                    _restaurants.map((e) {
+                      return DropdownMenuItem<int>(
+                        value: e.id,
+                        child: Text(e.name),
+                      );
+                    }).toList(),
+                    (value) {
+                      if (value != null) {
+                        setState(() => _selectedRestaurantId = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDropdown(
+                    "Penilaian (1-5)",
+                    List.generate(5, (index) {
+                      return DropdownMenuItem<int>(
+                        value: index + 1,
+                        child: Text("${index + 1}"),
+                      );
+                    }),
+                    (value) {
+                      if (value != null) {
+                        setState(() => _rating = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField("Teks Ulasan", "Masukkan teks ulasan", (value) {
+                    _teksUlasan = value;
+                  }, required: true, maxLines: 4),
+                  const SizedBox(height: 16),
+                  _buildFilePicker(),
+                  const SizedBox(height: 16),
+                  if (_selectedImageBytes != null || _selectedImageFile != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Gambar yang Dipilih:"),
+                        const SizedBox(height: 8),
+                        _buildImagePreview(),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  const SizedBox(height: 24),
+                  _buildActionButtons(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final request = context.watch<CookieRequest>();
-    
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Center(
-//           child: Text(
-//             'Form Tambah Product',
-//           ),
-//         ),
-//         backgroundColor: Theme.of(context).colorScheme.primary,
-//         foregroundColor: Colors.white,
-//       ),
-//       drawer: const LeftDrawer(),//drawer
-//       body: Form(
-//         key: _formKey,
-//         child: SingleChildScrollView(
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: TextFormField(
-//                   decoration: InputDecoration(
-//                     hintText: "Name",
-//                     labelText: "Name",
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(5.0),
-//                     ),
-//                   ),
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _name = value!;
-//                     });
-//                   },
-//                   validator: (String? value) {
-//                     if (value == null || value.isEmpty) {
-//                       return "Nama tidak boleh kosong!";
-//                     }
-//                     if (value.length > 255) {
-//                       return "Nama tidak boleh lebih dari 255 karakter!";
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: TextFormField(
-//                   decoration: InputDecoration(
-//                     hintText: "Description",
-//                     labelText: "Description",
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(5.0),
-//                     ),
-//                   ),
-//                   maxLines: 3,
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _description = value!;
-//                     });
-//                   },
-//                   validator: (String? value) {
-//                     if (value == null || value.isEmpty) {
-//                       return "Deskripsi tidak boleh kosong!";
-//                     }
-//                     if (value.length > 255) {
-//                       return "Deskripsi tidak boleh lebih dari 255 karakter!";
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: DropdownButtonFormField<String>(
-//                   decoration: InputDecoration(
-//                     labelText: "Category",
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(5.0),
-//                     ),
-//                   ),
-//                   items: categoryChoices.map((choice) {
-//                     return DropdownMenuItem(
-//                       value: choice,
-//                       child: Text(choice),
-//                     );
-//                   }).toList(),
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _category = value ?? "";
-//                     });
-//                   },
-//                   validator: (String? value) {
-//                     if (value == null || value.isEmpty) {
-//                       return "Kategori tidak boleh kosong!";
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: TextFormField(
-//                   decoration: InputDecoration(
-//                     hintText: "Amount",
-//                     labelText: "Amount",
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(5.0),
-//                     ),
-//                   ),
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _amount = int.tryParse(value!) ?? 1;
-//                     });
-//                   },
-//                   validator: (String? value) {
-//                     final parsedValue = int.tryParse(value ?? '');
+  Widget _buildTitle(String text) {
+    return Center(
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF5F4D40)),
+      ),
+    );
+  }
 
-//                     if (value == null || value.isEmpty) {
-//                       return "Jumlah tidak boleh kosong!";
-//                     }
-//                     if (parsedValue == null) {
-//                       return "Jumlah harus berupa angka!";
-//                     }
-//                     if (parsedValue < 1) {
-//                       return "Jumlah harus 1 atau lebih!";
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: TextFormField(
-//                   decoration: InputDecoration(
-//                     hintText: "Price",
-//                     labelText: "Price",
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(5.0),
-//                     ),
-//                   ),
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _price = int.tryParse(value!) ?? 0;
-//                     });
-//                   },
-//                   validator: (String? value) {
-//                     final parsedValue = int.tryParse(value ?? '');
+  Widget _buildTextField(String label, String hint, Function(String) onChanged,
+      {bool required = false, int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        TextFormField(
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+          onChanged: onChanged,
+          validator: (value) {
+            if (required && (value == null || value.isEmpty)) {
+              return "Field ini wajib diisi";
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
 
-//                     if (value == null || value.isEmpty) {
-//                       return "Harga tidak boleh kosong!";
-//                     }
-//                     if (parsedValue == null) {
-//                       return "Harga harus berupa angka!";
-//                     }
-//                     if (parsedValue < 0) {
-//                       return "Harga harus Rp0 atau lebih!";
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: TextFormField(
-//                   decoration: InputDecoration(
-//                     hintText: "Rating",
-//                     labelText: "Rating",
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(5.0),
-//                     ),
-//                   ),
-//                   onChanged: (String? value) {
-//                     setState(() {
-//                       _rating = int.tryParse(value!) ?? 1;
-//                     });
-//                   },
-//                   validator: (String? value) {
-//                     final parsedValue = int.tryParse(value ?? '');
+  Widget _buildDropdown(String label, List<DropdownMenuItem<int>> items, Function(int?) onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<int>(
+          items: items,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+          onChanged: onChanged,
+          validator: (value) => value == null ? "Field ini wajib dipilih" : null,
+        ),
+      ],
+    );
+  }
 
-//                     if (value == null || value.isEmpty) {
-//                       return "Rating tidak boleh kosong!";
-//                     }
-//                     if (parsedValue == null) {
-//                       return "Rating harus berupa angka!";
-//                     }
-//                     if (parsedValue < 1 || parsedValue > 5) {
-//                       return "Rating harus antara 1 dan 5!";
-//                     }
-//                     return null;
-//                   },
-//                 ),
-//               ),
-//               Align(
-//                 alignment: Alignment.bottomCenter,
-//                 child: Padding(
-//                   padding: const EdgeInsets.all(8.0),
-//                   child: ElevatedButton(
-//                     style: ButtonStyle(
-//                       backgroundColor: WidgetStateProperty.all(
-//                           Theme.of(context).colorScheme.primary),
-//                     ),
-//                     onPressed: () async {
-//                       if (_formKey.currentState!.validate()) {
-//                           // Kirim ke Django dan tunggu respons
-//                           final response = await request.postJson(
-//                               "http://127.0.0.1:8000/create-review/",
-//                               jsonEncode(<String, dynamic>{
-//                                   'name': _name,
-//                                   'description': _description,
-//                                   'category': _category,
-//                                   'amount': int.parse(_amount.toString()),
-//                                   'price': int.parse(_price.toString()),
-//                                   'rating': int.parse(_rating.toString()),
-//                               }),
-//                           );
-//                           if (context.mounted) {
-//                               if (response['status'] == 'success') {
-//                                   ScaffoldMessenger.of(context)
-//                                       .showSnackBar(const SnackBar(
-//                                   content: Text("Product baru berhasil disimpan!"),
-//                                   ));
-//                                   Navigator.pushReplacement(
-//                                       context,
-//                                       MaterialPageRoute(builder: (context) => MyHomePage()),
-//                                   );
-//                               } else {
-//                                   ScaffoldMessenger.of(context)
-//                                       .showSnackBar(const SnackBar(
-//                                       content:
-//                                           Text("Terdapat kesalahan, silakan coba lagi."),
-//                                   ));
-//                               }
-//                           }
-//                       }
-//                     },
-//                     child: const Text(
-//                       "Save",
-//                       style: TextStyle(color: Colors.white),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  Widget _buildFilePicker() {
+    return Row(
+      children: [
+        ElevatedButton(
+          onPressed: _pickFile,
+          child: const Text("Pilih File"),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Text(_selectedFileName, overflow: TextOverflow.ellipsis)),
+      ],
+    );
+  }
+
+  Widget _buildImagePreview() {
+    if (_selectedImageBytes != null) {
+      return Image.memory(
+        _selectedImageBytes!,
+        height: 150,
+        width: 150,
+        fit: BoxFit.cover,
+      );
+    } else if (_selectedImageFile != null) {
+      return Image.file(
+        _selectedImageFile!,
+        height: 150,
+        width: 150,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainReviewPage())),
+          child: const Text("Kembali"),
+        ),
+        ElevatedButton(
+          onPressed: _submitForm,
+          child: const Text("Kirim"),
+        ),
+      ],
+    );
+  }
+}
