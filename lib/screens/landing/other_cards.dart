@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uas/main.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:uas/models/review.dart';
 
@@ -160,7 +161,7 @@ class RestaurantReviewCard extends StatelessWidget {
             ),
             child: Image.network(
               restaurant.photoUrl.isNotEmpty
-                  ? 'http://localhost:8000${restaurant.photoUrl}'
+                  ? '${CONSTANTS.baseUrl}${restaurant.photoUrl}'
                   : 'https://via.placeholder.com/150',
               height: 180,
               width: double.infinity,
@@ -247,7 +248,6 @@ class RestaurantReviewCard extends StatelessWidget {
                     const SizedBox(width: 16),
                     const Icon(Icons.star, size: 16, color: Colors.orange),
                     const SizedBox(width: 4),
-                
                   ],
                 ),
                 const SizedBox(height: 8),
