@@ -22,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _role = 'CUSTOMER'; // Default value set to 'Customer'
 
   String? _errorMessage;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +30,9 @@ class _RegisterPageState extends State<RegisterPage> {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     void handleSignup() async {
+      setState(() {
+        isLoading = true;
+      });
       if (formKey.currentState!.validate()) {
         // Proceed with signup logic
         final data = {
@@ -72,8 +76,10 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           }
         }
-      } else {
-      }
+      } else {}
+      setState(() {
+        isLoading = false;
+      });
     }
 
     return Scaffold(
@@ -258,9 +264,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
+                        child: Text(
+                          !isLoading ? 'Sign up' : 'Sedang sign up...',
+                          style: const TextStyle(
                               fontSize: 20,
                               color: Color(CONSTANTS.dutch),
                               fontWeight: FontWeight.w800),

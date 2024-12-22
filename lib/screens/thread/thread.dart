@@ -178,10 +178,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment:
-                          td.authorId == ts.request.getJsonData()['data']['id']
-                              ? MainAxisAlignment.spaceBetween
-                              : MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -227,7 +224,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                             ),
                           ],
                         ),
-                        if (td.authorId ==
+                        if (ts.request.loggedIn && td.authorId ==
                             ts.request.getJsonData()['data']['id'])
                           PopupMenuButton(
                             color: const Color(CONSTANTS

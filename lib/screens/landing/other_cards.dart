@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uas/main.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:uas/models/review.dart';
 import 'package:uas/services/restaurant_service.dart';
