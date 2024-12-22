@@ -165,3 +165,12 @@ Pada sisi Flutter, aplikasi harus memiliki izin eksplisit untuk mengakses web se
 
 - Menyertakan pustaka untuk komunikasi HTTP dan parsing JSON.
 - Menggunakan emulator untuk menguji koneksi ke backend dengan metode POST dan GET.
+
+### Link Video Promosi
+(https://youtube.com/shorts/UA0JsAxTFow?feature=share)
+
+### Link Progress Kelompok
+(https://docs.google.com/spreadsheets/d/1iGH2TuJm_g_2LFZamD7N7n2I7Spmoatb1xUU-LiH3pM/edit?gid=0#gid=0)
+
+### Link APK
+(https://install.appcenter.ms/orgs/a07_pbp/apps/mangan-solo/distribution_groups/public/releases/7)
