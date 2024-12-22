@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 
 class Thread {
   final int id;
@@ -90,14 +90,6 @@ class ThreadResponse {
   }
 }
 
-// Example usage:
-void parseThreads(String response) {
-  final json = jsonDecode(response) as Map<String, dynamic>;
-  final threadResponse = ThreadResponse.fromJson(json);
-  final threads = threadResponse.threads;
-  print(threads);
-}
-
 class Comment {
   final int id;
   final String content;
@@ -180,10 +172,3 @@ class CommentResponse {
   }
 }
 
-// Example usage:
-void parseComments(String response) {
-  final json = jsonDecode(response) as Map<String, dynamic>;
-  final commentResponse = CommentResponse.fromJson(json);
-  final comments = commentResponse.comments;
-  print(comments);
-}

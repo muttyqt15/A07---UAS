@@ -22,7 +22,6 @@ class _ThreadScreenState extends State<ThreadScreen> {
   void initState() {
     super.initState();
     ts = ThreadService(request: context.read<CookieRequest>());
-    print("Fetching...");
     _fetchThreads(ts);
   }
 
@@ -54,9 +53,6 @@ class _ThreadScreenState extends State<ThreadScreen> {
 
   Future<void> _fetchThreads(ThreadService ts) async {
     final result = await ts.fetchThreads();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result['message'])),
-    );
     final List<dynamic> stringifiedJsonThreads =
         result['data']['threads'] ?? [];
     if (result['success']) {
@@ -139,9 +135,11 @@ class _ThreadScreenState extends State<ThreadScreen> {
         isLoading
             ? const Center(child: CircularProgressIndicator())
             : threads.isEmpty
-                ? const Text(
-                    "No threads available.",
-                    style: TextStyle(color: Colors.black),
+                ? Text(
+                    ts.request.loggedIn
+                        ? "Tidak ada thread."
+                        : "Tidak ada thread. Silahkan log in untuk membuat thread.",
+                    style: const TextStyle(color: Colors.white),
                   )
                 : Column(
                     children: threads.map((thread) {
@@ -232,7 +230,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                         if (td.authorId ==
                             ts.request.getJsonData()['data']['id'])
                           PopupMenuButton(
-                            color: Color(CONSTANTS
+                            color: const Color(CONSTANTS
                                 .licorice), // Background color for the PopupMenuButton
                             onSelected: (value) {},
                             itemBuilder: (context) => [
@@ -260,7 +258,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                               PopupMenuItem(
                                   value:
                                       'edit', // You can add a value if needed for selection
-                                  child: Text(
+                                  child: const Text(
                                     'EDIT',
                                     style: TextStyle(
                                       color: Color(CONSTANTS
@@ -285,7 +283,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                     );
                                   }),
                             ],
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.more_vert,
                               color: Color(
                                   CONSTANTS.licorice), // Icon color: Licorice
@@ -398,12 +396,12 @@ class _ThreadScreenState extends State<ThreadScreen> {
                                 if (result['success']) {
                                   // Handle the successful update, e.g., show a success message
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Liked!')),
+                                    const SnackBar(content: Text('Liked!')),
                                   );
                                   await _fetchThreads(ts);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
+                                    const SnackBar(
                                         content: Text(
                                             'Failed to update like status')),
                                   );
@@ -521,7 +519,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                       onPublish();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content: Text(
                                 'Oh no! Pastikan Anda sudah mengisi content form dengan baik.')),
                       );
@@ -550,7 +548,8 @@ class _ThreadScreenState extends State<ThreadScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12), // Rounded corners
         ),
-        backgroundColor: Color(CONSTANTS.licorice), // Dialog background color
+        backgroundColor:
+            const Color(CONSTANTS.licorice), // Dialog background color
         title: const Text(
           'DELETE THREAD',
           style: TextStyle(
@@ -581,7 +580,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
           ElevatedButton(
             onPressed: () => _deleteThread(ts, threadId),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(
+              backgroundColor: const Color(
                   CONSTANTS.dutch), // Delete button background color: Licorice
               padding: const EdgeInsets.symmetric(
                   vertical: 10, horizontal: 20), // Button padding
@@ -633,10 +632,10 @@ class _ThreadScreenState extends State<ThreadScreen> {
                   controller: ctrl,
                   maxLines: 3,
                   maxLength: 250,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       hintText: "What's changing?",
                       border: InputBorder.none,
-                      fillColor: const Color(CONSTANTS.lion),
+                      fillColor: Color(CONSTANTS.lion),
                       filled: true,
                       focusColor: Colors.transparent),
                 ),
@@ -657,7 +656,7 @@ class _ThreadScreenState extends State<ThreadScreen> {
                           ? const CircularProgressIndicator()
                           : const Text("Post Comment",
                               style: TextStyle(
-                                color: const Color(CONSTANTS.licorice),
+                                color: Color(CONSTANTS.licorice),
                               )),
                     ),
                   ],
@@ -719,13 +718,16 @@ class _ThreadScreenState extends State<ThreadScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Thread Section
-                  ts.request.loggedIn ? _buildPostCard() : const Spacer(),
+                  ts.request.loggedIn
+                      ? _buildPostCard()
+                      : const SizedBox
+                          .shrink(), // Use SizedBox.shrink() for empty space
                   const SizedBox(height: 20),
                   _buildThreads(),
                 ],
               ),
             ),
-          ),
+          )
         ],
       ),
     );

@@ -6,6 +6,8 @@ import '/services/bookmark.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class BookmarkListScreen extends StatefulWidget {
+  const BookmarkListScreen({super.key});
+
   @override
   _BookmarkListScreenState createState() => _BookmarkListScreenState();
 }
@@ -85,12 +87,12 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             "Bookmarked Restaurants",
                             style: TextStyle(
                               fontFamily: 'CrimsonPro',
@@ -99,8 +101,8 @@ class _BookmarkListScreenState extends State<BookmarkListScreen> {
                               color: Color(0xFFFFFFFF),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
+                          SizedBox(height: 8),
+                          Text(
                             "Daftar Restoran yang Telah Anda Bookmark",
                             style: TextStyle(
                               fontFamily: 'CrimsonPro',

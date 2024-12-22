@@ -1,113 +1,157 @@
 import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/models/restaurant.dart';
+
+
 
 class ReviewService {
+  final CookieRequest request;
   final String baseUrl = 'http://localhost:8000/review/flutter';
 
-  // Fetch all reviews
-  Future<List<dynamic>> fetchReviews() async {
-    final response = await http.get(Uri.parse('$baseUrl/list/'));
-    final decoded = json.decode(response.body);
+  ReviewService({required this.request});
 
-    if (response.statusCode == 200 && decoded['status'] == 'success') {
-      return decoded['data'];
+  // Fetch all restaurants
+  Future<List<Restaurant>> fetchAllRestaurants() async {
+    final response = await request.get('$baseUrl/all-restaurants/');
+    if (response != null && response is List<dynamic>) {
+      return response.map((json) {
+        final fields = json['fields'];
+        return Restaurant(
+          id: json['pk'],
+          name: fields['name'] ?? 'Unknown',
+          district: fields['district'] ?? 'Unknown',
+          address: fields['address'] ?? 'Unknown',
+          operationalHours: fields['operational_hours'] ?? 'Unknown',
+          photoUrl: fields['photo_url'] ?? '',
+        );
+      }).toList();
     } else {
-      throw Exception('Failed to load reviews: ${decoded['message'] ?? response.body}');
+      throw Exception('Failed to fetch restaurants');
     }
   }
 
-  // Fetch a single review by ID
-  Future<Map<String, dynamic>> fetchReviewDetails(int reviewId) async {
-    final response = await http.get(Uri.parse('$baseUrl/$reviewId/'));
-    final decoded = json.decode(response.body);
-
-    if (response.statusCode == 200 && decoded['status'] == 'success') {
-      return decoded['data'];
-    } else {
-      throw Exception('Failed to load review details: ${decoded['message'] ?? response.body}');
-    }
-  }
-
-  // Create a new review
-  Future<bool> createReview({
+  // Create Review
+  Future<Map<String, dynamic>> createReview({
     required int restaurantId,
     required String title,
     required String content,
     required int rating,
-    List<String>? images, 
+    Uint8List? imageBytes,
+    String? displayName,
   }) async {
-    final requestBody = {
-      "restoran_id": restaurantId,
-      "judul_ulasan": title,
-      "teks_ulasan": content,
-      "penilaian": rating,
-      "images": images ?? [],
+    // Jika belum login, login dulu (opsional - atau tangani di luar)
+    if (!request.loggedIn) {
+      final loginResp = await request.login(
+        'http://localhost:8000/auth/flogin/',
+        {
+          'username': 'testuser',
+          'password': 'testpass',
+        },
+      );
+      // Cek apakah login berhasil
+      if (loginResp['status'] != 'success' && !request.loggedIn) {
+        throw Exception('Gagal login sebelum membuat review: $loginResp');
+      }
+    }
+
+    // Encode gambar jika ada
+    String? base64Image;
+    if (imageBytes != null) {
+      base64Image = "data:image/jpeg;base64,${base64Encode(imageBytes)}";
+    }
+
+    // Data untuk request
+    final data = {
+      'restoran_id': restaurantId.toString(),
+      'judul_ulasan': title,
+      'teks_ulasan': content,
+      'penilaian': rating.toString(),
+      'display_name': displayName ?? "",
+      'image_base64': base64Image,
     };
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/create/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(requestBody),
+    // Kirim POST request (JSON)
+    final response = await request.postJson(
+      '$baseUrl/create/',
+      jsonEncode(data), 
     );
 
-    final decoded = json.decode(response.body);
-    if (response.statusCode == 200 && decoded['status'] == 'success') {
-      return true;
+    // Cek hasil response
+    if (response == null) {
+      throw Exception('Response null dari server.');
+    }
+
+    // Misal server balas {"status": "success", "message": "..."}
+    if (response['status'] == 'success') {
+      return {'success': true, 'message': response['message']};
     } else {
-      throw Exception('Failed to create review: ${decoded['message'] ?? response.body}');
+      return {'success': false, 'message': response['message']};
     }
   }
 
-  // Edit an existing review (now using POST)
+  // Edit an existing review
   Future<bool> editReview({
-    required int reviewId,
+    required String reviewId, // UUID
     String? title,
     String? content,
     int? rating,
+    String? newImageBase64, // Base64 string untuk gambar baru
   }) async {
-    final requestBody = {
-      "judul_ulasan": title,
-      "teks_ulasan": content,
-      "penilaian": rating,
-    }..removeWhere((key, value) => value == null); // Remove null fields
+    try {
+      final requestBody = {
+        "judul_ulasan": title,
+        "teks_ulasan": content,
+        "penilaian": rating?.toString(),
+        "new_image_base64": newImageBase64, // Tambahkan gambar baru jika ada
+      }..removeWhere((key, value) => value == null);
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/edit/$reviewId/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(requestBody),
-    );
+      final response = await request.postJson(
+        "$baseUrl/edit/$reviewId/", // Gunakan UUID
+        requestBody,
+      );
 
-    final decoded = json.decode(response.body);
-    if (response.statusCode == 200 && decoded['status'] == 'success') {
-      return true;
-    } else {
-      throw Exception('Failed to edit review: ${decoded['message'] ?? response.body}');
+      if (response["status"] == "success") {
+        return true;
+      } else {
+        throw Exception('Failed to edit review: ${response["message"]}');
+      }
+    } catch (e) {
+      throw Exception('Error editing review: $e');
     }
   }
 
-  // Delete a review
-  Future<bool> deleteReview(int reviewId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/delete/$reviewId/'),
-      headers: {'Content-Type': 'application/json'},
-    );
 
-    final decoded = json.decode(response.body);
-    if (response.statusCode == 200 && decoded['status'] == 'success') {
-      return true;
-    } else {
-      throw Exception('Failed to delete review: ${decoded['message'] ?? response.body}');
-    }
-  }
+  // Delete a review with CSRF token and session cookie
+  Future<bool> deleteReview(String reviewId, String csrfToken, String sessionId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/delete/$reviewId/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+          'Cookie': 'sessionid=$sessionId',
+        },
+      );
 
-  // Like/Unlike a review
-  Future<Map<String, dynamic>> likeReview(int reviewId) async {
-    final response = await http.post(Uri.parse('$baseUrl/like/$reviewId/'));
-    final decoded = json.decode(response.body);
-    if (response.statusCode == 200 && decoded['status'] == 'success') {
-      return decoded;
-    } else {
-      throw Exception('Failed to like/unlike review: ${decoded['message'] ?? response.body}');
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        if (decoded['status'] == 'success') {
+          return true;
+        } else {
+          throw Exception('Failed to delete review: ${decoded['message']}');
+        }
+      } else if (response.statusCode == 403) {
+        throw Exception('Forbidden: You are not authorized to delete this review.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Review not found.');
+      } else {
+        throw Exception('Error deleting review: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error deleting review: $e');
     }
   }
 }

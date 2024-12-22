@@ -11,7 +11,7 @@ class NewsOwnerServices {
     const url = '${CONSTANTS.baseUrl}/news/show_berita_by_owner/';
     try {
       final response = await request.get(url);
-      // print('Raw response: $response');
+      print('Raw response: $response');
       final List<dynamic> data = response;
       return data.map((json) => News.fromJson(json)).toList();
     } catch (e) {
@@ -43,7 +43,7 @@ class NewsOwnerServices {
         if (response['status'] != 200) {
           throw Exception('Failed to add news: ${response['message']}');
         }
-        print("DEBUG: News successfully added with file converted to base64.");
+        // print("DEBUG: News successfully added with file converted to base64.");
       } else if (imageBytes != null) {
         // Encode Uint8List to base64
         String base64Image = base64Encode(imageBytes);
@@ -54,12 +54,12 @@ class NewsOwnerServices {
         if (response['status'] != 200) {
           throw Exception('Failed to add news: ${response['message']}');
         }
-        print("DEBUG: News successfully added with base64 image.");
+        // print("DEBUG: News successfully added with base64 image.");
       } else {
         throw Exception('No image provided.');
       }
     } catch (e) {
-      print("ERROR: Failed to add news: $e");
+      // print("ERROR: Failed to add news: $e");
       rethrow;
     }
   }
@@ -87,7 +87,7 @@ class NewsOwnerServices {
         if (response['status'] != 200) {
           throw Exception('Failed to edit news: ${response['message']}');
         }
-        print("DEBUG: News successfully edited with imageFile as base64.");
+        // print("DEBUG: News successfully edited with imageFile as base64.");
       } else if (imageBytes != null) {
         // Encode Uint8List ke base64
         String base64Image = base64Encode(imageBytes);
@@ -98,17 +98,17 @@ class NewsOwnerServices {
         if (response['status'] != 200) {
           throw Exception('Failed to edit news: ${response['message']}');
         }
-        print("DEBUG: News successfully edited with imageBytes.");
+        // print("DEBUG: News successfully edited with imageBytes.");
       } else {
         // Jika tidak ada gambar baru
         final response = await request.post(url, fields);
         if (response['status'] != 200) {
           throw Exception('Failed to edit news: ${response['message']}');
         }
-        print("DEBUG: News successfully edited without new image.");
+        // print("DEBUG: News successfully edited without new image.");
       }
     } catch (e) {
-      print("ERROR: Failed to edit news: $e");
+      // print("ERROR: Failed to edit news: $e");
       rethrow;
     }
   }
@@ -118,7 +118,7 @@ class NewsOwnerServices {
     final url = '${CONSTANTS.baseUrl}/news/fdelete_berita/$id/';
     try {
       final response = await request.get(url);
-      print('Response: $response');
+      // print('Response: $response');
       // Periksa apakah respons adalah JSON
       if (response != null && response is Map<String, dynamic>) {
         if (response['status'] != 200) {

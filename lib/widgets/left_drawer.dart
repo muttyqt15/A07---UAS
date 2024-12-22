@@ -63,7 +63,7 @@ class LeftDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      isLoggedIn ? ProfilePage() : const LoginPage(),
+                      isLoggedIn ? const ProfilePage() : const LoginPage(),
                 ),
               );
             },
@@ -89,7 +89,7 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LandingPage(),
+                  builder: (context) => const LandingPage(),
                 ),
               );
             },
@@ -121,7 +121,7 @@ class LeftDrawer extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MainBeritaScreen(),
+                      builder: (context) => const MainBeritaScreen(),
                     ),
                   );
                 } else {
@@ -141,7 +141,7 @@ class LeftDrawer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BookmarkListScreen(),
+                    builder: (context) => const BookmarkListScreen(),
                   ),
                 );
               },

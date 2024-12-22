@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/foundation.dart';
 class ModalAddBerita extends StatefulWidget {
   final Function(Map<String, dynamic>, File?, Uint8List?) onAdd;
 
-  ModalAddBerita({super.key, required this.onAdd});
+  const ModalAddBerita({super.key, required this.onAdd});
 
   @override
   _ModalAddBeritaState createState() => _ModalAddBeritaState();
@@ -88,10 +87,10 @@ class _ModalAddBeritaState extends State<ModalAddBerita> {
         );
         Navigator.of(context).pop();
       } catch (e) {
-        print('Error adding news in ModalAddBerita: $e');
+        // print('Error adding news in ModalAddBerita: $e');
       }
     } else {
-      print("Form validation failed");
+      // print("Form validation failed");
     }
   }
 

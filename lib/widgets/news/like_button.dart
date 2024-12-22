@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '/services/news/news_owner_services.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+
+import '/services/news/news_owner_services.dart';
 
 class LikeButton extends StatefulWidget {
   final String beritaId;
@@ -10,12 +11,12 @@ class LikeButton extends StatefulWidget {
   final VoidCallback? onToggleLikeComplete; // Tambahkan parameter baru
 
   const LikeButton({
-    Key? key,
+    super.key,
     required this.beritaId,
     required this.isLiked,
     required this.initialLikes,
     this.onToggleLikeComplete, // Inisialisasi parameter
-  }) : super(key: key);
+  });
 
   @override
   _LikeButtonState createState() => _LikeButtonState();
@@ -77,7 +78,6 @@ class _LikeButtonState extends State<LikeButton> {
         }
       }
     } catch (e) {
-      print('Error toggling like: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -91,9 +91,9 @@ class _LikeButtonState extends State<LikeButton> {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: _isLoading ? null : _handleLike,
-      icon: Icon(
+      icon: const Icon(
         Icons.thumb_up_alt_outlined,
-        color: const Color(0xFF5F4D40),
+        color: Color(0xFF5F4D40),
       ),
       label: Text(
         '$_likesCount Likes',

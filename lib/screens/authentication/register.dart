@@ -1,15 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:uas/main.dart';
 import 'package:uas/screens/authentication/login.dart';
-import 'package:uas/screens/authentication/register.dart';
-import 'package:uas/screens/landing.dart';
-import 'package:uas/screens/thread/thread.dart';
 import 'package:uas/widgets/left_drawer.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -25,31 +24,31 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final request = context.read<CookieRequest>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-    void _handleSignup() async {
-      if (_formKey.currentState!.validate()) {
+    void handleSignup() async {
+      if (formKey.currentState!.validate()) {
         // Proceed with signup logic
-        final response =
-            await request.post("${CONSTANTS.baseUrl}/auth/signup/", {
+        final data = {
           'username': _usernameController.text.trim(),
           'password1': _password1Controller.text.trim(),
           'password2': _password2Controller.text.trim(),
           'role': _role, // Send the selected role
-        });
-
-        if (response['success']) {
-          String message = response['message'];
+        };
+        final response = await request.postJson(
+            "${CONSTANTS.baseUrl}/auth/fsignup/", jsonEncode(data));
+        if (response['status']) {
           if (context.mounted) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => LandingPage()),
+              MaterialPageRoute(builder: (context) => const LoginPage()),
             );
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(
-                SnackBar(content: Text("$message")),
+                const SnackBar(
+                    content: Text("Berhasil membuat akun! Silahkan log in.")),
               );
           }
         } else {
@@ -71,9 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           }
         }
-        print('Signup successful');
       } else {
-        print('Validation failed');
       }
     }
 
@@ -107,7 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 padding: const EdgeInsets.all(20.0),
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: Color(CONSTANTS.dutch),
+                  color: const Color(CONSTANTS.dutch),
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
@@ -118,7 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ],
                 ),
                 child: Form(
-                  key: _formKey, // Attach Form key
+                  key: formKey, // Attach Form key
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -230,7 +227,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       const SizedBox(height: 15),
                       ElevatedButton(
-                        onPressed: _handleSignup, // Call signup handler
+                        onPressed: handleSignup, // Call signup handler
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(CONSTANTS.licorice),
                           padding: const EdgeInsets.symmetric(
