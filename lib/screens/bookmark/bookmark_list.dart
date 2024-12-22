@@ -7,8 +7,6 @@ import 'package:uas/services/bookmark.dart';
 class BookmarkListScreen extends StatefulWidget {
   const BookmarkListScreen({super.key});
 
-  const BookmarkListScreen({super.key});
-
   @override
   _BookmarkListScreenState createState() => _BookmarkListScreenState();
 }
