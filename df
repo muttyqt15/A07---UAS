@@ -1,0 +1,294 @@
+[33mcommit ababa0e15242cc83fcfa8a31bf8cbc769d749d7b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/news[m[33m, [m[1;31morigin/feat/news[m[33m)[m
+Merge: 7e06430 409cb1b
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Sun Dec 22 00:51:43 2024 +0700
+
+    Merge branch 'main' of https://github.com/muttyqt15/A07_UAS into feat/news
+
+[33mcommit 7e06430e4c5a909b398714e71e97881e91fad2fd[m
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Sun Dec 22 00:51:17 2024 +0700
+
+    update ketika berita kosong
+
+[33mcommit 409cb1b2156abf1243b5c1cb5e361082b9e0a62b[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 20:51:53 2024 +0700
+
+    kaboom!
+
+[33mcommit ad402ae316deee0545cdaf0e3232b1201cf8b4a8[m
+Merge: 1a067ac fd24e60
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 20:38:34 2024 +0700
+
+    integ bookmark
+
+[33mcommit 1a067ac1d5998ea69f1a45dac02165e9353fe997[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 19:08:47 2024 +0700
+
+    integ
+
+[33mcommit 0f95fca3c63afe5fc88c63013d9aca3096ef8ade[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 18:32:25 2024 +0700
+
+    merge, and change to main base url
+
+[33mcommit 4f8e0beb6477360fa85200ba0dade057034197ee[m
+Merge: e2dbd24 f38a765
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 18:21:38 2024 +0700
+
+    Merge branch 'feat/news' of https://github.com/muttyqt15/A07_UAS
+
+[33mcommit e2dbd24d41a9b9d34d84f3e8b8b66446ab48816b[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 17:55:03 2024 +0700
+
+    kaboom
+
+[33mcommit a28daea15364e785e2d132554d7cba8ac05f1bea[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sat Dec 21 15:41:34 2024 +0700
+
+    kabom
+
+[33mcommit fd24e6070b65db21568b96f5d1fca2a70584c89f[m
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Sat Dec 21 07:31:28 2024 +0700
+
+    done
+
+[33mcommit de84ab774f3af5a1c5ddee2d32ca10b8d0cebc1d[m
+Merge: 8e98ce3 f4c55a5
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Fri Dec 20 22:35:16 2024 +0700
+
+    anjasss hampir kelar
+
+[33mcommit f38a765336b4bfb3b8b3c54d3354be381d9c8104[m
+Merge: 325008c f4c55a5
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Fri Dec 20 00:58:42 2024 +0700
+
+    update add and edit image
+
+[33mcommit 2f8e58a2e1c3dc6a6af4c3b7366a9148bca5dfd3[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Thu Dec 19 23:11:49 2024 +0700
+
+    crud comments and threaD
+
+[33mcommit e2c957fd263cb2a935f61f53c364bee88bb6cb35[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Thu Dec 19 18:37:24 2024 +0700
+
+    migrate to thread service
+
+[33mcommit de48084d4a5acf49982e4ab8ceba63e47a29617e[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Thu Dec 19 17:27:48 2024 +0700
+
+    fix: image uploads
+
+[33mcommit 325008c383625d0dfc423ad3906cff8d9df25ad1[m
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Thu Dec 19 16:36:18 2024 +0700
+
+    update add and edit
+
+[33mcommit 8e98ce30ebf502e2bd28ee7aa80840148c06e0a4[m
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Wed Dec 18 15:58:35 2024 +0700
+
+    progress
+
+[33mcommit f4c55a535fa6f92827564be9296ca5d8c5b81baf[m
+Merge: 63f6d51 34180b8
+Author: Fadiansah Feryan Fatha <62086713+rigelia@users.noreply.github.com>
+Date:   Mon Dec 16 21:58:54 2024 +0700
+
+    Merge pull request #2 from muttyqt15/feat/restaurant
+    
+    Feat/restaurant
+
+[33mcommit 34180b8e400c6af16ea0f00aeddd5ee8c38046e7[m
+Merge: 5d15756 63f6d51
+Author: rigelia <f3atha04@gmail.com>
+Date:   Mon Dec 16 21:57:20 2024 +0700
+
+    Merge branch 'main' of https://github.com/muttyqt15/A07_UAS into feat/restaurant
+
+[33mcommit 5d15756aa4fe186e375d085992ace32994855e88[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Mon Dec 16 21:50:25 2024 +0700
+
+    added add and edit restaurant page (non functional)
+
+[33mcommit d99def283e73ba642c80507d6b79d75a03913742[m
+Merge: 0107a9e b87fba0
+Author: rigelia <f3atha04@gmail.com>
+Date:   Mon Dec 16 09:56:31 2024 +0700
+
+    added factory for reviews
+
+[33mcommit 63f6d51b71b15f3902f898dc6a40a31d0540048f[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Mon Dec 16 00:36:04 2024 +0700
+
+    kabomo!
+
+[33mcommit bee5001e3f270c621d2e6f8a42116ca98c0e8261[m
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Sun Dec 15 23:39:21 2024 +0700
+
+    tambahan
+
+[33mcommit 2a5894ca1ae48283301cf40ec987a69c383e31aa[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sun Dec 15 23:34:05 2024 +0700
+
+    thread crud
+
+[33mcommit d5b26835da58272876934d12befb915e8cf5a5c9[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Sun Dec 15 22:50:48 2024 +0700
+
+    t
+
+[33mcommit 0107a9e291d320cfd36f6934493f3b4f0f9de1df[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Sat Dec 14 15:35:20 2024 +0700
+
+    should be styling left
+
+[33mcommit 48f3ab4e6195da4018d631cc2af850de52448269[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Sat Dec 14 14:35:13 2024 +0700
+
+    restaurant review images work now
+
+[33mcommit afc2c57623dbf896034c1fe87472a7619ef37ba5[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Fri Dec 13 17:04:28 2024 +0700
+
+    added menu and food models
+
+[33mcommit 2bcec00da987dfe8b990d64fbced756c2fa949d8[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Mon Dec 9 14:42:05 2024 +0700
+
+    basic resto page
+
+[33mcommit bb683cb420944db12881618b638b8fcc5589767b[m
+Merge: 816a3fe a8f57b1
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Mon Dec 9 13:34:47 2024 +0700
+
+    delete, add, edit
+
+[33mcommit 6619b8d6d7277233fc89971b840190a98a4cd33a[m
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Mon Dec 9 13:33:29 2024 +0700
+
+    Progress
+
+[33mcommit 35e4a5ea448689d002428c70aa68cfe78291f576[m
+Author: muttyqt15 <hayaye69@gmail.com>
+Date:   Mon Dec 9 13:16:26 2024 +0700
+
+    thread
+
+[33mcommit 8b2de4fcf6e8b0d89dcf575dc7ac5d452d4544b9[m
+Merge: 128c8f5 b87fba0
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Wed Dec 4 14:34:13 2024 +0700
+
+    Merge branch 'main' of https://github.com/muttyqt15/A07_UAS
+
+[33mcommit 128c8f5d6dc50c3f69a1cceb330fe9805f0390f3[m
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Wed Dec 4 14:08:56 2024 +0700
+
+    Tambah Profile
+
+[33mcommit b87fba06ac47666007f96df35da8113a08ddf684[m
+Author: Delya04 <adellyaa04@gmail.com>
+Date:   Mon Dec 2 14:46:58 2024 +0700
+
+    add drawer
+
+[33mcommit 8b9798cc0686bcaa77183741574cdefcb7e83317[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Mon Dec 2 14:46:12 2024 +0700
+
+    restaurant start
+
+[33mcommit 2ae0600b7cb8e8f8ba3282f12be7cd0585cc835d[m
+Merge: b8a3287 a8f57b1
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Mon Dec 2 14:35:23 2024 +0700
+
+    tes
+
+[33mcommit b8a32876b720ebd32a29accffa921590404a1c33[m
+Author: CrysandyaVic <crysandya.vic@ui.ac.id>
+Date:   Mon Dec 2 14:33:47 2024 +0700
+
+    pik first try
+
+[33mcommit 816a3fedc2a0f17aa871c0d028528067926876aa[m
+Merge: 9a4d287 2e58aef
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Mon Dec 2 14:16:15 2024 +0700
+
+    update
+
+[33mcommit a8f57b1e519b327bc390015c2dd1afc417a26186[m
+Author: Delya04 <adellyaa04@gmail.com>
+Date:   Mon Dec 2 14:15:29 2024 +0700
+
+    boom
+
+[33mcommit 9a4d2876b0d50105ba50c54655d11815979ca997[m
+Author: asyersamuel <asyer.marpaung@gmail.com>
+Date:   Mon Dec 2 13:50:59 2024 +0700
+
+    news
+
+[33mcommit 2e58aef6a042188d294567ecf5cfa2c94fba582f[m
+Author: Delya04 <adellyaa04@gmail.com>
+Date:   Mon Dec 2 13:49:21 2024 +0700
+
+    fix
+
+[33mcommit cbf9917163a1b64e3818f50e44edf4bcdf33d5a5[m
+Author: Delya04 <adellyaa04@gmail.com>
+Date:   Mon Dec 2 13:42:31 2024 +0700
+
+    add pt2
+
+[33mcommit 5d88a3f3ecba49cda6220076794265ac3a1600b0[m
+Author: Delya04 <adellyaa04@gmail.com>
+Date:   Mon Dec 2 13:38:33 2024 +0700
+
+    add http package
+
+[33mcommit 1b539b5bd52fc93559d0cfba97c5d7c8ef91ea8d[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Sat Nov 30 21:32:54 2024 +0700
+
+    functional landing page
+
+[33mcommit 42d9bf88b8f1f203cfe66b7c558db5f8946e978a[m
+Merge: 33dede0 35c0ad0
+Author: rigelia <f3atha04@gmail.com>
+Date:   Wed Nov 27 19:28:12 2024 +0700
+
+    Merge branch 'main' of https://github.com/muttyqt15/A07_UAS into feat/landing
+
+[33mcommit 33dede0d4e0860176e5132ee7f0b251c48a68c72[m
+Author: rigelia <f3atha04@gmail.com>
+Date:   Wed Nov 27 19:27:54 2024 
