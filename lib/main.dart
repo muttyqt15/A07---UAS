@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Mental Health Tracker',
+        title: 'Mangan Solo',
         theme: ThemeData(
           fontFamily: 'CrimsonPro',
           fontFamilyFallback: const ['Lora', 'CrimsonPro', 'CrimsonText'],

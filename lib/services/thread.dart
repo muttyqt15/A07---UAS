@@ -16,9 +16,9 @@ class ThreadService {
       Future<Map<String, dynamic>> response) async {
     try {
       final res = await response;
-      if (res.containsKey('error')) {
+      if (!res['success']) {
         return {
-          'message': res['error'],
+          'message': res['message'],
           'data': null,
           'success': false,
         };
