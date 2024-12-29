@@ -1,8 +1,9 @@
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/main.dart';
 import '../models/bookmark.dart';
 
 class BookmarkService {
-  static const String baseUrl = "http://localhost:8000";
+  static const String baseUrl = CONSTANTS.baseUrl;
 
   // Fetch bookmarks from the backend
   Future<List<Bookmark>> fetchBookmarks(CookieRequest request) async {
@@ -23,7 +24,7 @@ class BookmarkService {
 
   // Delete a bookmark by its ID
   static Future<bool> deleteBookmark(CookieRequest request, int bookmarkId) async {
-    final String url = 'http://localhost:8000/bookmark/delete/$bookmarkId/';
+    final String url = '$baseUrl/bookmark/delete/$bookmarkId/';
     try {
       final response = await request.post(url, {});
 

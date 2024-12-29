@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:uas/main.dart';
 
 class ModalEditReview extends StatefulWidget {
   final String reviewId;
@@ -99,7 +100,7 @@ class _ModalEditReviewState extends State<ModalEditReview> {
 
     try {
       final response = await request.postJson(
-        "http://localhost:8000/review/flutter/edit/${widget.reviewId}/",
+        "${CONSTANTS.baseUrl}/review/flutter/edit/${widget.reviewId}/",
         jsonEncode(body),
       );
 

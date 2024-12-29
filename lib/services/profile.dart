@@ -58,13 +58,14 @@
 // }
 
 import 'dart:convert';
+import 'package:uas/main.dart';
 import 'package:uas/models/profile.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class ApiService {
   Future<Profile> fetchProfile(CookieRequest request) async {
     try{
-      final response = await request.get('http://localhost:8000/profile/fetch_profile/');
+      final response = await request.get('${CONSTANTS.baseUrl}/profile/fetch_profile/');
     // print('Response status: ${response.statusCode}');
       final data = jsonDecode(response.body);
       if (data['success']) {

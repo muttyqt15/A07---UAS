@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:uas/main.dart';
 import 'package:uas/models/review.dart';
 import 'package:uas/screens/review/create_form.dart';
 import 'package:uas/services/review_service.dart';
@@ -40,7 +41,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
 
     try {
       final request = context.read<CookieRequest>();
-      final response = await request.get('http://localhost:8000/review/flutter/user-reviews/');
+      final response = await request.get('${CONSTANTS.baseUrl}/review/flutter/user-reviews/');
       setState(() {
         _reviewList = (response['data'] as List)
             .map((data) => Review.fromJson(data))
@@ -61,7 +62,7 @@ class _MainReviewPageState extends State<MainReviewPage> {
   Future<void> deleteReview(String reviewId) async {
     try {
       final response = await _reviewService.request.post(
-        'http://localhost:8000/review/flutter/delete/$reviewId/',
+        '${CONSTANTS.baseUrl}/review/flutter/delete/$reviewId/',
         jsonEncode({}),
       );
 

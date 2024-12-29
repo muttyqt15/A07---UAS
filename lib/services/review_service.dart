@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:uas/main.dart';
 import 'package:uas/models/restaurant.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
@@ -9,7 +10,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class ReviewService {
   final CookieRequest request;
-  final String baseUrl = 'http://localhost:8000/review/flutter';
+  final String baseUrl = '${CONSTANTS.baseUrl}/review/flutter';
 
   ReviewService({required this.request});
 
@@ -45,7 +46,7 @@ class ReviewService {
     // Jika belum login, login dulu (opsional - atau tangani di luar)
     if (!request.loggedIn) {
       final loginResp = await request.login(
-        'http://localhost:8000/auth/flogin/',
+        '${CONSTANTS.baseUrl}/auth/flogin/',
         {
           'username': 'testuser',
           'password': 'testpass',

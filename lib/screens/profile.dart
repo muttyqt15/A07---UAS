@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uas/main.dart';
 import 'package:uas/models/profile.dart';
 // import 'package:uas/services/profile.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -25,7 +26,7 @@ late Future<Profile> futureProfile;
   Future<Profile> fetchProfile() async {
     final request = context.read<CookieRequest>();
     final res =
-          await request.get("http://localhost:8000/profile/fetch_profile/");
+          await request.get("${CONSTANTS.baseUrl}/profile/fetch_profile/");
       var data = res;
       print('Raw PROFILE response: $res'); // Debug print
 
@@ -35,7 +36,7 @@ late Future<Profile> futureProfile;
 
   Future<void> editProfile(CookieRequest request, String newBio) async {
     final response = await request.post(
-      "http://localhost:8000/profile/edit_profile_flutter/",
+      "${CONSTANTS.baseUrl}/profile/edit_profile_flutter/",
       jsonEncode({'bio': newBio}),
     );
 
@@ -55,7 +56,7 @@ late Future<Profile> futureProfile;
 
   Future<void> deleteAccount(CookieRequest request) async {
     final response = await request.post(
-      "http://localhost:8000/profile/delete_account_flutter/",
+      "${CONSTANTS.baseUrl}/profile/delete_account_flutter/",
       jsonEncode({}),
     );
 
@@ -76,7 +77,7 @@ late Future<Profile> futureProfile;
 
   Future<void> editProfilePicture(CookieRequest request, String profilePicUrl) async {
     final response = await request.post(
-      "http://localhost:8000/profile/edit_profile_picture_flutter/",
+      "${CONSTANTS.baseUrl}/profile/edit_profile_picture_flutter/",
       jsonEncode({'profile_pic_url': profilePicUrl}),
     );
 
